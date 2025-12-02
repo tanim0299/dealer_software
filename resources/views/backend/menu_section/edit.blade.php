@@ -1,11 +1,11 @@
 @extends('backend.layouts.master')
-@section('title','Create Menu Section')
+@section('title','Edit Menu Section')
 @section('content')
  <div class="container">
     <div class="page-inner">
         <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Create Menu Section'])
+            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Edit Menu Section'])
             <div class="ms-md-auto py-2 py-md-0">
                 <a href="{{route('menu_section.index')}}" class="btn btn-label-info btn-round me-2">View</a>
             </div>
@@ -14,8 +14,8 @@
             <div class="card">
                 <div class="card-body">
                     @include('backend.menu_section.form',[
-                        'route'=>route('menu_section.store'),
-                        'buttonText'=>'Create Section'
+                        'route' => route('menu_section.update',$data->id),
+                        'method' => 'PUT'
                     ])
                 </div>
             </div>

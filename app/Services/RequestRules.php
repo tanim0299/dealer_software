@@ -4,17 +4,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
-    public static function menuSectionRules($request)
+    
+    public static function menuSectionRules($request, $id = null)
     {
-        $isUpdate = !empty($request->id);
+        $isUpdate = !empty($id);
 
         $rules = [
             'sl' => $isUpdate
-                ? 'required|integer'
+                ? 'required|integer|unique:menu_sections,sl,' . $id
                 : 'required|integer|unique:menu_sections,sl',
 
             'name' => $isUpdate
-                ? 'required|string|max:255'
+                ? 'required|string|max:255|unique:menu_sections,name,' . $id
                 : 'required|string|max:255|unique:menu_sections,name',
 
             'status' => 'required|in:0,1',
@@ -35,7 +36,8 @@ class RequestRules{
         return [$rules, $messages];
     }
 
-   
+
+
 
     public static function validate($input, $rules, $messages){
         $status_code = $status_message = $error_message = null;
