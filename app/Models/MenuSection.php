@@ -15,4 +15,13 @@ class MenuSection extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'Inactive',
     ];
+
+    public function createMenuSection($request)
+    {
+        $this->sl = $request->sl;
+        $this->name = $request->name;
+        $this->status = $request->status;
+        $this->save();
+        return $this;
+    }
 }

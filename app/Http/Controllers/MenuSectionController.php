@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiService;
 use App\Services\MenuSectionService;
 use Illuminate\Http\Request;
 
@@ -28,9 +29,19 @@ class MenuSectionController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        // dd($request->all());  
+    { 
         [$status_code, $status_message , $error_message] = (new MenuSectionService())->storeMenuSection($request);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('menu_sections.index')
+                ->with('success', $status_message);
+        }
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors($error_message) // must be an array of field → messages
+            ->with('error', $status_message);
+
           
     }
 
