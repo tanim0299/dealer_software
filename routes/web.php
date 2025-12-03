@@ -24,4 +24,8 @@ Route::middleware('auth')->group(function () {
 
 });
 
+
+//menu section
+Route::post('menu_section_status', [MenuSectionController::class, 'status'])->name('menu_section.status');
+
 require __DIR__.'/auth.php';

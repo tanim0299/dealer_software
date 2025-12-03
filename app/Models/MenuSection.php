@@ -72,4 +72,14 @@ class MenuSection extends Model
         return $query;
     }
 
+    public function updateStatus()
+    {
+        $this->status = $this->status == self::STATUS_ACTIVE
+            ? self::STATUS_INACTIVE
+            : self::STATUS_ACTIVE;
+
+        return $this->save();
+    }
+
+
 }

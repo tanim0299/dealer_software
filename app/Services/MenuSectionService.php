@@ -115,4 +115,21 @@ class MenuSectionService
         return [$status_code, $status_message];
     }
 
+    public function updateMenuSectionStatus($id)
+    {
+        try {
+            MenuSection::updateStatus($id);
+
+            return [
+                ApiService::API_SUCCESS,
+                'Status Updated Successfully'
+            ];
+        } catch (\Throwable $th) {
+            return [
+                ApiService::API_SERVER_ERROR,
+                $th->getMessage()
+            ];
+        }
+    }
+
 }
