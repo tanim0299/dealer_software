@@ -17,9 +17,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resources([
-        'menu_section' => MenuSectionController::class, 
+        'menu_section' => MenuSectionController::class,
     ]);
 
 });
+
+
+//menu section
+Route::post('menu_section_status', [MenuSectionController::class, 'status'])->name('menu_section.status');
 
 require __DIR__.'/auth.php';

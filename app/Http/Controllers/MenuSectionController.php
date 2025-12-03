@@ -107,4 +107,15 @@ class MenuSectionController extends Controller
             ->with('error', $status_message);
     }
 
+    public function status(Request $request)
+    {
+        [$status_code, $status_message] = (new MenuSectionService())->updateMenuSectionStatus($request->id);
+
+        return response()->json([
+            'status_code' => $status_code,
+            'status_message' => __($status_message),
+            'message_type' => $status_code == ApiService::API_SUCCESS ? 'success' : 'error'
+        ]);
+    }
+
 }
