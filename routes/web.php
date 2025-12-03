@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BackendController;
+use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MenuSectionController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resources([
-        'menu_section' => MenuSectionController::class,
+        'menu_section' => MenuSectionController::class, 
+        'menu' => MenuController::class,
     ]);
 
 });
