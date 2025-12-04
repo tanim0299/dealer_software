@@ -18,7 +18,12 @@
             <div class="mb-3">
                 <label for="section_id" class="form-label">Select Section</label><span class="text-danger">*</span>
                 <select class="form-select @error('section_id') is-invalid @enderror" id="section_id" name="section_id">
-                    
+                    <option value="">Chose One</option>
+                    @forelse($sections as $section)
+                        <option value="{{ $section->id }}" @if(old('section_id')==$section->id) selected @endif>{{ $section->name }}</option>
+                    @empty
+                        <option value="">No Section Found</option>
+                    @endforelse
                 </select>
                 @error('status')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -83,7 +88,17 @@
         </div>
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
+                <label for="icon" class="form-label">Icon</label> <span class="text-danger">*</span>
+                <input type="text" class="form-control @error('icon') is-invalid @enderror" id="icon" name="icon"
+                    placeholder="" value="{{ old('icon') }}">
+                @error('icon')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-4 col-12">
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label> <span class="text-danger">*</span>
                 <select class="form-select @error('status') is-invalid @enderror" id="status" name="status">
                     @foreach(\App\Models\Menu::STATUS as $key => $value)
                         <option value="{{ $key }}" @if(old('status')==$key) selected @endif>{{ $value }}</option>
@@ -94,6 +109,34 @@
                 @enderror
             </div>
         </div>
+        <div class="col-md-4 col-lg-4 col-12">
+            <div class="mb-3">
+                <label for="type" class="form-label">Type</label><span class="text-danger">*</span> 
+                <select class="form-select @error('type') is-invalid @enderror" id="type" name="type">
+                    <option value="">Chose One</option>
+                    @foreach(\App\Models\Menu::TYPE as $key => $value)
+                        <option value="{{ $key }}" @if(old('type')==$key) selected @endif>{{ $value }}</option>
+                    @endforeach
+                </select>
+                @error('type')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <div class="col-12">
+            <b>Permissions :</b><br>
+            <div class="card">
+                <div class="card-body">
+                    @foreach($permissions as $permission)
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="permission_{{ $permission->id }}" name="permissions[]" value="{{ $permission->name }}"
+                            @if(is_array(old('permissions')) && in_array($permission->id, old('permissions'))) checked @endif>
+                            <label class="form-check-label" for="permission_{{ $permission->id }}">{{ $permission->name }}</label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
     </div>
     @if(isset($buttonText))
         <button type="submit" class="btn btn-primary">{{ $buttonText }}</button>
@@ -101,3 +144,24 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     @endif
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const typeSelect = document.getElementById('type');
+        const permissionCheckboxes = document.querySelectorAll('input[name="permissions[]"]');
+
+        function updatePermissions() {
+            const selectedType = typeSelect.value;
+
+            permissionCheckboxes.forEach(ch => {
+                if (selectedType != '1' && selectedType !== '') {
+                    ch.checked = true;   // auto select
+                } else {
+                    ch.checked = false;  // unselect
+                }
+            });
+        }
+
+        typeSelect.addEventListener('change', updatePermissions);
+    });
+</script>

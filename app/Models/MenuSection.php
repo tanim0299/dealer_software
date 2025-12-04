@@ -23,6 +23,10 @@ class MenuSection extends Model
         {
             $query = $query->where('name','like','%'.$search['free_text'].'%');
         }
+        if(!empty($search['status']))
+        {
+            $query = $query->where('status',$search['status']);
+        }
         if($is_paginate)
         {
             $query =  $query->paginate(10);

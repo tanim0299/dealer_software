@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\Models\Permission;
 
 class Menu extends Model
 {
@@ -36,9 +38,22 @@ class Menu extends Model
         return $this->hasMany(Menu::class, 'parent_id');
     }
 
+    public function menuSection()
+    {
+        return $this->belongsTo(MenuSection::class, 'menu_section_id');
+    }   
+
     public function getMenuList($search = [], $is_paginate = true, $is_relation = true)
     {
         $query = self::query();
+
+        if (isset($search['free_text']) && $search['free_text'] != '') {
+            $query->where('name', 'like', '%' . $search['free_text'] . '%')
+            ->orWhere('system_name', 'like', '%' . $search['free_text'] . '%')
+            ->orWhere('route', 'like', '%' . $search['free_text'] . '%')
+            ->orWhere('slug', 'like', '%' . $search['free_text'] . '%')
+            ->orWhere('icon', 'like', '%' . $search['free_text'] . '%');
+        }
 
         if (isset($search['status']) && $search['status'] != '') {
             $query->where('status', $search['status']);
@@ -57,5 +72,35 @@ class Menu extends Model
         } else {
             return $query->get();
         }
+    }
+
+    public function createMenuWithPermission($request)
+    {
+        $preparedData = [
+            'sl' => $request->sl,
+            'name' => $request->name,
+            'menu_section_id' => $request->section_id,
+            'status' => $request->status,
+            'type' => $request->type,
+            'parent_id' => $request->type != self::TYPE_PARENT ? $request->parent_id : null,
+            'system_name' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->system_name : null,
+            'route' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->route : null,
+            'slug' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->slug : null,
+            'icon' => $request->type != self::TYPE_CHILD ? $request->icon : null,
+        ];
+        $menu = self::create($preparedData);
+
+        if($request->type != self::TYPE_PARENT)
+        {
+            Artisan::call('cache:forget spatie.permission.cache');
+            for ($i = 0; $i < count($request->permissions); $i++) {
+                Permission::create([
+                    'name' => $request->system_name . ' ' . $request->permissions[$i],
+                    'guard_name' => 'web',
+                    'parent' => $request->system_name,
+                ]);
+            }
+        }
+        return $menu;
     }
 }

@@ -36,6 +36,69 @@ class RequestRules{
         return [$rules, $messages];
     }
 
+    public static function menuRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+        $rules = [
+            'sl' => $isUpdate
+                ? 'required|integer|unique:menus,sl,' . $id
+                : 'required|integer|unique:menus,sl',
+
+            'name' => 'required|string|max:255',
+            'section_id' => 'required',
+            'status' => 'required|in:0,1',
+            'type' => 'required|in:1,2,3',
+        ];
+
+        if($request->type == \App\Models\Menu::TYPE_PARENT)
+        {
+            $rules['icon'] = 'required|string|max:255';
+        }
+        elseif($request->type == \App\Models\Menu::TYPE_CHILD)
+        {
+            $rules['parent_id'] = 'required';
+            $rules['system_name'] = 'required|string|max:255';
+            $rules['route'] = 'required|string|max:255';
+            $rules['slug'] = 'required';
+        }
+        else // TYPE_SINGLE
+        {
+            $rules['system_name'] = 'required|string|max:255';
+            $rules['route'] = 'required|string|max:255';
+            $rules['slug'] = 'required';
+            $rules['icon'] = 'nullable|string|max:255';
+        }
+
+        $messages = [
+            'sl.required' => 'SL is required.',
+            'sl.integer' => 'SL must be an integer.',
+            'sl.unique' => 'SL must be unique.',
+            'name.required' => 'Menu name is required.',
+            'name.string' => 'Menu name must be a string.',
+            'name.max' => 'Menu name may not be greater than 255 characters.',
+            'section_id.required' => 'Section is required.',
+            'status.required' => 'Status is required.',
+            'status.in' => 'Status must be either 0 (inactive) or 1 (active).',
+            'type.required' => 'Type is required.',
+            'type.in' => 'Type must be one of the following values: 1 (Parent Menu), 2 (Child Menu), 3 (Single Menu).',
+            'parent_id.required' => 'Parent menu is required for Parent and Child menu types.',
+            'system_name.required' => 'System name is required for Child and Single menu types.',
+            'system_name.string' => 'System name must be a string.',
+            'system_name.max' => 'System name may not be greater than 255 characters.',
+            'route.required' => 'Route is required for Child and Single menu types.',
+            'route.string' => 'Route must be a string.',
+            'route.max' => 'Route may not be greater than 255 characters.',
+            'slug.required' => 'Slug is required for Child and Single menu types.',
+            'icon.string' => 'Icon must be a string.',
+            'icon.max' => 'Icon may not be greater than 255 characters.',
+            'icon.required' => 'Icon is required for Parent menu type.',
+        ];
+
+        return [$rules, $messages];
+
+
+    }
+
 
 
 
