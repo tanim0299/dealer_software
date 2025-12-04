@@ -46,4 +46,60 @@ class MenuService
         return [$status_code, $status_message, $error_message];
        
     }
+
+    public function getMenuById($id)
+    {
+        $status_code = $status_message = $response = '';
+        try {
+            $response = (new Menu())->getMenuById($id);
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Menu Found';
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+        return [$status_code , $status_message , $response];
+    }
+
+    public function updateMenuById($request, $id)
+    {
+        $status_code = $status_message = $error_message = '';
+        [$rules, $messages] = RequestRules::menuRules($request, $id);
+        $validation = RequestRules::validate($request->all(), $rules, $messages);
+        if($validation[0] == ApiService::Api_VALIDATION_ERROR)
+        {
+            $status_code = $validation[0];
+            $status_message = $validation[1];
+            $error_message = $validation[2];
+        }
+        else
+        {
+            try {
+                (new Menu())->updateMenuWithPermissions($request, $id);
+                $status_code = ApiService::API_SUCCESS;
+                $status_message = 'Menu updated successfully.';
+            } catch (\Throwable $th) {
+                $status_code = ApiService::API_SERVER_ERROR;
+                $status_message = $th->getMessage();
+                $error_message = [$th->getMessage()];
+            }
+        }
+
+        return [$status_code, $status_message, $error_message];
+    }
+
+    public function deleteMenuById($id)
+    {
+        $status_code = $status_message = '';
+        try {
+            (new Menu())->deleteMenuById($id);
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Menu Removed';
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message];
+    }
 }

@@ -13,22 +13,24 @@
         <div class="row">
             <div class="card">
                 <div class="card-body">
-                    <div class="filter row">
-                        <div class="col-lg-4 col-md-4">
-                            <input type="text" id="search" class="form-control" placeholder="Search..." value="{{ request()->get('search') }}">
+                    <form method="get" action="{{ route('menu.index') }}">
+                        <div class="filter row">
+                            <div class="col-lg-4 col-md-4">
+                                <input type="text" id="free_text" name="free_text" class="form-control" placeholder="Search..." value="{{ request()->get('free_text') }}">
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <select id="status" class="form-control" name="status">
+                                    <option value="">Select Status</option>
+                                    @foreach(\App\Models\Menu::STATUS as $key => $value)
+                                        <option value="{{ $key }}" @if(request()->get('status')==$key) selected @endif>{{ $value }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <button id="filterBtn" class="btn btn-primary">Filter</button>
+                            </div>
                         </div>
-                        <div class="col-lg-4 col-md-4">
-                            <select id="status" class="form-control">
-                                <option value="">Select Status</option>
-                                @foreach(\App\Models\Menu::STATUS as $key => $value)
-                                    <option value="{{ $key }}" @if(request()->get('status')==$key) selected @endif>{{ $value }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-lg-4 col-md-4">
-                            <button id="filterBtn" class="btn btn-primary">Filter</button>
-                        </div>
-                    </div>
+                    </form>
                     <br>
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -70,6 +72,7 @@
                                  @endforelse
                             </tbody>
                         </table>
+                        {{ $menus->links() }}
                     </div>
                 </div>
             </div>

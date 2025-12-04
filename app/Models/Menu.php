@@ -43,6 +43,11 @@ class Menu extends Model
         return $this->belongsTo(MenuSection::class, 'menu_section_id');
     }   
 
+    public function permissions()
+    {
+        return $this->hasMany(Permission::class,'parent','system_name');
+    }
+
     public function getMenuList($search = [], $is_paginate = true, $is_relation = true)
     {
         $query = self::query();
@@ -102,5 +107,49 @@ class Menu extends Model
             }
         }
         return $menu;
+    }
+    public function updateMenuWithPermissions($request, $id)
+    {
+        $preparedData = [
+            'sl' => $request->sl,
+            'name' => $request->name,
+            'menu_section_id' => $request->section_id,
+            'status' => $request->status,
+            'type' => $request->type,
+            'parent_id' => $request->type != self::TYPE_PARENT ? $request->parent_id : null,
+            'system_name' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->system_name : null,
+            'route' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->route : null,
+            'slug' => in_array($request->type, [self::TYPE_CHILD, self::TYPE_SINGLE]) ? $request->slug : null,
+            'icon' => $request->type != self::TYPE_CHILD ? $request->icon : null,
+        ];
+        $menu = self::where('id',$id)->update($preparedData);
+
+        if($request->type != self::TYPE_PARENT)
+        {
+            Permission::where('parent',$request->system_name)->delete();
+            Artisan::call('cache:forget spatie.permission.cache');
+            for ($i = 0; $i < count($request->permissions); $i++) {
+                Permission::create([
+                    'name' => $request->system_name . ' ' . $request->permissions[$i],
+                    'guard_name' => 'web',
+                    'parent' => $request->system_name,
+                ]);
+            }
+        }
+        return $menu;
+    }
+
+    public function getMenuById($id)
+    {
+        return self::find($id);
+    }
+
+    public function deleteMenuById($id)
+    {
+        $menu = self::find($id);
+        Permission::where('parent',$menu->system_name)->delete();
+        Artisan::call('cache:forget spatie.permission.cache');
+        $menu->delete();
+        return;
     }
 }
