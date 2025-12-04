@@ -68,7 +68,13 @@ class MenuController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data['menu'] = (new MenuService())->getMenuById($id)[2];
+        $data['search']['type'] = Menu::TYPE_PARENT;
+        $data['search']['status'] = Menu::STATUS_ACTIVE;
+        $data['parents'] = last((new MenuService())->getMenuList($data['search'], false, false));
+        $data['permissions'] = (new Actions())->get();
+        $data['sections'] = (new MenuSectionService())->MenuSectionList(['status' => MenuSection::STATUS_INACTIVE], false)[2];
+        return view($this->PATH.'.edit',$data);
     }
 
     /**
@@ -76,7 +82,17 @@ class MenuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        [$status_code, $status_message, $error_message] = (new MenuService())->updateMenuById($request, $id);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('menu.index')
+                ->with('success', $status_message);
+        }
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors($error_message) // must be an array of field → messages
+            ->with('error', $status_message);
     }
 
     /**
@@ -84,6 +100,15 @@ class MenuController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        [$status_code, $status_message] = (new MenuService())->deleteMenuById($id);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('menu.index')
+                ->with('success', $status_message);
+        }
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('error', $status_message);
     }
 }

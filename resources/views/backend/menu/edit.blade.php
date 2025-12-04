@@ -14,8 +14,9 @@
             <div class="card">
                 <div class="card-body">
                     @include('backend.menu.form',[
-                        'route'=>route('menu.store'),
-                        'buttonText'=>'Create Menu'
+                        'route'=>route('menu.update',$menu->id),
+                        'method' => 'PUT',
+                        'buttonText'=>'Update Menu'
                     ])
                 </div>
             </div>
