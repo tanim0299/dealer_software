@@ -114,7 +114,7 @@
         </div>
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
-                <label for="type" class="form-label">Type</label><span class="text-danger">*</span> 
+                <label for="type" class="form-label">Type</label><span class="text-danger">*</span>
                 <select class="form-select @error('type') is-invalid @enderror" id="type" name="type">
                     <option value="">Chose One</option>
                     @foreach(\App\Models\Menu::TYPE as $key => $value)
