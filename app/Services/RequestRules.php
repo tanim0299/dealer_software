@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
-    
+
     public static function menuSectionRules($request, $id = null)
     {
         $isUpdate = !empty($id);
@@ -97,6 +97,26 @@ class RequestRules{
         return [$rules, $messages];
 
 
+    }
+
+    public static function roleRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:roles,name,' . $id
+                : 'required|string|max:255|unique:roles,name',
+        ];
+
+        $messages = [
+            'name.required' => 'Role name is required.',
+            'name.string' => 'Role name must be a string.',
+            'name.max' => 'Role name may not be greater than 255 characters.',
+            'name.unique' => 'Role name must be unique.',
+        ];
+
+        return [$rules, $messages];
     }
 
 
