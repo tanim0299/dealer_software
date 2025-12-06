@@ -5,6 +5,35 @@ use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
 
+    public static function userRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'role_id' => 'required',
+            'name' => 'required',
+            'email' => $isUpdate
+                ? 'required|string|unique:users,eamil,' . $id
+                : 'required|string|unique:users,email',
+            'phone' => $isUpdate
+                    ? 'required|unique:users,phone,'.$id
+                    : 'required|unique:users,phone',
+            'password' => 'required',
+        ];
+
+        $messages = [
+            'role_id.required' => 'Please Select A Role',
+            'name.required' => 'Please Give User Name',
+            'email.required' => 'Please Give Email',
+            'email.unique' => 'This Email Is Already Used',
+            'phone.unique' => 'This Phone Is Already Used',
+            'phone.required' => 'Please Give A Phone Number',
+            'password.required' => 'Please Give Password', 
+        ];
+
+        return [$rules, $messages];
+    }
+
     public static function menuSectionRules($request, $id = null)
     {
         $isUpdate = !empty($id);

@@ -5,6 +5,7 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\MenuSectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,6 +23,7 @@ Route::middleware('auth')->group(function () {
         'menu_section' => MenuSectionController::class,
         'menu' => MenuController::class,
         'role' => RoleController::class,
+        'user' => UserController::class,
     ]);
 
 });
