@@ -30,6 +30,7 @@
                                 <tr>
                                     <th>SL</th>
                                     <th>Name</th>
+                                    <th>Permission</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -38,6 +39,11 @@
                                     <tr>
                                         <td>{{ $role->index }}</td>
                                         <td>{{ $role->name }}</td>
+                                        <td>
+                                            <a class="btn btn-info btn-sm">
+                                                <i class="fa fa-key"></i>
+                                            </a>
+                                        </td>
                                         <td>
                                             <a href="{{ route('role.edit', $role->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                             <form action="{{ route('role.destroy', $role->id) }}" method="POST" style="display:inline-block;">

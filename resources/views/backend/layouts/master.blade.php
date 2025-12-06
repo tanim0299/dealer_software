@@ -42,6 +42,7 @@
     <link rel="stylesheet" href="{{asset('build/backend')}}/css/demo.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
       .form-control, .form-select{
         border-radius: 0px;
@@ -49,6 +50,10 @@
       }
       .form-select{
         line-height: 2;
+      }
+      .select2-container--default .select2-selection--single
+      {
+        height: 38px;
       }
     </style>
   </head>
@@ -671,6 +676,7 @@
     <script src="{{asset('build/backend')}}/js/core/jquery-3.7.1.min.js"></script>
     <script src="{{asset('build/backend')}}/js/core/popper.min.js"></script>
     <script src="{{asset('build/backend')}}/js/core/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <!-- jQuery Scrollbar -->
     <script src="{{asset('build/backend')}}/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
@@ -747,6 +753,11 @@
         lineWidth: "2",
         lineColor: "#ffa534",
         fillColor: "rgba(255, 165, 52, .14)",
+      });
+    </script>
+    <script>
+      $(document).ready(function() {
+          $('.js-example-basic-single').select2();
       });
     </script>
   </body>
