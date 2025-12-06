@@ -34,6 +34,7 @@ class MenuController extends Controller
         $data['parents'] = last((new MenuService())->getMenuList($data['search'], false, false));
         $data['permissions'] = (new Actions())->get();
         $data['sections'] = (new MenuSectionService())->MenuSectionList(['status' => MenuSection::STATUS_INACTIVE], false)[2];
+        $data['menu'] = new Menu();
         return view($this->PATH.'create',$data);
     }
 

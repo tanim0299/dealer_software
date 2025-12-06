@@ -702,7 +702,7 @@
 
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{{asset('build/backend')}}/js/setting-demo.js"></script>
-    <script src="{{asset('build/backend')}}/js/demo.js"></script>
+    <!-- <script src="{{asset('build/backend')}}/js/demo.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
     @if(session('success'))

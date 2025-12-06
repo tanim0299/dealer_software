@@ -131,10 +131,14 @@
             <div class="card">
                 <div class="card-body">
                     @foreach($permissions as $permission)
+                    @php
+                    $setPermission = $menu->system_name.' '.$permission->name;
+                    
+                    $check = DB::table('permissions')->where('name',$setPermission)->where('parent',$menu->system_name)->first();
+                    @endphp
                         <div class="form-check form-check-inline">
-                            <input type="checkbox" name="permissions[]" value="{{ $permission->id }}"
-                            {{ in_array($permission->name, old('permissions', $menu->permissions->pluck('id')->toArray())) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="permission_{{ $permission->id }}">{{ $permission->name }}</label>
+                            <input id="permission_{{ $permission->name }}" type="checkbox" name="permissions[]" value="{{ $permission->name }}" @if(!empty($check)) checked @endif>
+                            <label class="form-check-label" for="permission_{{ $permission->name }}">{{ $permission->name }}</label>
                         </div>
                     @endforeach
                 </div>

@@ -53,7 +53,11 @@
                                         <td>{{ $menu->menuSection ? $menu->menuSection->name : 'N/A' }}</td>
                                         <td>{{ $menu->parent ? $menu->parent->name : 'N/A' }}</td>
                                         <td>{{ $menu->name }}</td>
-                                        <td>{{ \App\Models\Menu::STATUS[$menu->status] }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ $menu->status == App\Models\Menu::STATUS_ACTIVE ? 'success' : 'danger' }}">
+                                            {{ \App\Models\Menu::STATUS[$menu->status] }}
+                                            </span>
+                                        </td>
                                         <td>{{ \App\Models\Menu::TYPE[$menu->type] }}</td>
                                         <td><i class="{{ $menu->icon }}"></i></td>
                                         <td>
