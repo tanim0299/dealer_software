@@ -84,16 +84,15 @@ class User extends Authenticatable
         return $user;
     }
 
-    public function assignRole()
+    public function assignedRole()
     {
         return $this->belongsTo(Role::class,'role_id');
     }
 
     public function roleAssign($user, $roles)
     {
-        
+        // dd($roles);
         $previous_roles = $user->roles()->pluck('id');
-       
         if(is_array($previous_roles))
         {
             for ($i=0; $i < count($previous_roles) ; $i++)
@@ -102,6 +101,7 @@ class User extends Authenticatable
             }
         }
         $role = Role::find($roles);
+        
         $user->assignRole($role);
         
     }
