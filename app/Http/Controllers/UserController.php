@@ -13,9 +13,11 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $data['search']['free_text'] = $request->free_text ?? '';
+        $data['users'] = (new UserService())->getUserList($data['search'],true,true)[2];
+        return view($this->PATH.'.index',$data);
     }
 
     /**
@@ -58,7 +60,9 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data['user'] = (new UserService())->getUserById($id)[2];
+        $data['roles'] = (new RoleService())->getRoleList([],false,false)[2];
+        return view($this->PATH.'.edit',$data);
     }
 
     /**
@@ -66,7 +70,17 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        [$status_code, $status_message, $error_message, $response] = (new UserService())->updateUserById($request,$id);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('user.index')
+                ->with('success', $status_message);
+        }
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors($error_message) // must be an array of field → messages
+            ->with('error', $status_message);
     }
 
     /**
@@ -74,6 +88,10 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        [$status_code, $status_message] = (new UserService())->deleteUserById($id);
+        return redirect()
+            ->route('user.index')
+            ->with('success', $status_message);
+      
     }
 }
