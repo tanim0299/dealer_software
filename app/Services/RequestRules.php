@@ -13,13 +13,17 @@ class RequestRules{
             'role_id' => 'required',
             'name' => 'required',
             'email' => $isUpdate
-                ? 'required|string|unique:users,eamil,' . $id
+                ? 'required|string|unique:users,email,' . $id
                 : 'required|string|unique:users,email',
             'phone' => $isUpdate
                     ? 'required|unique:users,phone,'.$id
                     : 'required|unique:users,phone',
-            'password' => 'required',
         ];
+
+        if(empty($id))
+        {
+            $rules['password'] = 'required';
+        }
 
         $messages = [
             'role_id.required' => 'Please Select A Role',
