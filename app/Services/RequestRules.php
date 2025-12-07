@@ -32,7 +32,7 @@ class RequestRules{
             'email.unique' => 'This Email Is Already Used',
             'phone.unique' => 'This Phone Is Already Used',
             'phone.required' => 'Please Give A Phone Number',
-            'password.required' => 'Please Give Password', 
+            'password.required' => 'Please Give Password',
         ];
 
         return [$rules, $messages];
@@ -140,13 +140,21 @@ class RequestRules{
             'name' => $isUpdate
                 ? 'required|string|max:255|unique:roles,name,' . $id
                 : 'required|string|max:255|unique:roles,name',
+
+            'index' => $isUpdate
+                ? 'required|integer|unique:roles,index,' . $id
+                : 'required|integer|unique:roles,index',
         ];
 
         $messages = [
             'name.required' => 'Role name is required.',
-            'name.string' => 'Role name must be a string.',
-            'name.max' => 'Role name may not be greater than 255 characters.',
-            'name.unique' => 'Role name must be unique.',
+            'name.string'   => 'Role name must be a string.',
+            'name.max'      => 'Role name may not be greater than 255 characters.',
+            'name.unique'   => 'Role name must be unique.',
+
+            'index.required' => 'Role index is required.',
+            'index.integer'  => 'Role index must be a number.',
+            'index.unique'   => 'Role index must be unique.',
         ];
 
         return [$rules, $messages];
