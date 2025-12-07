@@ -52,7 +52,10 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $data['role'] = (new RoleService())->getRoleById($id)[2];
+        $data['checked_permission'] = (new RoleService())->getRolesPermisison($id);
+        $data['permissions'] = (new RoleService())->getPermissionList();
+        return view($this->PATH.'.show',$data);
     }
 
     /**
@@ -90,6 +93,21 @@ class RoleController extends Controller
     public function destroy(string $id)
     {
         [$status_code, $status_message] = (new RoleService())->deleteRoleById($id);
+        
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('role.index')
+                ->with('success', $status_message);
+        }
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('error', $status_message);
+    }
+
+    public function permission(Request $request, $id)
+    {
+        [$status_code, $status_message] = (new RoleService())->assignPermission($request,$id);
         if ($status_code == ApiService::API_SUCCESS) {
             return redirect()
                 ->route('role.index')

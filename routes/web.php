@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     ]);
 
 });
-
+Route::post('role_permission/{id}',[RoleController::class,'permission'])->name('role.permission');
 
 //menu section
 Route::post('menu_section_status', [MenuSectionController::class, 'status'])->name('menu_section.status');

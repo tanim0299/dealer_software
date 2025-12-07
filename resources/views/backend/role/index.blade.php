@@ -40,7 +40,7 @@
                                         <td>{{ $role->index }}</td>
                                         <td>{{ $role->name }}</td>
                                         <td>
-                                            <a class="btn btn-info btn-sm">
+                                            <a class="btn btn-info btn-sm" href="{{ route('role.show',$role->id) }}">
                                                 <i class="fa fa-key"></i>
                                             </a>
                                         </td>

@@ -10,7 +10,7 @@
                 <select class="form-select form-select js-example-basic-single" name="role_id" id="role_id">
                     <option value="">Chose One</option>
                     @forelse($roles as $role)
-                    <option @if(old('role_id', $user->role_id) ==$role->id) selected @endif value="{{ $role->id }}">{{ $role->name }}</option>
+                    <option @if(old('role_id', @$user->role_id) ==$role->id) selected @endif value="{{ $role->id }}">{{ $role->name }}</option>
                     @empty
 
                     @endforelse

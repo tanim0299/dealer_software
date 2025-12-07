@@ -40,7 +40,7 @@
                                @forelse($users as $key=>$user)
                                     <tr>
                                         <td>{{ $key + 1 }}</td>
-                                        <td>{{ $user->assignRole->name ?? 'n/a'}}</td>
+                                        <td>{{ $user->assignedRole->name ?? 'n/a'}}</td>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->phone }}</td>

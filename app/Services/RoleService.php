@@ -2,6 +2,10 @@
 namespace App\Services;
 
 use App\Models\Role;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role as ModelsRole;
 
 class RoleService
 {
@@ -14,7 +18,7 @@ class RoleService
             $status_message = 'Role list retrieved successfully.';
         } catch (\Throwable $th) {
            $status_code = ApiService::API_SERVER_ERROR;
-           $status_message = 'Failed to retrieve Role list.';
+           $status_message = $th->getMessage();
         }
         return [$status_code, $status_message, $response];
     }
@@ -101,5 +105,37 @@ class RoleService
         }
 
         return [$status_code, $status_message];
+    }
+
+    public function getPermissionList()
+    {
+        $permissions = Permission::all();
+
+        return $groupedPermissions = $permissions->groupBy('parent');
+    }
+
+    public function assignPermission($request, $role_id)
+    {
+        try {
+            Artisan::call('cache:forget spatie.permission.cache');
+            $role = ModelsRole::find($role_id);
+            $role->syncPermissions($request->permissions);
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Permission Synced';
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message];
+    }
+
+    public function getRolesPermisison($id)
+    {
+        $role = ModelsRole::find($id);
+
+        $permissions = DB::table('role_has_permissions')->where('role_id',$id)->pluck('permission_id')->toArray();
+
+        return $permissions;
     }
 }
