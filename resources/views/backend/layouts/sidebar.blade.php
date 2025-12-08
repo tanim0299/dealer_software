@@ -2,7 +2,7 @@
 $menuSections = (new App\Models\MenuSection())->MenuSectionList(['status' => App\Models\MenuSection::STATUS_ACTIVE], false);
 $currentRoute = Route::currentRouteName();
 $baseRoute = explode('.',$currentRoute);
-$parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->where('slug',$baseRoute[1])->first();
+$parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->first();
 @endphp
 <div class="sidebar" data-background-color="dark">
     <div class="sidebar-logo">
