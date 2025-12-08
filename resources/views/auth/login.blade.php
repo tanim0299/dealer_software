@@ -1,47 +1,115 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inventory Login</title>
 
-    <form method="POST" action="{{ route('login') }}">
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg,#0d6efd10,#0dcaf010);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .auth-card {
+      max-width: 420px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(13,110,253,0.08);
+      overflow: hidden;
+    }
+    .brand {
+      background: linear-gradient(90deg,#0d6efd,#6610f2);
+      color: #fff;
+      padding: 18px;
+      text-align: center;
+    }
+    .brand h4 { margin: 0; font-weight: 700; letter-spacing: .3px;}
+    .form-section { padding: 22px; }
+    .help-text { font-size: .9rem; color: #6c757d; }
+  </style>
+</head>
+<body>
+  <div class="auth-card bg-white">
+    <div class="brand">
+      <h4>Inventory Manager</h4>
+      <div class="small">Login to your account</div>
+    </div>
+
+    <div class="form-section">
+      <!-- session error (for custom auth failure) -->
+      @if(session('error'))
+        <div class="alert alert-danger alert-sm">
+          {{ session('error') }}
+        </div>
+      @endif
+
+      <!-- validation errors -->
+      @if ($errors->any())
+        <div class="alert alert-danger">
+          <ul class="mb-0 small">
+            @foreach ($errors->all() as $err)
+              <li>{{ $err }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
+
+      <form method="POST" action="{{ route('login') }}">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <div class="mb-3">
+          <label for="email" class="form-label">Email / Username</label>
+          <input
+            type="text"
+            class="form-control @error('email') is-invalid @enderror"
+            id="email"
+            name="email"
+            value="{{ old('email') }}"
+            placeholder="you@example.com"
+            required autofocus>
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control @error('password') is-invalid @enderror"
+            id="password"
+            name="password"
+            placeholder="Your password"
+            required>
         </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="remember" name="remember" {{ old('remember') ? 'checked' : '' }}>
+            <label class="form-check-label" for="remember">
+              Remember me
             </label>
+          </div>
+          <div>
+            <a href="{{ route('password.request') }}" class="small">Forgot?</a>
+          </div>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
+        <div class="d-grid mb-3">
+          <button type="submit" class="btn btn-primary btn-lg">Login</button>
         </div>
-    </form>
-</x-guest-layout>
+
+        <div class="text-center help-text">
+          Don't have an account? <a href="{{ route('register') }}">Register</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
