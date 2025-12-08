@@ -60,6 +60,16 @@ class Menu extends Model
             ->orWhere('icon', 'like', '%' . $search['free_text'] . '%');
         }
 
+        if(!empty($search['parent_id']))
+        {
+            $query->where('parent_id',$search['parent_id']);
+        }
+
+        if(!empty($search['section_id']))
+        {
+            $query->where('menu_section_id',$search['section_id']);
+        }
+
         if (isset($search['status']) && $search['status'] != '') {
             $query->where('status', $search['status']);
         }
