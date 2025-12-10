@@ -160,6 +160,29 @@ class RequestRules{
         return [$rules, $messages];
     }
 
+    public static function globalsettingsRules($request, $id = null)
+    {
+        $rules = [
+            'title' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'favicon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:1024',
+        ];
+
+        $messages = [
+            'title.required' => 'Website name is required.',
+            'title.string' => 'Website name must be a string.',
+            'title.max' => 'Website name may not be greater than 255 characters.',
+            'logo.image' => 'Website logo must be an image.',
+            'logo.mimes' => 'Website logo must be a file of type: jpeg, png, jpg, gif, svg.',
+            'logo.max' => 'Website logo may not be greater than 2048 kilobytes.',
+            'favicon.image' => 'Website favicon must be an image.',
+            'favicon.mimes' => 'Website favicon must be a file of type: jpeg, png, jpg, gif, svg, ico.',
+            'favicon.max' => 'Website favicon may not be greater than 1024 kilobytes.',
+        ];
+
+        return [$rules, $messages];
+    }
+
 
 
 
