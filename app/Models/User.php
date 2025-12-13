@@ -74,6 +74,7 @@ class User extends Authenticatable
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
         ];
+        $user = self::find($id);
         if(!empty($request->file('image')))
         {
             $userData['image'] = FileUploader::upload($request->file('image'),'user', $user->image);
