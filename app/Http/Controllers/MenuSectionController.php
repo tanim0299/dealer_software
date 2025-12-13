@@ -10,6 +10,13 @@ use Brian2694\Toastr\Facades\Toastr;
 class MenuSectionController extends Controller
 {
     protected $PATH = 'backend.menu_section.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Menu Section view'])->only(['index']);
+        $this->middleware(['permission:Menu Section create'])->only(['create']);
+        $this->middleware(['permission:Menu Section edit'])->only(['edit']);
+        $this->middleware(['permission:Menu Section destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

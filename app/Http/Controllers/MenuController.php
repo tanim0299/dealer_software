@@ -13,6 +13,13 @@ use Illuminate\Http\Request;
 class MenuController extends Controller
 {
     protected $PATH = 'backend.menu.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Menu view'])->only(['index']);
+        $this->middleware(['permission:Menu create'])->only(['create']);
+        $this->middleware(['permission:Menu edit'])->only(['edit']);
+        $this->middleware(['permission:Menu destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

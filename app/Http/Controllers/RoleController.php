@@ -10,6 +10,13 @@ use Illuminate\Http\Request;
 class RoleController extends Controller
 {
     protected $PATH = 'backend.role.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Role view'])->only(['index']);
+        $this->middleware(['permission:Role create'])->only(['create']);
+        $this->middleware(['permission:Role edit'])->only(['edit']);
+        $this->middleware(['permission:Role destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

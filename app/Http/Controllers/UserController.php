@@ -10,6 +10,13 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     protected $PATH = 'backend.user';
+    public function __construct()
+    {
+        $this->middleware(['permission:User view'])->only(['index']);
+        $this->middleware(['permission:User create'])->only(['create']);
+        $this->middleware(['permission:User edit'])->only(['edit']);
+        $this->middleware(['permission:User destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

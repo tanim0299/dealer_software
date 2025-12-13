@@ -7,7 +7,9 @@
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
             @include('backend.layouts.partials.breadcrumb',['page_title'=>'List Of Role'])
             <div class="ms-md-auto py-2 py-md-0">
+                @if(auth()->user()->can('Role create'))
                 <a href="{{route('role.create')}}" class="btn btn-primary  btn-round"><i class="fa fa-plus"></i> Create Role</a>
+                @endif
             </div>
         </div>
         <div class="row">
@@ -40,17 +42,23 @@
                                         <td>{{ $role->index }}</td>
                                         <td>{{ $role->name }}</td>
                                         <td>
+                                            @if(auth()->user()->can('Role show'))
                                             <a class="btn btn-info btn-sm" href="{{ route('role.show',$role->id) }}">
                                                 <i class="fa fa-key"></i>
                                             </a>
+                                            @endif
                                         </td>
                                         <td>
+                                            @if(auth()->user()->can('Role edit'))
                                             <a href="{{ route('role.edit', $role->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                            @endif
+                                            @if(auth()->user()->can('Role destroy'))
                                             <form action="{{ route('role.destroy', $role->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this role?')">Delete</button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                  @empty

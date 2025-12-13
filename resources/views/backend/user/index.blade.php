@@ -7,7 +7,9 @@
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
             @include('backend.layouts.partials.breadcrumb',['page_title'=>'List Of User'])
             <div class="ms-md-auto py-2 py-md-0">
+                @if(auth()->user()->can('User create'))
                 <a href="{{route('user.create')}}" class="btn btn-primary  btn-round"><i class="fa fa-plus"></i> Create User</a>
+                @endif
             </div>
         </div>
         <div class="row">
@@ -45,12 +47,16 @@
                                         <td>{{ $user->email }}</td>
                                         <td>{{ $user->phone }}</td>
                                         <td>
+                                            @if(auth()->user()->can('User edit'))
                                             <a href="{{ route('user.edit', $user->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                            @endif
+                                            @if(auth()->user()->can('User destroy'))
                                             <form action="{{ route('user.destroy', $user->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this role?')">Delete</button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                  @empty

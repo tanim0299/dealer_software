@@ -11,6 +11,12 @@ use Brian2694\Toastr\Facades\Toastr;
 class WebsiteSettingsController extends Controller
 {
     protected $PATH = 'backend.website_settings.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Website Settings view'])->only(['index']);
+        $this->middleware(['permission:Website Settings create'])->only(['create']);
+        
+    }
     /**
      * Display a listing of the resource.
      */
