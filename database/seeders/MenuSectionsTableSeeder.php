@@ -46,6 +46,24 @@ class MenuSectionsTableSeeder extends Seeder
                 'created_at' => '2025-12-08 17:10:11',
                 'updated_at' => '2025-12-08 17:10:11',
             ),
+            3 => 
+            array (
+                'id' => 5,
+                'sl' => 4,
+                'name' => 'Website Content',
+                'status' => 1,
+                'created_at' => '2025-12-08 18:13:02',
+                'updated_at' => '2025-12-08 18:13:02',
+            ),
+            4 => 
+            array (
+                'id' => 6,
+                'sl' => 5,
+                'name' => 'Product Components',
+                'status' => 1,
+                'created_at' => '2025-12-14 18:10:05',
+                'updated_at' => '2025-12-14 18:10:05',
+            ),
         ));
         
         
