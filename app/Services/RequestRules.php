@@ -183,6 +183,81 @@ class RequestRules{
         return [$rules, $messages];
     }
 
+    public static function ItemRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:items,name,' . $id
+                : 'required|string|max:255|unique:items,name',
+
+            'status' => 'required|in:0,1',
+        ];
+
+        $messages = [
+            'name.required' => 'Item name is required.',
+            'name.string'   => 'Item name must be a string.',
+            'name.max'      => 'Item name may not be greater than 255 characters.',
+            'name.unique'   => 'Item name must be unique.',
+
+            'status.required' => 'Status is required.',
+            'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function brandRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:brands,name,' . $id
+                : 'required|string|max:255|unique:brands,name',
+
+            'status' => 'required|in:0,1',
+        ];
+
+        $messages = [
+            'name.required' => 'Brand name is required.',
+            'name.string'   => 'Brand name must be a string.',
+            'name.max'      => 'Brand name may not be greater than 255 characters.',
+            'name.unique'   => 'Brand name must be unique.',
+
+            'status.required' => 'Status is required.',
+            'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function categoryRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:categories,name,' . $id
+                : 'required|string|max:255|unique:categories,name',
+
+            'status' => 'required|in:0,1',
+        ];
+
+        $messages = [
+            'name.required' => 'Category name is required.',
+            'name.string'   => 'Category name must be a string.',
+            'name.max'      => 'Category name may not be greater than 255 characters.',
+            'name.unique'   => 'Category name must be unique.',
+
+            'status.required' => 'Status is required.',
+            'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
 
 
 

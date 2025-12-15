@@ -6,7 +6,11 @@ use App\Http\Controllers\MenuSectionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\BrandController;
 use App\Http\Controllers\WebsiteSettingsController;
+use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +30,9 @@ Route::middleware('auth')->group(function () {
         'menu' => MenuController::class,
         'role' => RoleController::class,
         'user' => UserController::class,
+        'item' => ItemController::class,
+        'category' => CategoryController::class,
+        'brand' => BrandController::class,
         'website_settings' => WebsiteSettingsController::class,
     ]);
 
