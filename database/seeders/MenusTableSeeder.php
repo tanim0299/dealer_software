@@ -227,6 +227,38 @@ class MenusTableSeeder extends Seeder
                 'created_at' => '2025-12-14 18:29:13',
                 'updated_at' => '2025-12-14 18:29:13',
             ),
+            13 => 
+            array (
+                'id' => 18,
+                'sl' => 15,
+                'menu_section_id' => 6,
+                'parent_id' => 13,
+                'name' => 'Unit',
+                'system_name' => 'Unit',
+                'route' => 'unit',
+                'slug' => 'index',
+                'icon' => NULL,
+                'type' => 2,
+                'status' => 1,
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            14 => 
+            array (
+                'id' => 19,
+                'sl' => 16,
+                'menu_section_id' => 6,
+                'parent_id' => 13,
+                'name' => 'Sub Unit',
+                'system_name' => 'Sub Unit',
+                'route' => 'sub_unit',
+                'slug' => 'index',
+                'icon' => NULL,
+                'type' => 2,
+                'status' => 1,
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
         ));
         
         
