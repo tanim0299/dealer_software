@@ -10,6 +10,13 @@ use Illuminate\Http\Request;
 class ItemController extends Controller
 {
     protected $PATH = 'backend.item.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Item view'])->only(['index']);
+        $this->middleware(['permission:Item create'])->only(['create']);
+        $this->middleware(['permission:Item edit'])->only(['edit']);
+        $this->middleware(['permission:Item destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

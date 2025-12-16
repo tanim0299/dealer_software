@@ -11,6 +11,13 @@ use App\Services\ApiService;
 class CategoryController extends Controller
 {
     protected $PATH = 'backend.category.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Category view'])->only(['index']);
+        $this->middleware(['permission:Category create'])->only(['create']);
+        $this->middleware(['permission:Category edit'])->only(['edit']);
+        $this->middleware(['permission:Category destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -117,5 +124,27 @@ class CategoryController extends Controller
             'status_message' => __($status_message),
             'message_type' => $status_code == ApiService::API_SUCCESS ? 'success' : 'error'
         ]);
+    }
+
+    public function itemWiseCategory(Request $request)
+    {
+        $item_id = $request->item_id ?? '';
+
+        $categories = (new CategoryService())->CategoryList(['item_id' => $item_id], false)[2];
+        $output = '';
+        if(!empty($categories))
+        {
+            $output .= '<option value="">Chose One</option>';
+            foreach($categories as $category)
+            {
+                $output .= '<option value="'.$category->id.'">'.$category->name.'</option>';
+            }
+        }
+        else
+        {
+            $output .= '<option value="">No Category Found !</option>';
+        }
+
+        return $output;
     }
 }

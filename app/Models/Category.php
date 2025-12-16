@@ -24,6 +24,10 @@ class Category extends Model
     public function CategoryList($search = [], $is_paginate = true)
     {
         $query = self::query();
+        if(!empty($search['item_id']))
+        {
+            $query = $query->where('item_id',$search['item_id']);
+        }
         if(!empty($search['free_text']))
         {
             $query = $query->where('name','like','%'.$search['free_text'].'%');

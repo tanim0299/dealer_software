@@ -5,6 +5,35 @@ use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
 
+    public static function productRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+        $rules = [
+            'item_id'        => 'required',
+            'category_id'    => 'required',
+            'brand_id'       => 'required',
+            'name'           => 'required',
+            'unit_id'        => 'required',
+            'purchase_price' => 'required',
+            'sale_price'     => 'required',
+            'status'         => 'required',
+        ];
+
+        $messages = [
+            'item_id.required'        => 'Please select an item.',
+            'category_id.required'    => 'Please select a category.',
+            'brand_id.required'       => 'Please select a brand.',
+            'name.required'           => 'Product name is required.',
+            'unit_id.required'        => 'Please select a unit.',
+            'purchase_price.required' => 'Purchase price is required.',
+            'sale_price.required'     => 'Sale price is required.',
+            'status.required'         => 'Please select product status.',
+        ];
+
+        return [$rules, $messages];
+
+    }
+
     public static function userRules($request, $id = null)
     {
         $isUpdate = !empty($id);
