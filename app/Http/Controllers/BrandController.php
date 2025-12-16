@@ -10,6 +10,13 @@ use Illuminate\Http\Request;
 class BrandController extends Controller
 {
     protected $PATH = 'backend.brand.';
+    public function __construct()
+    {
+        $this->middleware(['permission:Brand view'])->only(['index']);
+        $this->middleware(['permission:Brand create'])->only(['create']);
+        $this->middleware(['permission:Brand edit'])->only(['edit']);
+        $this->middleware(['permission:Brand destroy'])->only(['destroy']);
+    }
     /**
      * Display a listing of the resource.
      */

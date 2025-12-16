@@ -838,6 +838,96 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2025-12-16 06:26:37',
                 'updated_at' => '2025-12-16 06:26:37',
             ),
+            91 => 
+            array (
+                'id' => 118,
+                'name' => 'Product create',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            92 => 
+            array (
+                'id' => 119,
+                'name' => 'Product view',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            93 => 
+            array (
+                'id' => 120,
+                'name' => 'Product edit',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            94 => 
+            array (
+                'id' => 121,
+                'name' => 'Product destroy',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            95 => 
+            array (
+                'id' => 122,
+                'name' => 'Product status',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            96 => 
+            array (
+                'id' => 123,
+                'name' => 'Product restore',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            97 => 
+            array (
+                'id' => 124,
+                'name' => 'Product delete',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            98 => 
+            array (
+                'id' => 125,
+                'name' => 'Product print',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            99 => 
+            array (
+                'id' => 126,
+                'name' => 'Product show',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
+            100 => 
+            array (
+                'id' => 127,
+                'name' => 'Product trash',
+                'guard_name' => 'web',
+                'parent' => 'Product',
+                'created_at' => '2025-12-16 15:59:51',
+                'updated_at' => '2025-12-16 15:59:51',
+            ),
         ));
         
         
