@@ -658,6 +658,186 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2025-12-14 18:29:14',
                 'updated_at' => '2025-12-14 18:29:14',
             ),
+            71 => 
+            array (
+                'id' => 98,
+                'name' => 'Unit create',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            72 => 
+            array (
+                'id' => 99,
+                'name' => 'Unit view',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            73 => 
+            array (
+                'id' => 100,
+                'name' => 'Unit edit',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            74 => 
+            array (
+                'id' => 101,
+                'name' => 'Unit destroy',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            75 => 
+            array (
+                'id' => 102,
+                'name' => 'Unit status',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            76 => 
+            array (
+                'id' => 103,
+                'name' => 'Unit restore',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            77 => 
+            array (
+                'id' => 104,
+                'name' => 'Unit delete',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            78 => 
+            array (
+                'id' => 105,
+                'name' => 'Unit print',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            79 => 
+            array (
+                'id' => 106,
+                'name' => 'Unit show',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            80 => 
+            array (
+                'id' => 107,
+                'name' => 'Unit trash',
+                'guard_name' => 'web',
+                'parent' => 'Unit',
+                'created_at' => '2025-12-16 06:26:02',
+                'updated_at' => '2025-12-16 06:26:02',
+            ),
+            81 => 
+            array (
+                'id' => 108,
+                'name' => 'Sub Unit create',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            82 => 
+            array (
+                'id' => 109,
+                'name' => 'Sub Unit view',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            83 => 
+            array (
+                'id' => 110,
+                'name' => 'Sub Unit edit',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            84 => 
+            array (
+                'id' => 111,
+                'name' => 'Sub Unit destroy',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            85 => 
+            array (
+                'id' => 112,
+                'name' => 'Sub Unit status',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            86 => 
+            array (
+                'id' => 113,
+                'name' => 'Sub Unit restore',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            87 => 
+            array (
+                'id' => 114,
+                'name' => 'Sub Unit delete',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            88 => 
+            array (
+                'id' => 115,
+                'name' => 'Sub Unit print',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            89 => 
+            array (
+                'id' => 116,
+                'name' => 'Sub Unit show',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
+            90 => 
+            array (
+                'id' => 117,
+                'name' => 'Sub Unit trash',
+                'guard_name' => 'web',
+                'parent' => 'Sub Unit',
+                'created_at' => '2025-12-16 06:26:37',
+                'updated_at' => '2025-12-16 06:26:37',
+            ),
         ));
         
         
