@@ -928,6 +928,96 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2025-12-16 15:59:51',
                 'updated_at' => '2025-12-16 15:59:51',
             ),
+            101 => 
+            array (
+                'id' => 128,
+                'name' => 'Supplier create',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            102 => 
+            array (
+                'id' => 129,
+                'name' => 'Supplier view',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            103 => 
+            array (
+                'id' => 130,
+                'name' => 'Supplier edit',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            104 => 
+            array (
+                'id' => 131,
+                'name' => 'Supplier destroy',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            105 => 
+            array (
+                'id' => 132,
+                'name' => 'Supplier status',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            106 => 
+            array (
+                'id' => 133,
+                'name' => 'Supplier restore',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            107 => 
+            array (
+                'id' => 134,
+                'name' => 'Supplier delete',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            108 => 
+            array (
+                'id' => 135,
+                'name' => 'Supplier print',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            109 => 
+            array (
+                'id' => 136,
+                'name' => 'Supplier show',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
+            110 => 
+            array (
+                'id' => 137,
+                'name' => 'Supplier trash',
+                'guard_name' => 'web',
+                'parent' => 'Supplier',
+                'created_at' => '2025-12-17 16:57:44',
+                'updated_at' => '2025-12-17 16:57:44',
+            ),
         ));
         
         
