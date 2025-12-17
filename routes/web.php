@@ -10,6 +10,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\WebsiteSettingsController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
@@ -36,6 +37,7 @@ Route::middleware('auth')->group(function () {
         'brand' => BrandController::class,
         'website_settings' => WebsiteSettingsController::class,
         'product' => ProductController::class,
+        'supplier' => SupplierController::class,
     ]);
 
     Route::post('get_itemwise_category',[CategoryController::class,'itemWiseCategory'])->name('category.get_itemwise_category');
