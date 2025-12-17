@@ -5,6 +5,27 @@ use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
 
+    public static function supplierRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+        $rules = [
+            'name' => 'required',
+            'phone' => $isUpdate
+                    ? 'required|unique:suppliers,phone,'.$id
+                    : 'required|unique:suppliers,phone',
+        ];
+
+        $messages = [
+            'name.required'  => 'Supplier name is required.',
+
+            'phone.required' => 'Phone number is required.',
+            'phone.unique'   => 'This phone number is already associated with another supplier.',
+        ];
+
+        return [$rules, $messages];
+
+    }
+
     public static function productRules($request, $id = null)
     {
         $isUpdate = !empty($id);
