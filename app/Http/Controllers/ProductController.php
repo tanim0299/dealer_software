@@ -45,6 +45,7 @@ class ProductController extends Controller
         $data['items'] = (new ItemService())->ItemList([],false)[2];
         $data['brands'] = (new BrandService())->BrandList([],false)[2];
         $data['units'] = (new Unit())->get();
+        $data['categories'] = (new CategoryService())->CategoryList([],false)[2];
         return view($this->PATH.'.create',$data);
     }
 
@@ -112,5 +113,42 @@ class ProductController extends Controller
         return redirect()
             ->back()
             ->with('error', $status_message);
+    }
+
+    public function fetch(Request $request)
+    {
+        $data['search']['free_text'] = $request->search ?? '';
+        $data['response'] = (new ProductService())->getProductList($data['search'], true, true)[2] ?? [];
+
+        $data['products'] = [];
+        foreach($data['response'] as $product) {
+            $data['products'][] = [ // Changed = to [] for array push
+                'id' => $product->id,
+                'name' => $product->name,
+                'purchase_price' => $product->purchase_price ?? 0,
+                'image' => $product->image ?? null,
+                'sub_units' => $product->unit->sub_unit ?? [], // Ensure this relationship exists
+            ];
+        }
+
+        // Add pagination
+        $perPage = $request->per_page ?? 12;
+        $currentPage = $request->page ?? 1;
+        $offset = ($currentPage - 1) * $perPage;
+
+        $paginatedProducts = array_slice($data['products'], $offset, $perPage);
+        $total = count($data['products']);
+        $lastPage = ceil($total / $perPage);
+
+        return response()->json([
+            'status' => 200,
+            'data' => $paginatedProducts,
+            'current_page' => (int)$currentPage,
+            'last_page' => $lastPage,
+            'per_page' => $perPage,
+            'total' => $total,
+            'from' => $offset + 1,
+            'to' => min($offset + $perPage, $total),
+        ], 200);
     }
 }

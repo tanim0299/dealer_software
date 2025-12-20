@@ -15,4 +15,9 @@ class Unit extends Model
         self::STATUS_ACTIVE => 'Active',
         self::STATUS_INACTIVE => 'Inactive',
     ];
+
+    public function sub_unit()
+    {
+        return $this->hasMany(SubUnit::class,'unit_id','id');
+    }
 }

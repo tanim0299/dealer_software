@@ -68,7 +68,7 @@
                                  @endforelse
                             </tbody>
                         </table>
-                        {{ $roles->links() }}
+                        {{ $roles->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>
