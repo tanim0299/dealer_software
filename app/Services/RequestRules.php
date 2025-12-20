@@ -308,6 +308,58 @@ class RequestRules{
         return [$rules, $messages];
     }
 
+    public static function unitRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:units,name,' . $id
+                : 'required|string|max:255|unique:units,name',
+
+            'status' => 'required|in:0,1',
+        ];
+
+        $messages = [
+            'name.required' => 'Unit name is required.',
+            'name.string'   => 'Unit name must be a string.',
+            'name.max'      => 'Unit name may not be greater than 255 characters.',
+            'name.unique'   => 'Unit name must be unique.',
+
+            'status.required' => 'Status is required.',
+            'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function subUnitRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'unit_id' => 'required',
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:sub_units,name,' . $id
+                : 'required|string|max:255|unique:sub_units,name',
+
+            'status' => 'required|in:0,1',
+        ];
+
+        $messages = [
+            'unit_id.required' => 'Please select a Unit.',
+            'name.required' => 'Sub Unit name is required.',
+            'name.string'   => 'Sub Unit name must be a string.',
+            'name.max'      => 'Sub Unit name may not be greater than 255 characters.',
+            'name.unique'   => 'Sub Unit name must be unique.',
+
+            'status.required' => 'Status is required.',
+            'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
 
 
 
