@@ -76,6 +76,15 @@ class Brand extends Model
         return $query;
     }
 
+    public function deleteBrand($id)
+    {
+        $query = self::find($id);
+        if (!$query) {
+            return false;
+        }
+        return $query->delete();
+    }
+
     public function updateStatus()
     {
         $this->status = $this->status == self::STATUS_ACTIVE
