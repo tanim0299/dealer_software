@@ -77,7 +77,7 @@
                                     @endforelse
                                 </tbody>
                             </table>
-                            {{ $suppliers->links() }}
+                            {{ $suppliers->links('pagination::bootstrap-5') }}
                         </div>
                     </div>
 

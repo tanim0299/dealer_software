@@ -82,7 +82,7 @@
                                  @endforelse
                             </tbody>
                         </table>
-                        {{ $menus->links() }}
+                        {{ $menus->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>

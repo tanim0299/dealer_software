@@ -16,6 +16,11 @@ class Unit extends Model
         self::STATUS_INACTIVE => 'Inactive',
     ];
 
+    public function sub_unit()
+    {
+        return $this->hasMany(SubUnit::class,'unit_id','id');
+    }
+
     public function UnitList($search = [], $is_paginate = true)
     {
         $query = self::query();
