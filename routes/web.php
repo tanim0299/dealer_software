@@ -12,6 +12,8 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\WebsiteSettingsController;
+use App\Http\Controllers\UnitController;
+use App\Http\Controllers\SubUnitController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -38,6 +40,8 @@ Route::middleware('auth')->group(function () {
         'website_settings' => WebsiteSettingsController::class,
         'product' => ProductController::class,
         'supplier' => SupplierController::class,
+        'unit' => UnitController::class,
+        'sub_unit' => SubUnitController::class,
     ]);
 
     Route::post('get_itemwise_category',[CategoryController::class,'itemWiseCategory'])->name('category.get_itemwise_category');
