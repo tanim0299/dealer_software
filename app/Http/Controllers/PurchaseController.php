@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ProductService;
+use App\Services\PurchaseService;
 use App\Services\SupplierService;
 use Illuminate\Http\Request;
 
@@ -12,9 +13,13 @@ class PurchaseController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['from_date'] = $request->from_date ?? '';
+        $data['search']['to_date'] = $request->to_date ?? '';
+        $data['purchases'] = (new PurchaseService())->getPurchaseList($data['search'], true, true)[2];
+        return view($this->PATH.'.index',$data);
     }
 
     /**
@@ -32,7 +37,7 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return (new PurchaseService())->storePurchase($request);
     }
 
     /**
@@ -65,5 +70,11 @@ class PurchaseController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function invoice($id)
+    {
+        $data['purchase'] = (new PurchaseService())->getPurchaseById($id)[2];
+        return view($this->PATH.'.invoice',$data);
     }
 }
