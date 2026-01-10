@@ -1,7 +1,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <div class="">
-        <form id="purchaseForm">
+        <form id="purchaseForm" data-submit-route="{{ $route }}">
 
             <!-- Supplier & Date -->
             <div class="row mb-3">
@@ -148,7 +148,7 @@
                     <div class="row">
                         <div class="col-md-3">
                             <label class="form-label">Grand Total</label>
-                            <input type="text" id="grandTotal" class="form-control" readonly value="0.00">
+                            <input type="text" id="grandTotal" name="total_amount" class="form-control" readonly value="0.00">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Discount</label>
@@ -690,7 +690,7 @@
             cart.splice(index, 1);
             updateCart();
             updateSummary();
-            alert(`Removed ${removedItem.product_name} from cart`);
+            
         }
     }
 
@@ -842,56 +842,54 @@
             alert('Please add at least one product to cart');
             return;
         }
-        
+
         const supplierId = document.getElementById('supplier_id').value;
         if (!supplierId) {
             alert('Please select a supplier');
             return;
         }
-        
-        // Prepare form data
+
         const formData = new FormData();
-        
-        // Add basic form data
+        const form = document.getElementById('purchaseForm');
+        const submitRoute = form.dataset.submitRoute;
+
         formData.append('supplier_id', supplierId);
         formData.append('purchase_date', document.querySelector('input[name="purchase_date"]').value);
+        formData.append('total_amount', document.getElementById('grandTotal').value);
         formData.append('discount', document.getElementById('discount').value);
         formData.append('paid', document.getElementById('paid').value);
         formData.append('note', document.getElementById('note').value);
-        
-        // Add cart items
         formData.append('cart_items', JSON.stringify(cart));
-        
-        // Add attachment if exists
+
         const attachment = document.getElementById('attachment').files[0];
         if (attachment) {
             formData.append('attachment', attachment);
         }
-        
-        console.log('Submitting purchase data:', {
-            supplier_id: supplierId,
-            cart_items: cart,
-            discount: document.getElementById('discount').value,
-            paid: document.getElementById('paid').value
-        });
-        
-        // Submit to backend
-        fetch('/api/purchases', {
+
+        fetch(submitRoute, {
             method: 'POST',
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
         .then(response => response.json())
-        .then(data => {
-            console.log('Submission response:', data);
-            if (data.success) {
-                alert('Purchase submitted successfully!');
-                resetForm();
+        .then(res => {
+
+            // Response format: [200, "Purchase Stored", purchase_id]
+            if (res[0] === 200) {
+                const purchaseId = res[2];
+
+                // Open invoice in new tab
+                window.open(`/purchase_invoice/${purchaseId}`, '_blank');
+
+                // Reload page after short delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
             } else {
-                alert('Error: ' + (data.message || 'Unable to submit purchase'));
+                alert(res[1] ?? 'Something went wrong');
             }
         })
         .catch(error => {
@@ -908,7 +906,7 @@
             container.innerHTML += `
                 <input type="hidden" name="cart_items[${index}][product_id]" value="${item.product_id}">
                 <input type="hidden" name="cart_items[${index}][sub_unit_id]" value="${item.sub_unit_id}">
-                <input type="text" name="cart_items[${index}][final_quantity]"  value="${item.final_quantity}">
+                <input type="hidden" name="cart_items[${index}][final_quantity]"  value="${item.final_quantity}">
                 <input type="hidden" name="cart_items[${index}][quantity]" value="${item.quantity}">
                 <input type="hidden" name="cart_items[${index}][unit_price]" value="${item.unit_price}">
                 <input type="hidden" name="cart_items[${index}][discount]" value="${item.discount}">
