@@ -2,7 +2,9 @@
 
     <div class="">
         <form id="purchaseForm" data-submit-route="{{ $route }}">
-
+            @if(isset($method))
+            @method('PUT')
+            @endif
             <!-- Supplier & Date -->
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -10,15 +12,15 @@
                     <select class="form-select" name="supplier_id" id="supplier_id" required>
                         <option value="">Choose Supplier</option>
                         @forelse($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->name }} - {{ $supplier->phone }}</option>
+                        <option {{ @$purchase->supplier_id == $supplier->id ? 'selected' : '' }} value="{{ $supplier->id }}">{{ $supplier->name }} - {{ $supplier->phone }}</option>
                         @empty
-                        <option value="">No Supplier Found!</option>
+                        <option  value="">No Supplier Found!</option>
                         @endforelse
                     </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Purchase Date</label>
-                    <input type="date" class="form-control" name="purchase_date" value="{{ date('Y-m-d') }}" required>
+                    <input type="date" class="form-control" name="purchase_date" value="{{ @$purchase->purchase_date ?? date('Y-m-d') }}" required>
                 </div>
             </div>
 
@@ -152,11 +154,11 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Discount</label>
-                            <input type="number" id="discount" class="form-control" oninput="calculateDue()" value="0" min="0">
+                            <input type="number" id="discount" class="form-control" oninput="calculateDue()" value="{{ @$purchase->discount ?? 0 }}" min="0">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Paid Amount</label>
-                            <input type="number" id="paid" class="form-control" oninput="calculateDue()" value="0" min="0">
+                            <input type="number" id="paid" class="form-control" oninput="calculateDue()" value="{{ @$purchase->paid_amount ?? 0 }}" min="0">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Due Amount</label>
@@ -225,9 +227,11 @@
         z-index: 1;
     }
     </style>
-
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script>
+    window.editEntries = @json($entries ?? []);
+    if (!Array.isArray(window.editEntries)) {
+        window.editEntries = [window.editEntries];
+    }
     let selectedProduct = null;
     let cart = [];
     let currentPage = 1;
@@ -237,7 +241,37 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         loadProducts();
+
+        console.log('Edit entries:', window.editEntries);
+
+        if (Array.isArray(window.editEntries) && window.editEntries.length > 0) {
+            loadEditCart(window.editEntries);
+        }
     });
+
+
+
+    function loadEditCart(entries) {
+       
+        if (!Array.isArray(entries) || entries.length === 0) return;
+
+        cart = entries.map(item => ({
+            product_id: item.product_id,
+            product_name: item.product_name,
+            sub_unit_id: item.sub_unit_id,
+            sub_unit_name: item.sub_unit_name,
+            unit_data: parseFloat(item.unit_data) || 1,
+            quantity: parseFloat(item.qty) || 1,
+            unit_price: parseFloat(item.unit_price) || 0,
+            discount: parseFloat(item.discount) || 0,
+            total_price: parseFloat(item.total_price) || 0,
+            final_quantity: parseFloat(item.final_quantity) || 0
+        }));
+
+        updateCart();
+        updateSummary();
+    }
+
 
     // Load products with search functionality
     function loadProducts(search = '', reset = true) {
@@ -253,7 +287,7 @@
         fetch(`/api/products?search=${search}&page=${currentPage}`)
             .then(res => res.json())
             .then(response => {
-                console.log('API Response:', response);
+               
                 
                 if (!response || !response.data) {
                     console.error('Invalid response structure:', response);
@@ -273,7 +307,7 @@
                     }
                 } else {
                     response.data.forEach(p => {
-                        console.log('Product:', p);
+                       
                         const imageUrl = p.image ? `/storage/${p.image}` : '/images/default-product.png';
                         const hasSubUnits = p.sub_units && p.sub_units.length > 0;
                         const purchasePrice = parseFloat(p.purchase_price) || 0;
@@ -362,11 +396,7 @@
     function loadSubUnits(product) {
         const subUnitSelect = document.getElementById('subUnit');
         const purchasePrice = parseFloat(product.purchase_price) || 0;
-        
-        console.log('Loading sub-units for product:', product);
-        console.log('Purchase price:', purchasePrice);
-        console.log('Sub-units array:', product.sub_units);
-        
+      
         // Check if product has sub_units array
         if (product.sub_units && product.sub_units.length > 0) {
             subUnitSelect.innerHTML = '<option value="">Select Sub-Unit</option>';
@@ -860,6 +890,10 @@
         formData.append('paid', document.getElementById('paid').value);
         formData.append('note', document.getElementById('note').value);
         formData.append('cart_items', JSON.stringify(cart));
+
+        @if(isset($method))
+        formData.append('_method','PUT');
+        @endif
 
         const attachment = document.getElementById('attachment').files[0];
         if (attachment) {

@@ -184,12 +184,12 @@
         </tr>
         <tr>
             <td>Paid</td>
-            <td class="text-right">{{ number_format($purchase->paid, 2) }}</td>
+            <td class="text-right">{{ number_format($purchase->paid_amount, 2) }}</td>
         </tr>
         <tr>
             <td>Due Amount</td>
             <td class="text-right">
-                {{ number_format(($purchase->total_amount - $purchase->discount) - $purchase->paid, 2) }}
+                {{ number_format(($purchase->total_amount - $purchase->discount) - $purchase->paid_amount, 2) }}
             </td>
         </tr>
     </table>
