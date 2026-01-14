@@ -101,6 +101,13 @@
                                             <i class="fa fa-eye"></i>
                                         </a>
 
+                                        @can('Purchase edit')
+                                        <a href="{{ route('purchase.edit', $purchase->id) }}"
+                                           class="btn btn-sm btn-warning" target="">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        @endcan
+
                                         @can('Purchase delete')
                                             <a href="{{ route('purchase.destroy', $purchase->id) }}"
                                                class="btn btn-sm btn-danger"

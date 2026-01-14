@@ -53,7 +53,27 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data['suppliers'] = (new SupplierService())->getSupplierList([],false,false)[2];
+        $data['products'] = (new ProductService())->getProductList([],false,false)[2];
+        $data['purchase'] = (new PurchaseService())->getPurchaseById($id)[2];
+        $data['entries'] = [];
+        foreach($data['purchase']->entries as $entry)
+        {
+            $data['entries'] = [
+                'product_id' => $entry->product_id,
+                'product_name' => $entry->product->name,
+                'sub_unit_id' => $entry->sub_unit_id,
+                'sub_unit_name' => $entry->sub_unit->name,
+                'sub_units' => $entry->product->unit->sub_unit,
+                'unit_data' => $entry->sub_unit->unit_data,
+                'quantity' => $entry->quantity,
+                'final_quantity' => $entry->final_quantity,
+                'unit_price' => $entry->unit_price,
+                'discount' => $entry->discount,
+                'total_price' => $entry->total_price,
+            ];   
+        }
+        return view($this->PATH.'.edit',$data);
     }
 
     /**
@@ -61,7 +81,7 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        return (new PurchaseService())->updatePurchase($request,$id);
     }
 
     /**
