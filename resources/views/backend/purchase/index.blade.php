@@ -108,13 +108,13 @@
                                         </a>
                                         @endcan
 
-                                        @can('Purchase delete')
-                                            <a href="{{ route('purchase.destroy', $purchase->id) }}"
-                                               class="btn btn-sm btn-danger"
-                                               onclick="return confirm('Are you sure?')">
-                                                <i class="fa fa-trash"></i>
-                                            </a>
-                                        @endcan
+                                         @if(auth()->user()->can('Purchase destroy'))
+                                        <form action="{{ route('purchase.destroy', $purchase->id) }}" method="POST" style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this purchase  ?')">Delete</button>
+                                        </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
