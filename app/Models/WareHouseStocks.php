@@ -19,7 +19,7 @@ class WareHouseStocks extends Model
             ->select('*')
             ->selectRaw('
                 (purchase_qty + sales_return_qty) 
-                - (sales_qty + return_qty) 
+                - (sales_qty + return_qty + sr_issue_qty) 
                 AS available_qty
             ');
 

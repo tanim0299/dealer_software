@@ -211,4 +211,59 @@ class PurchaseService {
 
         return [$status_code, $status_message, $response];
     }
+
+    public function deletePurchase($purchaseId)
+    {
+        $status_code = $status_message = '';
+        try {
+            DB::beginTransaction();
+
+            // 1️⃣ Fetch purchase
+            $purchase = PurchaseLedger::findOrFail($purchaseId);
+
+            // 2️⃣ Fetch purchase entries
+            $entries = PurchaseEntry::where('purchase_ledger_id', $purchase->id)->get();
+
+            // 3️⃣ ROLLBACK STOCK
+            foreach ($entries as $entry) {
+                $stock = WareHouseStocks::where('product_id', $entry->product_id)->first();
+
+                if ($stock) {
+                    $stock->decrement('purchase_qty', $entry->final_quantity);
+
+                    // Optional safety: prevent negative stock
+                    if ($stock->purchase_qty < 0) {
+                        throw new \Exception('Stock mismatch detected.');
+                    }
+                }
+            }
+
+            // 4️⃣ DELETE PURCHASE ENTRIES
+            PurchaseEntry::where('purchase_ledger_id', $purchase->id)->delete();
+
+            // 5️⃣ DELETE SUPPLIER PAYMENTS (Invoice Payments)
+            SupplierPayment::where([
+                'supplier_id' => $purchase->supplier_id,
+                'type'        => SupplierPayment::TYPE_INVOICE_PAYMENT,
+                'note'        => 'Purchase payment'
+            ])->delete();
+
+            // 6️⃣ DELETE PURCHASE LEDGER
+            $purchase->delete();
+
+            DB::commit();
+
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Purchase Deleted';
+
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message];
+    }
+
 }

@@ -44,6 +44,7 @@
                 </thead>
                 <tbody>
                     @forelse($stocks as $stock)
+                    
                     <tr>
                         <td>1</td>
                         <td class="product-name">{{$stock->product->name}}</td>
@@ -56,9 +57,14 @@
                             <strong>{{$stock->available_qty}}</strong>
                         </td>
                         <td>
+                            @if($stock->available_qty > 0)
                             <span class="badge bg-success">In Stock</span>
+                            @else
+                            <span class="badge bg-danger">Stock Out</span>
+                            @endif
                         </td>
                     </tr>
+                   
                     @empty
 
                     @endforelse

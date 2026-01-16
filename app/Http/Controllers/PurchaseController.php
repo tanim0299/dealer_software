@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiService;
 use App\Services\ProductService;
 use App\Services\PurchaseService;
 use App\Services\SupplierService;
@@ -89,7 +90,17 @@ class PurchaseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        [$status_code, $status_message] = (new PurchaseService())->deletePurchase($id);
+
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->back()
+                ->with('success', $status_message);
+        }
+
+        return redirect()
+            ->back()
+            ->with('error', $status_message);
     }
 
     public function invoice($id)
