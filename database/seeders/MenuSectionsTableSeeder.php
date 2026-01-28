@@ -73,6 +73,33 @@ class MenuSectionsTableSeeder extends Seeder
                 'created_at' => '2025-12-17 16:56:46',
                 'updated_at' => '2025-12-17 16:56:46',
             ),
+            6 => 
+            array (
+                'id' => 8,
+                'sl' => 7,
+                'name' => 'Purchase',
+                'status' => 1,
+                'created_at' => '2025-12-19 14:20:32',
+                'updated_at' => '2025-12-19 14:20:32',
+            ),
+            7 => 
+            array (
+                'id' => 9,
+                'sl' => 8,
+                'name' => 'Stock',
+                'status' => 1,
+                'created_at' => '2026-01-11 17:24:26',
+                'updated_at' => '2026-01-11 17:24:26',
+            ),
+            8 => 
+            array (
+                'id' => 10,
+                'sl' => 9,
+                'name' => 'Driver Section',
+                'status' => 1,
+                'created_at' => '2026-01-25 16:50:49',
+                'updated_at' => '2026-01-25 16:50:49',
+            ),
         ));
         
         

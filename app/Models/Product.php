@@ -34,6 +34,11 @@ class Product extends Model
         return $this->belongsTo(Unit::class,'unit_id');
     }
 
+    public function warehouseStock()
+    {
+        return $this->hasOne(WareHouseStocks::class,'product_id');
+    }
+
     public function getList($search = [], $is_paginate = true, $is_relation = true)
     {
         $query = self::query();
