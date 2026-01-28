@@ -5,6 +5,30 @@ use Illuminate\Support\Facades\Validator;
 
 class RequestRules{
 
+    public static function driverIssueStoreRules()
+    {
+        $rules = [
+            'driver_id'              => 'required|exists:drivers,id',
+            'items'                  => 'required|array',
+            'items.*.product_id'     => 'required|exists:products,id',
+            'items.*.issue_qty'      => 'required|numeric|min:1',
+        ];
+
+        $messages = [
+            'driver_id.required'         => 'Driver is required.',
+            'driver_id.exists'           => 'Selected driver does not exist.',
+            'items.required'             => 'At least one item is required.',
+            'items.array'                => 'Items must be an array.',
+            'items.*.product_id.required'=> 'Product is required for each item.',
+            'items.*.product_id.exists'  => 'Selected product does not exist.',
+            'items.*.issue_qty.required' => 'Issue quantity is required for each item.',
+            'items.*.issue_qty.numeric'  => 'Issue quantity must be a number.',
+            'items.*.issue_qty.min'      => 'Issue quantity must be at least 1.',
+        ];
+
+        return [$rules, $messages];
+    }
+
     public static function supplierRules($request, $id = null)
     {
         $isUpdate = !empty($id);
@@ -25,6 +49,33 @@ class RequestRules{
         return [$rules, $messages];
 
     }
+    public static function driverStoreRules()
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'vehicle_no' => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+            'status' => 'required|in:active,inactive',
+        ];
+
+        $messages = [
+            'name.required'      => 'Driver name is required.',
+
+            'phone.required'     => 'Phone number is required.',
+            'phone.unique'       => 'This phone number is already associated with another driver.',
+
+            'vehicle_no.required'=> 'Vehicle number is required.',
+            'vehicle_no.unique'  => 'This vehicle number is already assigned to another driver.',
+
+            'status.required'    => 'Driver status is required.',
+            'status.in'          => 'Invalid driver status selected.',
+        ];
+
+        return [$rules, $messages];
+
+    }
+   
 
     public static function productRules($request, $id = null)
     {

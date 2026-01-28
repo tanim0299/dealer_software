@@ -1018,6 +1018,285 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2025-12-17 16:57:44',
                 'updated_at' => '2025-12-17 16:57:44',
             ),
+            111 => 
+            array (
+                'id' => 138,
+                'name' => 'Purchase create',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            112 => 
+            array (
+                'id' => 139,
+                'name' => 'Purchase view',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            113 => 
+            array (
+                'id' => 140,
+                'name' => 'Purchase edit',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            114 => 
+            array (
+                'id' => 141,
+                'name' => 'Purchase destroy',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            115 => 
+            array (
+                'id' => 142,
+                'name' => 'Purchase status',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            116 => 
+            array (
+                'id' => 143,
+                'name' => 'Purchase restore',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            117 => 
+            array (
+                'id' => 144,
+                'name' => 'Purchase delete',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            118 => 
+            array (
+                'id' => 145,
+                'name' => 'Purchase print',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            119 => 
+            array (
+                'id' => 146,
+                'name' => 'Purchase show',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            120 => 
+            array (
+                'id' => 147,
+                'name' => 'Purchase trash',
+                'guard_name' => 'web',
+                'parent' => 'Purchase',
+                'created_at' => '2025-12-19 14:23:25',
+                'updated_at' => '2025-12-19 14:23:25',
+            ),
+            121 => 
+            array (
+                'id' => 148,
+                'name' => 'Warehouse Stock view',
+                'guard_name' => 'web',
+                'parent' => 'Warehouse Stock',
+                'created_at' => '2026-01-11 17:28:57',
+                'updated_at' => '2026-01-11 17:28:57',
+            ),
+            122 => 
+            array (
+                'id' => 149,
+                'name' => 'Driver create',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:52',
+                'updated_at' => '2026-01-25 16:52:52',
+            ),
+            123 => 
+            array (
+                'id' => 150,
+                'name' => 'Driver view',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            124 => 
+            array (
+                'id' => 151,
+                'name' => 'Driver edit',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            125 => 
+            array (
+                'id' => 152,
+                'name' => 'Driver destroy',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            126 => 
+            array (
+                'id' => 153,
+                'name' => 'Driver status',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            127 => 
+            array (
+                'id' => 154,
+                'name' => 'Driver restore',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            128 => 
+            array (
+                'id' => 155,
+                'name' => 'Driver delete',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            129 => 
+            array (
+                'id' => 156,
+                'name' => 'Driver print',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            130 => 
+            array (
+                'id' => 157,
+                'name' => 'Driver show',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            131 => 
+            array (
+                'id' => 158,
+                'name' => 'Driver trash',
+                'guard_name' => 'web',
+                'parent' => 'Driver',
+                'created_at' => '2026-01-25 16:52:53',
+                'updated_at' => '2026-01-25 16:52:53',
+            ),
+            132 => 
+            array (
+                'id' => 159,
+                'name' => 'Driver Issue create',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            133 => 
+            array (
+                'id' => 160,
+                'name' => 'Driver Issue view',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            134 => 
+            array (
+                'id' => 161,
+                'name' => 'Driver Issue edit',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            135 => 
+            array (
+                'id' => 162,
+                'name' => 'Driver Issue destroy',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            136 => 
+            array (
+                'id' => 163,
+                'name' => 'Driver Issue status',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            137 => 
+            array (
+                'id' => 164,
+                'name' => 'Driver Issue restore',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            138 => 
+            array (
+                'id' => 165,
+                'name' => 'Driver Issue delete',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            139 => 
+            array (
+                'id' => 166,
+                'name' => 'Driver Issue print',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            140 => 
+            array (
+                'id' => 167,
+                'name' => 'Driver Issue show',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
+            141 => 
+            array (
+                'id' => 168,
+                'name' => 'Driver Issue trash',
+                'guard_name' => 'web',
+                'parent' => 'Driver Issue',
+                'created_at' => '2026-01-27 17:57:46',
+                'updated_at' => '2026-01-27 17:57:46',
+            ),
         ));
         
         

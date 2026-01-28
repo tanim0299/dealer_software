@@ -8,6 +8,14 @@ class WareHouseStocks extends Model
 {
     protected $guarded = [];
 
+    protected $appends = ['stock_qty'];
+
+    public function getStockQtyAttribute()
+    {
+        return ($this->purchase_qty + $this->sales_return_qty)
+               - ($this->sales_qty + $this->return_qty + $this->sr_issue_qty);
+    }
+
     public function product()
     {
         return $this->belongsTo(Product::class,'product_id','id');

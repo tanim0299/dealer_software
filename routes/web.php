@@ -9,6 +9,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\DriverController;
+use App\Http\Controllers\DriverIssueController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SupplierController;
@@ -46,6 +48,8 @@ Route::middleware('auth')->group(function () {
         'unit' => UnitController::class,
         'sub_unit' => SubUnitController::class,
         'warehouse_stock' => WarehouseStockController::class,
+        'driver' => DriverController::class,
+        'driver-issues' => DriverIssueController::class,
 
     ]);
     Route::get('/api/products', [ProductController::class, 'fetch']);
