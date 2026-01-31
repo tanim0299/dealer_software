@@ -14,9 +14,11 @@ class DriverIssueController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $data['search']['free_text'] = $request->get('free_text', '');
+        $data['issues'] =  (new DriverIssueService())->getDriverIssueList($data['search'], true, false)[2];
+        return view($this->path.'.index', $data);
     }
 
     /**

@@ -10,7 +10,7 @@ class DriverIssues extends Model
 
     public function items()
     {
-        return $this->hasMany(DriverIssueItem::class);
+        return $this->hasMany(DriverIssueItem::class,'driver_issue_id');
     }
 
     public function driver()

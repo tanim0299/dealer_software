@@ -11,6 +11,37 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DriverIssueService {
 
+    public function getDriverIssueList($search = [], $is_paginate = false, $is_relation = false)
+    {
+        $status_code = $status_message = $response =  '';
+        try {
+            $query = DriverIssues::with('driver','items');
+    
+            if (!empty($search['free_text'])) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('driver', function ($driverQuery) use ($search) {
+                        $driverQuery->where('name', 'like', '%' . $search['free_text'] . '%');
+                    });
+                });
+            }
+    
+            if ($is_paginate) {
+                $issues = $query->orderBy('id', 'desc')->paginate(10);
+            } else {
+                $issues = $query->orderBy('id', 'desc')->get();
+            }
+    
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Driver Issue List Retrieved';
+            $response = $issues;
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        } finally {
+            return [$status_code, $status_message, $response];
+        }
+    }
+
     public function storeDriverIssue($request)
     {
         $status_code = $status_message = $error_message = '';
