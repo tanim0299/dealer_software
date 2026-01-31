@@ -50,7 +50,6 @@ Route::middleware('auth')->group(function () {
         'warehouse_stock' => WarehouseStockController::class,
         'driver' => DriverController::class,
         'driver-issues' => DriverIssueController::class,
-
     ]);
     Route::get('/api/products', [ProductController::class, 'fetch']);
 
