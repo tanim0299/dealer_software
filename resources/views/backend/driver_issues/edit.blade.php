@@ -1,11 +1,11 @@
 @extends('backend.layouts.master')
-@section('title','Create Driver Issues')
+@section('title','Edit Driver Issues')
 @section('content')
  <div class="container">
     <div class="page-inner">
         <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Create Driver Issues'])
+            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Edit Driver Issues'])
             <div class="ms-md-auto py-2 py-md-0">
                 <a href="{{route('driver-issues.index')}}" class="btn btn-label-info btn-round me-2">View</a>
             </div>
@@ -14,6 +14,7 @@
             <div class="card">
                 <div class="card-body">
                     @include('backend.driver_issues.form',[
+                        'issue' => $issue,
                         'drivers' => $drivers,
                         'products' => $products
                     ])

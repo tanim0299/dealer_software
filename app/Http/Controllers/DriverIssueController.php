@@ -39,7 +39,7 @@ class DriverIssueController extends Controller
         [$status_code, $status_message , $error_message] = (new DriverIssueService())->storeDriverIssue($request);
         if ($status_code == ApiService::API_SUCCESS) {
             return redirect()
-                ->route('driver.index')
+                ->route('driver-issues.index')
                 ->with('success', $status_message);
         }
         return redirect()->back()->withInput()->withErrors($error_message)->with('error', $status_message);
@@ -50,7 +50,8 @@ class DriverIssueController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $data['issue'] = (new DriverIssueService())->getIssueDataById($id)[2];
+        return view($this->path.'.show',$data);
     }
 
     /**
@@ -58,7 +59,15 @@ class DriverIssueController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $data['drivers'] = (new DriverService())->getDriverList([],false,false)[2];
+        $data['products'] = Product::with('warehouseStock')->get();
+        $data['issue'] = (new DriverIssueService())->getIssueDataById($id)[2];
+        if ($data['issue']->status !== 'open') {
+            return redirect()
+                ->route('driver-issues.index')
+                ->with('error', 'Closed issue cannot be edited');
+        }
+        return view($this->path.'.edit', $data);
     }
 
     /**
@@ -66,7 +75,13 @@ class DriverIssueController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        [$status_code, $status_message, $error_message] = (new DriverIssueService())->updateDriverIssueById($request,$id);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('driver-issues.index')
+                ->with('success', $status_message);
+        }
+        return redirect()->back()->withInput()->withErrors($error_message)->with('error', $status_message);
     }
 
     /**
@@ -74,6 +89,12 @@ class DriverIssueController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        [$status_code, $status_message] = (new DriverIssueService())->deleteIssuebyId($id);
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('driver-issues.index')
+                ->with('success', $status_message);
+        }
+        return redirect()->back()->withInput()->with('error', $status_message);
     }
 }

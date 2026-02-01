@@ -1,5 +1,12 @@
-<form action="{{ route('driver-issues.store') }}" method="POST">
+<form action="{{ isset($issue)
+        ? route('driver-issues.update', $issue->id)
+        : route('driver-issues.store') }}"
+      method="POST">
+
     @csrf
+    @if(isset($issue))
+        @method('PUT')
+    @endif
 
     <div class="row">
 
@@ -8,15 +15,19 @@
             <div class="mb-3">
                 <label class="form-label">Driver</label>
                 <span class="text-danger">*</span>
+
                 <select name="driver_id"
-                        class="form-select @error('driver_id') is-invalid @enderror">
+                        class="form-select @error('driver_id') is-invalid @enderror"
+                        {{ isset($issue) ? '' : '' }}>
                     <option value="">Select Driver</option>
                     @foreach($drivers as $driver)
-                        <option value="{{ $driver->id }}">
+                        <option value="{{ $driver->id }}"
+                            {{ old('driver_id', $issue->driver_id ?? '') == $driver->id ? 'selected' : '' }}>
                             {{ $driver->name }} ({{ $driver->vehicle_no }})
                         </option>
                     @endforeach
                 </select>
+
                 @error('driver_id')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -27,9 +38,11 @@
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
                 <label class="form-label">Issue Date</label>
-                <input type="date" name="issue_date"
-                       value="{{ date('Y-m-d') }}"
-                       class="form-control">
+                <input type="date"
+                       name="issue_date"
+                       value="{{ old('issue_date', $issue->issue_date ?? date('Y-m-d')) }}"
+                       class="form-control"
+                       {{ isset($issue) ? 'readonly' : '' }}>
             </div>
         </div>
 
@@ -49,41 +62,79 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
-                        <select name="items[0][product_id]"
-                                class="form-select product-select"
-                                required>
-                            <option value="">Select Product</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}"
-                                        data-stock="{{ $product->warehouseStock->stock_qty ?? 0 }}">
-                                    {{ $product->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </td>
 
-                    <td>
-                        <input type="text"
-                               class="form-control stock-view"
-                               readonly>
-                    </td>
+                @php
+                    $rows = old('items', isset($issue) ? $issue->items : [0]);
+                @endphp
 
-                    <td>
-                        <input type="number"
-                               name="items[0][issue_qty]"
-                               class="form-control issue-qty"
-                               min="1"
-                               required>
-                    </td>
+                @foreach($rows as $key => $row)
+                    @php
+                        $productId = $row['product_id'] ?? $row->product_id ?? '';
+                        $issueQty  = $row['issue_qty'] ?? $row->issue_qty ?? '';
+                    @endphp
 
-                    <td class="text-center">
-                        <button type="button" class="btn btn-danger btn-sm remove-row">
-                            ✖
-                        </button>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>
+                            <select name="items[{{ $key }}][product_id]"
+                                    class="form-select product-select"
+                                    required>
+                                <option value="">Select Product</option>
+                                @foreach($products as $product)
+                                    @php
+                                        $availableStock =
+                                            ($product->warehouseStock->purchase_qty ?? 0)
+                                            + ($product->warehouseStock->sales_return_qty ?? 0)
+                                            - (
+                                                ($product->warehouseStock->sales_qty ?? 0)
+                                                + ($product->warehouseStock->return_qty ?? 0)
+                                                + ($product->warehouseStock->sr_issue_qty ?? 0)
+                                            );
+                                    @endphp
+
+                                    <option value="{{ $product->id }}"
+                                        data-stock="{{ 
+                                            ($product->warehouseStock->purchase_qty ?? 0)
+                                            + ($product->warehouseStock->sales_return_qty ?? 0)
+                                            - (
+                                                ($product->warehouseStock->sales_qty ?? 0)
+                                                + ($product->warehouseStock->return_qty ?? 0)
+                                                + ($product->warehouseStock->sr_issue_qty ?? 0)
+                                            )
+                                        }}"
+                                        {{ $productId == $product->id ? 'selected' : '' }}>
+                                        {{ $product->name }}
+                                    </option>
+
+                                @endforeach
+                            </select>
+                        </td>
+
+                        <td>
+                            <input type="text"
+                                class="form-control stock-view"
+                                readonly
+                                data-old-qty="{{ $issueQty ?? 0 }}">
+                        </td>
+
+
+                        <td>
+                            <input type="number"
+                                   name="items[{{ $key }}][issue_qty]"
+                                   class="form-control issue-qty"
+                                   min="1"
+                                   value="{{ $issueQty }}"
+                                   required>
+                        </td>
+
+                        <td class="text-center">
+                            <button type="button"
+                                    class="btn btn-danger btn-sm remove-row">
+                                ✖
+                            </button>
+                        </td>
+                    </tr>
+                @endforeach
+
             </tbody>
         </table>
     </div>
@@ -95,14 +146,15 @@
 
     <div>
         <button type="submit" class="btn btn-primary">
-            Issue Stock
+            {{ isset($issue) ? 'Update Issue' : 'Issue Stock' }}
         </button>
     </div>
 
 </form>
+
 @push('scripts')
 <script>
-let rowIndex = 1;
+let rowIndex = {{ count($rows) }};
 
 document.getElementById('addRow').addEventListener('click', function () {
     let row = `
@@ -112,8 +164,18 @@ document.getElementById('addRow').addEventListener('click', function () {
                     class="form-select product-select" required>
                 <option value="">Select Product</option>
                 @foreach($products as $product)
+                    @php
+                        $availableStock =
+                            ($product->warehouseStock->purchase_qty ?? 0)
+                            + ($product->warehouseStock->sales_return_qty ?? 0)
+                            - (
+                                ($product->warehouseStock->sales_qty ?? 0)
+                                + ($product->warehouseStock->return_qty ?? 0)
+                                + ($product->warehouseStock->sr_issue_qty ?? 0)
+                            );
+                    @endphp
                     <option value="{{ $product->id }}"
-                            data-stock="{{ $product->warehouseStock->stock_qty ?? 0 }}">
+                            data-stock="{{ $availableStock }}">
                         {{ $product->name }}
                     </option>
                 @endforeach
@@ -158,6 +220,47 @@ document.addEventListener('input', function (e) {
         let row = e.target.closest('tr');
         let stock = parseFloat(row.querySelector('.stock-view').value) || 0;
         let qty = parseFloat(e.target.value) || 0;
+
+        if (qty > stock) {
+            e.target.value = stock;
+            alert('Issue quantity cannot exceed available stock!');
+        }
+    }
+});
+function updateStock(row) {
+    let productSelect = row.querySelector('.product-select');
+    let stockInput    = row.querySelector('.stock-view');
+
+    let baseStock = parseFloat(
+        productSelect.selectedOptions[0]?.dataset.stock || 0
+    );
+
+    // old issued qty (for edit)
+    let oldQty = parseFloat(stockInput.dataset.oldQty || 0);
+
+    // add back old qty
+    let finalStock = baseStock + oldQty;
+
+    stockInput.value = finalStock;
+}
+// On page load (IMPORTANT FOR EDIT)
+document.querySelectorAll('#issueTable tbody tr').forEach(row => {
+    updateStock(row);
+});
+
+// On product change
+document.addEventListener('change', function (e) {
+    if (e.target.classList.contains('product-select')) {
+        updateStock(e.target.closest('tr'));
+    }
+});
+
+// Validate issue qty
+document.addEventListener('input', function (e) {
+    if (e.target.classList.contains('issue-qty')) {
+        let row   = e.target.closest('tr');
+        let stock = parseFloat(row.querySelector('.stock-view').value) || 0;
+        let qty   = parseFloat(e.target.value) || 0;
 
         if (qty > stock) {
             e.target.value = stock;

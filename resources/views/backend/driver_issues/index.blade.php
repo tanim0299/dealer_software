@@ -83,7 +83,21 @@
                                                        class="btn btn-sm btn-primary">
                                                         Edit
                                                     </a>
-                                                @endif
+                                                
+                                                    <form action="{{ route('driver-issues.destroy', $issue->id) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                        onsubmit="return confirm('Are you sure you want to delete this issue?');">
+
+                                                        @csrf
+                                                        @method('DELETE')
+
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            🗑 Delete
+                                                        </button>
+                                                    </form>
+                                                    @endif
+
                                             </td>
                                         </tr>
                                     @empty
