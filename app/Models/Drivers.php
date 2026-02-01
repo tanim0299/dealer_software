@@ -51,4 +51,11 @@ class Drivers extends Model
         $this->status = $request->status ?? 'active';
         $this->save();
     }
+
+    public function getDriverById($id)
+    {
+        $query = self::find($id);
+
+        return $query;
+    }
 }
