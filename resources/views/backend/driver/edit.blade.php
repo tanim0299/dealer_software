@@ -16,7 +16,7 @@
             <div class="card">
                 <div class="card-body">
                     @include('backend.driver.form',[
-                        'route'=>route('driver.update',$driver->id),
+                        'route'=>route('driver.update',$data->id),
                         'method' => 'PUT',
                         'buttonText'=>'Update driver'
                     ])

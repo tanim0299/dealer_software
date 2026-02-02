@@ -58,7 +58,7 @@ class DriverController extends Controller
         [$status_code, $status_message, $driver] = (new DriverService())->getDriverById($id);
 
         return view($this->path . '.edit', [
-            'driver' => $driver,
+            'data' => $driver,
             'status_code' => $status_code,
             'status_message' => $status_message,
         ]);

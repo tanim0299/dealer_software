@@ -1,10 +1,14 @@
 <?php
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Drivers;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
-class DriverService {
+class DriverService
+{
 
     public function getDriverList($search = [], $is_paginate = true, $is_relation = false)
     {
@@ -26,27 +30,40 @@ class DriverService {
         $status_code = $status_message = $error_message = '';
         [$rules, $messages] = RequestRules::driverStoreRules();
         $validation = RequestRules::validate($request->all(), $rules, $messages);
-        if($validation[0] == ApiService::Api_VALIDATION_ERROR)
-        {
-            $status_code = $validation[0];
-            $status_message = $validation[1];
-            $error_message = $validation[2];
-        }
-        else
-        {
-           try {
-            DB::beginTransaction();
 
-            (new Drivers())->createDriver($request);
-            $status_code = ApiService::API_SUCCESS;
-            $status_message = 'Driver Created';
-            DB::commit();
-           } catch (\Throwable $th) {
-            DB::rollBack();
-            $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
-           }
+        if ($validation[0] == ApiService::Api_VALIDATION_ERROR) {
+            $status_code    = $validation[0];
+            $status_message = $validation[1];
+            $error_message  = $validation[2];
+        } else {
+            try {
+                DB::beginTransaction();
+
+                $driver = new Drivers();
+                $driver->createDriver($request);
+
+                User::create([
+                    'name'      => $request->name,
+                    'phone'     => $request->phone ?? null,
+                    'email'     => 'driver' . $driver->id . '@example.com',
+                    'type'      => 1,
+                    'driver_id' => $driver->id,
+                    'password'   => Hash::make('123456789'),
+                ]);
+
+                DB::commit();
+
+                $status_code    = ApiService::API_SUCCESS;
+                $status_message = 'Driver Created';
+                $error_message  = null;
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                $status_code    = ApiService::API_SERVER_ERROR;
+                $status_message = $th->getMessage();
+                $error_message  = [$th->getMessage()];
+            }
         }
+
         return [$status_code, $status_message, $error_message];
     }
 
@@ -69,24 +86,38 @@ class DriverService {
     {
         $status_code = $status_message = $error_message = null;
         [$rules, $messages] = RequestRules::driverStoreRules($request->all(), $id);
-
         $validation = RequestRules::validate($request->all(), $rules, $messages);
+
         if ($validation[0] !== ApiService::API_SUCCESS) {
-            $status_code = $validation[0];
+            $status_code    = $validation[0];
             $status_message = $validation[1];
-            $error_message = $validation[2];
-        }
-        else
-        {
+            $error_message  = $validation[2];
+        } else {
             try {
-                (new Drivers())->updateDriver($request, $id);
-                $status_code = ApiService::API_SUCCESS;
+                DB::beginTransaction();
+
+                $driver = Drivers::findOrFail($id);
+                $driver->updateDriver($request);
+
+                $user = User::where('driver_id', $id)->first();
+                if ($user) {
+                    $user->update([
+                        'name'      => $request->name,
+                        'phone'     => $request->phone ?? null,
+                        'email'     => 'driver' . $driver->id . '@example.com',
+                    ]);
+                }
+
+                DB::commit();
+
+                $status_code    = ApiService::API_SUCCESS;
                 $status_message = "Driver updated successfully.";
-                $error_message = null;
+                $error_message  = null;
             } catch (\Throwable $th) {
-                $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                DB::rollBack();
+                $status_code    = ApiService::API_SERVER_ERROR;
+                $status_message = 'Something went wrong.';
+                $error_message  = [$th->getMessage()];
             }
         }
 
@@ -103,8 +134,7 @@ class DriverService {
 
             $status_code = ApiService::API_SUCCESS;
             $status_message = __('Driver deleted successfully.');
-        }
-        catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
         }
@@ -126,5 +156,4 @@ class DriverService {
 
         return [$status_code, $status_message];
     }
-
 }
