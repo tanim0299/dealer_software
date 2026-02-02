@@ -52,6 +52,16 @@ class Drivers extends Model
         $this->save();
     }
 
+    public function updateDriver($request)
+    {
+
+        $this->name = $request->name;
+        $this->phone =  $request->phone ?? null;
+        $this->vehicle_no = $request->vehicle_no ?? null;
+        $this->address =  $request->address ?? null;
+        $this->save();
+    }
+
     public function getDriverById($id)
     {
         $query = self::find($id);
