@@ -42,7 +42,7 @@ class DriverService
                 $driver = new Drivers();
                 $driver->createDriver($request);
 
-                User::create([
+                $user = User::create([
                     'name'      => $request->name,
                     'phone'     => $request->phone ?? null,
                     'email'     => 'driver' . $driver->id . '@example.com',
@@ -50,6 +50,8 @@ class DriverService
                     'driver_id' => $driver->id,
                     'password'   => Hash::make('123456789'),
                 ]);
+
+                $user->assignRole('Driver');
 
                 DB::commit();
 
