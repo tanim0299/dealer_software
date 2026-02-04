@@ -75,7 +75,7 @@ class RequestRules{
         return [$rules, $messages];
 
     }
-   
+
 
     public static function productRules($request, $id = null)
     {
@@ -406,6 +406,36 @@ class RequestRules{
 
             'status.required' => 'Status is required.',
             'status.in'       => 'Status must be either 0 (inactive) or 1 (active).',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function customerRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            //
+        ];
+
+        $messages = [
+            //
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function CustomerAreaRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            //
+        ];
+
+        $messages = [
+            //
         ];
 
         return [$rules, $messages];
