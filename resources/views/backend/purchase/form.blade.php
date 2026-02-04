@@ -119,6 +119,7 @@
                                             <th>Unit</th>
                                             <th>Price</th>
                                             <th>Disc</th>
+                                            <th>Sale Price</th>
                                             <th>Total</th>
                                             <th>Action</th>
                                         </tr>
@@ -265,7 +266,8 @@
             unit_price: parseFloat(item.unit_price) || 0,
             discount: parseFloat(item.discount) || 0,
             total_price: parseFloat(item.total_price) || 0,
-            final_quantity: parseFloat(item.final_quantity) || 0
+            final_quantity: parseFloat(item.final_quantity) || 0,
+            sale_price: parseFloat(item.sale_price) || 0,
         }));
 
         updateCart();
@@ -528,13 +530,15 @@
             unit_data: conversionFactor,
             quantity: qty,
             unit_price: price,
+
+            sale_price: price, // ✅ DEFAULT (editable later)
+
             discount: 0,
             total_price: total,
             image: selectedProduct.image,
-
-            // ✅ calculate immediately
             final_quantity: qty * (1 / conversionFactor)
         };
+
 
 
         
@@ -655,6 +659,14 @@
                             value="${item.discount}" min="0"
                             onchange="updateCartItem(${index}, 'discount', this.value)">
                     </td>
+                    <td>
+                        <input type="number"
+                            class="form-control form-control-sm"
+                            min="0"
+                            value="${item.sale_price ?? 0}"
+                            onchange="updateCartItem(${index}, 'sale_price', this.value)">
+                    </td>
+
 
                     <!-- Total -->
                     <td class="fw-semibold">
@@ -944,6 +956,8 @@
                 <input type="hidden" name="cart_items[${index}][quantity]" value="${item.quantity}">
                 <input type="hidden" name="cart_items[${index}][unit_price]" value="${item.unit_price}">
                 <input type="hidden" name="cart_items[${index}][discount]" value="${item.discount}">
+                <input type="hidden" name="cart_items[${index}][sale_price]" value="${item.sale_price}">
+
                 <input type="hidden" name="cart_items[${index}][total_price]" value="${item.total_price}">
                 <input type="hidden" name="cart_items[${index}][unit_data]" value="${item.unit_data}">
             `;

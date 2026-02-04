@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class BackendController extends Controller
 {
@@ -12,6 +13,10 @@ class BackendController extends Controller
     
     public function index()
     {
+        if(Auth::user()->hasRole('Driver'))
+        {
+            return view('driver.layouts.home');
+        }
         return view('backend.layouts.home');
     }
 }

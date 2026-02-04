@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class WareHouseStocks extends Model
 {
@@ -24,20 +25,31 @@ class WareHouseStocks extends Model
     public function getStockList($search = [], $is_paginate = true, $is_relation = false)
     {
         $query = self::query()
-            ->select('*')
-            ->selectRaw('
-                (purchase_qty + sales_return_qty) 
-                - (sales_qty + return_qty + sr_issue_qty) 
+        ->select(
+            'product_id',
+            DB::raw('SUM(purchase_qty) as purchase_qty'),
+            DB::raw('SUM(sales_qty) as sales_qty'),
+            DB::raw('SUM(sales_return_qty) as sales_return_qty'),
+            DB::raw('SUM(return_qty) as return_qty'),
+            DB::raw('SUM(sr_issue_qty) as sr_issue_qty'),
+            DB::raw('
+                (SUM(purchase_qty) + SUM(sales_return_qty))
+                - (SUM(sales_qty) + SUM(return_qty) + SUM(sr_issue_qty))
                 AS available_qty
-            ');
+            ')
+        )
+        ->groupBy('product_id');
 
-        if(!empty($search['free_text']))
-        {
-            $query = $query->where('product_id','like','%'.$search['free_text'].'%')
-                    ->orWhereHas('product',function ($q, $search) {
-                        $q->where('name','like','%'.$search['free_text'].'%');
-                    });
+
+        if (!empty($search['free_text'])) {
+            $query->where(function ($q) use ($search) {
+                $q->where('product_id', 'like', '%' . $search['free_text'] . '%')
+                ->orWhereHas('product', function ($p) use ($search) {
+                    $p->where('name', 'like', '%' . $search['free_text'] . '%');
+                });
+            });
         }
+
 
         if($is_paginate)
         {

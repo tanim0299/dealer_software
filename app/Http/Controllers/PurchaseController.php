@@ -60,18 +60,19 @@ class PurchaseController extends Controller
         $data['entries'] = [];
         foreach($data['purchase']->entries as $entry)
         {
-            $data['entries'] = [
+            $data['entries'][] = [
                 'product_id' => $entry->product_id,
                 'product_name' => $entry->product->name,
                 'sub_unit_id' => $entry->sub_unit_id,
                 'sub_unit_name' => $entry->sub_unit->name,
                 'sub_units' => $entry->product->unit->sub_unit,
                 'unit_data' => $entry->sub_unit->unit_data,
-                'quantity' => $entry->quantity,
+                'qty' => $entry->quantity,
                 'final_quantity' => $entry->final_quantity,
                 'unit_price' => $entry->unit_price,
                 'discount' => $entry->discount,
                 'total_price' => $entry->total_price,
+                'sale_price' => $entry->sale_price ?? 0,
             ];   
         }
         return view($this->PATH.'.edit',$data);
