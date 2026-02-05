@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ApiService;
 use App\Services\DriverService;
+use App\Services\AreaService;
 use Illuminate\Http\Request;
 
 class DriverController extends Controller
@@ -25,7 +26,11 @@ class DriverController extends Controller
      */
     public function create()
     {
-        return view($this->path . '.create');
+        [$status_code, $status_message, $customer_area] = (new AreaService())->CustomerAreaList([], false);
+        $data['status_code'] = $status_code;
+        $data['status_message'] = $status_message;
+        $data['customer_areas'] = $customer_area;
+        return view($this->path.'.create',$data);
     }
 
     /**
@@ -55,13 +60,11 @@ class DriverController extends Controller
      */
     public function edit(string $id)
     {
+        [$status_code, $status_message, $customer_areas] = (new AreaService())->CustomerAreaList([],false);
+        $data['customer_areas'] = $customer_areas;
         [$status_code, $status_message, $driver] = (new DriverService())->getDriverById($id);
-
-        return view($this->path . '.edit', [
-            'data' => $driver,
-            'status_code' => $status_code,
-            'status_message' => $status_message,
-        ]);
+        $data['data'] = $driver;
+        return view($this->path.'.edit',$data);
     }
 
     /**

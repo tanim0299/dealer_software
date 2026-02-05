@@ -1,6 +1,6 @@
-<form action="@if(isset($route)) {{ $route }} @endif" method="POST">
+<form action="@if (isset($route)) {{ $route }} @endif" method="POST">
     @csrf
-    @if(isset($method))
+    @if (isset($method))
         @method($method)
     @endif
 
@@ -11,14 +11,10 @@
             <div class="mb-3">
                 <label for="name" class="form-label">Driver Name</label>
                 <span class="text-danger">*</span>
-                <input type="text"
-                       class="form-control @error('name') is-invalid @enderror"
-                       id="name"
-                       name="name"
-                       placeholder="Enter Driver Name"
-                       value="{{ old('name', @$data->name) }}">
+                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
+                    name="name" placeholder="Enter Driver Name" value="{{ old('name', @$data->name) }}">
                 @error('name')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -27,14 +23,10 @@
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
                 <label for="phone" class="form-label">Phone</label>
-                <input type="text"
-                       class="form-control @error('phone') is-invalid @enderror"
-                       id="phone"
-                       name="phone"
-                       placeholder="Enter Phone Number"
-                       value="{{ old('phone', @$data->phone) }}">
+                <input type="text" class="form-control @error('phone') is-invalid @enderror" id="phone"
+                    name="phone" placeholder="Enter Phone Number" value="{{ old('phone', @$data->phone) }}">
                 @error('phone')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -43,14 +35,11 @@
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
                 <label for="vehicle_no" class="form-label">Vehicle No</label>
-                <input type="text"
-                       class="form-control @error('vehicle_no') is-invalid @enderror"
-                       id="vehicle_no"
-                       name="vehicle_no"
-                       placeholder="Enter Vehicle Number"
-                       value="{{ old('vehicle_no', @$data->vehicle_no) }}">
+                <input type="text" class="form-control @error('vehicle_no') is-invalid @enderror" id="vehicle_no"
+                    name="vehicle_no" placeholder="Enter Vehicle Number"
+                    value="{{ old('vehicle_no', @$data->vehicle_no) }}">
                 @error('vehicle_no')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -59,14 +48,10 @@
         <div class="col-md-8 col-lg-8 col-12">
             <div class="mb-3">
                 <label for="address" class="form-label">Address</label>
-                <textarea
-                    class="form-control @error('address') is-invalid @enderror"
-                    id="address"
-                    name="address"
-                    placeholder="Enter Address"
-                    rows="2">{{ old('address', @$data->address) }}</textarea>
+                <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address"
+                    placeholder="Enter Address" rows="2">{{ old('address', @$data->address) }}</textarea>
                 @error('address')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -76,9 +61,7 @@
             <div class="mb-3">
                 <label for="status" class="form-label">Status</label>
                 <span class="text-danger">*</span>
-                <select class="form-select @error('status') is-invalid @enderror"
-                        id="status"
-                        name="status">
+                <select class="form-select @error('status') is-invalid @enderror" id="status" name="status">
                     <option value="active" {{ old('status', @$data->status) == 'active' ? 'selected' : '' }}>
                         Active
                     </option>
@@ -87,7 +70,30 @@
                     </option>
                 </select>
                 @error('status')
-                <div class="invalid-feedback">{{ $message }}</div>
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        {{-- Customer Areas --}}
+        <div class="col-md-6 col-lg-6 col-12">
+            <div class="mb-3">
+                <label class="form-label">Customer Areas</label>
+                <span class="text-danger">*</span>
+
+                <select name="area_ids[]" class="form-select @error('area_ids') is-invalid @enderror" multiple>
+
+                    @foreach ($customer_areas as $area)
+                        <option value="{{ $area->id }}"
+                            {{ in_array($area->id, old('area_ids', @$data?->areas?->pluck('id')->toArray() ?? [])) ? 'selected' : '' }}>
+                            {{ $area->name }}
+                        </option>
+                    @endforeach
+
+                </select>
+
+                @error('area_ids')
+                    <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         </div>

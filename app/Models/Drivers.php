@@ -22,6 +22,21 @@ class Drivers extends Model
         return $this->hasMany(DriverIssues::class);
     }
 
+    public function customerAreas()
+    {
+        return $this->belongsToMany(CustomerArea::class);
+    }
+
+    public function areas()
+    {
+        return $this->belongsToMany(
+            CustomerArea::class,
+            'driver_areas',
+            'driver_id',
+            'area_id'
+        );
+    }
+
     public function getrDriverList($search = [], $is_paginate = true, $is_relation = false)
     {
         $query = self::query();
@@ -43,23 +58,26 @@ class Drivers extends Model
 
     public function createDriver($request)
     {
-
-        $this->name = $request->name;
-        $this->phone =  $request->phone ?? null;
+        $this->name       = $request->name;
+        $this->phone      = $request->phone ?? null;
         $this->vehicle_no = $request->vehicle_no ?? null;
-        $this->address =  $request->address ?? null;
-        $this->status = $request->status ?? 'active';
+        $this->address    = $request->address ?? null;
+        $this->status     = $request->status ?? 'active';
         $this->save();
+
+        return $this;
     }
 
     public function updateDriver($request)
     {
-
-        $this->name = $request->name;
-        $this->phone =  $request->phone ?? null;
+        $this->name       = $request->name;
+        $this->phone      = $request->phone ?? null;
         $this->vehicle_no = $request->vehicle_no ?? null;
-        $this->address =  $request->address ?? null;
+        $this->address    = $request->address ?? null;
+        $this->status     = $request->status ?? 'active';
         $this->save();
+
+        return $this;
     }
 
     public function getDriverById($id)
