@@ -12,4 +12,9 @@ class DriverIssueItem extends Model
     {
         return $this->belongsTo(Product::class,'product_id');
     }
+
+    public function driverIssue()
+    {
+        return $this->belongsTo(Dr::class);
+    }
 }

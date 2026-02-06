@@ -20,6 +20,7 @@ use App\Http\Controllers\SubUnitController;
 use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\CustomerAreaController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\SalesController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
         'driver-issues' => DriverIssueController::class,
         'customer_area' => CustomerAreaController::class,
         'customer' => CustomerController::class,
+        'sales' => SalesController::class,
     ]);
     Route::get('/api/products', [ProductController::class, 'fetch']);
 

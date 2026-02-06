@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\Customer;
+use App\Models\DriverArea;
 
 class CustomerService
 {
@@ -123,5 +124,23 @@ class CustomerService
         }
 
         return [$status_code, $status_message];
+    }
+
+    public function getrDriverCustomer($driver_id)
+    {
+        $status_code = $status_message = $response = '';
+        try {
+            $driverAreas = DriverArea::where('driver_id', $driver_id)
+                ->pluck('area_id')
+                ->toArray();
+
+            $response = Customer::whereIn('area_id', $driverAreas)->get();
+            $status_code = ApiService::API_SUCCESS;
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message, $response];
     }
 }
