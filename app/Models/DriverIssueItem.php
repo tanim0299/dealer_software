@@ -15,6 +15,6 @@ class DriverIssueItem extends Model
 
     public function driverIssue()
     {
-        return $this->belongsTo(Dr::class);
+        return $this->belongsTo(DriverIssues::class,'driver_issue_id');
     }
 }

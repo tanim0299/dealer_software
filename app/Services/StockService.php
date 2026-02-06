@@ -24,29 +24,33 @@ class StockService {
     {
         $status_code = $status_message = $response = '';
         try {
-            $response = DriverIssueItem::with([
-                'product.unit.sub_unit'
-            ])
-            ->whereHas('driverIssue', function ($q) use ($driver_id, $date) {
-                $q->where('driver_id', $driver_id)
-                ->where('issue_date', $date)
-                ->where('status', 'open');
-            })
-            ->select(
-                'product_id',
-                DB::raw('SUM(issue_qty) as issue_qty'),
-                DB::raw('SUM(sold_qty) as sold_qty'),
-                DB::raw('SUM(return_qty) as return_qty'),
-                DB::raw('
-                    SUM(issue_qty)
-                    - SUM(sold_qty)
-                    + SUM(return_qty)
-                    AS available_qty
-                ')
-            )
-            ->groupBy('product_id')
-            ->havingRaw('available_qty > 0')
-            ->get();
+            $response = DriverIssueItem::query()
+                ->select(
+                    'product_id',
+                    DB::raw('SUM(issue_qty) as issue_qty'),
+                    DB::raw('SUM(sold_qty) as sold_qty'),
+                    DB::raw('SUM(return_qty) as return_qty'),
+                    DB::raw('
+                        SUM(issue_qty)
+                        - SUM(sold_qty)
+                        - SUM(return_qty)
+                        AS available_qty
+                    ')
+                )
+                ->whereHas('driverIssue', function ($q) use ($driver_id, $date) {
+                    $q->where('driver_id', $driver_id)
+                    ->where('issue_date', $date)
+                    ->where('status', 'open');
+                })
+                ->groupBy('product_id')
+                ->havingRaw('available_qty > 0')
+                ->with([
+                    'product:id,name,sale_price,unit_id',   // 🔥 sale_price from products
+                    'product.unit.sub_unit'                 // 🔥 sub units
+                ])
+                ->get();
+
+
 
 
             $status_code = ApiService::API_SUCCESS;

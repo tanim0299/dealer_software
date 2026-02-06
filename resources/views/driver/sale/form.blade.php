@@ -129,18 +129,20 @@
                     @foreach($products as $product)
                         <button type="button"
                             class="list-group-item list-group-item-action"
-                            onclick="selectProduct(
+                            onclick='selectProduct(
                                 {{ $product->product_id }},
-                                '{{ $product->product_name }}',
-                                {{ $product->sale_price ?? 0 }},
-                                {{ $product->available_qty }}
-                            )">
-                            {{ $product->product_name }}
+                                @json($product->product->name),
+                                {{ $product->product->sale_price }},
+                                {{ $product->available_qty }},
+                                @json($product->product->unit->sub_unit)
+                            )'>
+                            {{ $product->product->name }}
                             <span class="float-end text-muted">
-                                {{ $product->available_qty }} pcs | ৳ {{ $product->sale_price ?? 0 }}
+                                {{ $product->available_qty }} | ৳ {{ $product->product->sale_price }}
                             </span>
                         </button>
                         @endforeach
+
 
                 </div>
 
@@ -176,8 +178,15 @@ let cart = [];
 let selectedProduct = null;
 
 /* select product */
-function selectProduct(id, name, price, availableQty) {
-    selectedProduct = { id, name, price, availableQty };
+function selectProduct(id, name, price, availableQty, subUnits) {
+
+    selectedProduct = {
+        id,
+        name,
+        price,
+        availableQty,
+        subUnits
+    };
 
     document.getElementById('selectedProductArea').classList.remove('d-none');
     document.getElementById('selectedProductName').innerText =
@@ -186,86 +195,146 @@ function selectProduct(id, name, price, availableQty) {
     document.getElementById('productPrice').value = price;
     document.getElementById('productQty').value = 1;
 }
-
-
-/* add to cart */
 function addToCart() {
+
     const qty = parseFloat(document.getElementById('productQty').value);
     const price = parseFloat(document.getElementById('productPrice').value);
 
     if (!qty || qty <= 0)
         return alert('Invalid quantity');
 
-    if (qty > selectedProduct.availableQty)
-        return alert('Quantity exceeds available stock');
+    const defaultSub = selectedProduct.subUnits[0];
 
-    // prevent duplicate product
-    const exists = cart.find(p => p.product_id === selectedProduct.id);
-    if (exists) {
-        return alert('Product already added');
+    const existingIndex = cart.findIndex(
+        p => p.product_id === selectedProduct.id
+    );
+
+    // 🔥 IF PRODUCT ALREADY EXISTS
+    if (existingIndex !== -1) {
+
+        let newQty = cart[existingIndex].qty + qty;
+
+        // check stock
+        if (newQty > selectedProduct.availableQty) {
+            return alert('Stock limit exceeded');
+        }
+
+        cart[existingIndex].qty = newQty;
+        cart[existingIndex].price = price;
+
+        recalculateItem(existingIndex);
+        renderCart();
+
+        bootstrap.Modal.getInstance(
+            document.getElementById('productModal')
+        ).hide();
+
+        return;
     }
+
+    // 🔥 NEW PRODUCT ADD
+    if (qty > selectedProduct.availableQty)
+        return alert('Stock limit exceeded');
 
     cart.push({
         product_id: selectedProduct.id,
         name: selectedProduct.name,
         qty,
         price,
+        discount: 0,
         availableQty: selectedProduct.availableQty,
-        total: qty * price
+        subUnits: selectedProduct.subUnits,
+        sub_unit_id: defaultSub?.id || null,
+        unit_data: defaultSub?.unit_data || 1,
+        final_quantity: qty * (1 / (defaultSub?.unit_data || 1)),
+        line_total: qty * price
     });
 
     renderCart();
+
     bootstrap.Modal.getInstance(
         document.getElementById('productModal')
     ).hide();
 }
 
 function renderCart() {
+
     const cartDiv = document.getElementById('cartItems');
     cartDiv.innerHTML = '';
 
     let subtotal = 0;
 
     cart.forEach((item, index) => {
-        subtotal += item.total;
+
+        subtotal += item.line_total;
+
+        let subUnitOptions = '';
+
+        item.subUnits.forEach(sub => {
+            subUnitOptions += `
+                <option value="${sub.id}"
+                    data-unit="${sub.unit_data}"
+                    ${sub.id == item.sub_unit_id ? 'selected' : ''}>
+                    ${sub.name}
+                </option>
+            `;
+        });
 
         cartDiv.innerHTML += `
         <div class="card mb-2">
             <div class="card-body">
 
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between">
                     <strong>${item.name}</strong>
                     <button class="btn btn-sm btn-danger"
-                            onclick="removeItem(${index})">
-                        ✕
-                    </button>
+                            onclick="removeItem(${index})">✕</button>
                 </div>
 
-                <small class="text-muted">
-                    Available: ${item.availableQty}
-                </small>
-
                 <div class="row g-2 mt-2">
-                    <div class="col-4">
+
+                    <!-- Qty -->
+                    <div class="col-3">
                         <input type="number"
                                class="form-control"
-                               min="1"
-                               max="${item.availableQty}"
                                value="${item.qty}"
                                onchange="updateQty(${index}, this.value)">
                     </div>
 
-                    <div class="col-4">
+                    <!-- Price -->
+                    <div class="col-3">
                         <input type="number"
                                class="form-control"
                                value="${item.price}"
                                onchange="updatePrice(${index}, this.value)">
                     </div>
 
-                    <div class="col-4 text-end fw-bold">
-                        ৳ ${item.total.toFixed(2)}
+                    <!-- Discount -->
+                    <div class="col-3">
+                        <input type="number"
+                               class="form-control"
+                               value="${item.discount}"
+                               onchange="updateDiscount(${index}, this.value)">
                     </div>
+
+                    <!-- Sub Unit -->
+                    <div class="col-3">
+                        <select class="form-select"
+                                onchange="changeSubUnit(${index}, this)">
+                            ${subUnitOptions}
+                        </select>
+                    </div>
+
                 </div>
+
+                <div class="mt-2 d-flex justify-content-between">
+                    <small class="text-muted">
+                        Base Qty: ${item.final_quantity.toFixed(4)}
+                    </small>
+                    <strong>
+                        ৳ ${item.line_total.toFixed(2)}
+                    </strong>
+                </div>
+
             </div>
         </div>
         `;
@@ -273,23 +342,58 @@ function renderCart() {
 
     updateTotals(subtotal);
 }
+function recalculateItem(index) {
+
+    const item = cart[index];
+
+    item.final_quantity = item.qty * (1 / item.unit_data);
+
+    // 🔥 STOCK CHECK (BASE UNIT)
+    if (item.final_quantity > item.availableQty) {
+        alert('Stock exceeded!');
+        item.qty = 1;
+        item.final_quantity = 1 * (1 / item.unit_data);
+    }
+
+    const gross = item.qty * item.price;
+
+    if (item.discount > gross)
+        item.discount = gross;
+
+    item.line_total = gross - item.discount;
+}
+
+function changeSubUnit(index, selectElement) {
+
+    const unitData = parseFloat(
+        selectElement.options[selectElement.selectedIndex]
+        .getAttribute('data-unit')
+    );
+
+    cart[index].sub_unit_id = parseInt(selectElement.value);
+    cart[index].unit_data = unitData;
+
+    recalculateItem(index);
+    renderCart();
+}
 
 
 function updateQty(index, qty) {
-    qty = parseFloat(qty);
-
-    if (qty <= 0) qty = 1;
-
-    if (qty > cart[index].availableQty) {
-        alert('Quantity exceeds available stock');
-        qty = cart[index].availableQty;
-    }
-
-    cart[index].qty = qty;
-    cart[index].total = qty * cart[index].price;
-
+    cart[index].qty = parseFloat(qty) || 1;
+    recalculateItem(index);
     renderCart();
 }
+function updatePrice(index, price) {
+    cart[index].price = parseFloat(price) || 0;
+    recalculateItem(index);
+    renderCart();
+}
+function updateDiscount(index, discount) {
+    cart[index].discount = parseFloat(discount) || 0;
+    recalculateItem(index);
+    renderCart();
+}
+
 
 function removeItem(index) {
     if (!confirm('Remove this item?')) return;
@@ -298,12 +402,6 @@ function removeItem(index) {
     renderCart();
 }
 
-/* update price */
-function updatePrice(index, price) {
-    cart[index].price = price;
-    cart[index].total = cart[index].qty * price;
-    renderCart();
-}
 
 /* totals */
 function updateTotals(subtotal) {
