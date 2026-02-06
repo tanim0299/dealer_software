@@ -2,144 +2,62 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile POS Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mobile POS</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6f8;
+        }
+
+        .content-wrapper {
+            padding-bottom: 130px; /* space for fixed btn + nav */
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            border-top: 1px solid #ddd;
+            z-index: 1030;
+        }
+
+        .bottom-nav a {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 20px;
+            text-decoration: none;
+            color: #555;
+        }
+
+        .fixed-action {
+            position: fixed;
+            bottom: 56px;
+            width: 100%;
+            z-index: 1029;
+        }
+    </style>
 </head>
-<style>
-    * {
-    box-sizing: border-box;
-    font-family: system-ui, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background: #f4f6f8;
-}
-
-.app {
-    padding-bottom: 70px;
-}
-
-/* Header */
-.header {
-    background: #2563eb;
-    color: white;
-    padding: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Summary Cards */
-.summary {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 12px;
-}
-
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 14px;
-    text-align: center;
-}
-
-.card p {
-    font-size: 13px;
-    color: #666;
-}
-
-.card h3 {
-    margin-top: 4px;
-    color: #111;
-}
-
-/* Actions */
-.actions {
-    padding: 12px;
-    display: grid;
-    gap: 10px;
-}
-
-button {
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.primary {
-    background: #2563eb;
-    color: white;
-}
-
-.secondary {
-    background: white;
-    border: 1px solid #ddd;
-}
-
-/* Activity */
-.activity {
-    padding: 12px;
-}
-
-.activity h2 {
-    font-size: 16px;
-    margin-bottom: 8px;
-}
-
-.activity ul li {
-    background: white;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-}
-
-/* Bottom Navigation */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    border-top: 1px solid #ddd;
-}
-
-.bottom-nav a {
-    text-decoration: none;
-    font-size: 20px;
-    color: #555;
-}
-
-</style>
 <body>
 
-<div class="app">
-
-    <!-- Header -->
-    <header class="header">
-        <h1>My Shop</h1>
-        <span class="date">Today</span>
-    </header>
-
+<div class="content-wrapper">
     @yield('body')
-
 </div>
 
 <!-- Bottom Navigation -->
-<nav class="bottom-nav">
+<div class="bottom-nav d-flex">
     <a href="#">🏠</a>
     <a href="#">📦</a>
     <a href="#">➕</a>
     <a href="#">📊</a>
     <a href="#">⚙️</a>
-</nav>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
