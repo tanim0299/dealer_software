@@ -15,7 +15,6 @@ class WebsiteSettingsController extends Controller
     {
         $this->middleware(['permission:Website Settings view'])->only(['index']);
         $this->middleware(['permission:Website Settings create'])->only(['create']);
-        
     }
     /**
      * Display a listing of the resource.
@@ -24,7 +23,7 @@ class WebsiteSettingsController extends Controller
     {
         [$status_code, $status_message, $settingData] = (new GlobalSetting)->getWebsiteSettings();
         $data['settings'] = $settingData;
-        return view($this->PATH.'.index',$data);
+        return view($this->PATH . '.index', $data);
     }
 
     /**
@@ -40,17 +39,7 @@ class WebsiteSettingsController extends Controller
      */
     public function store(Request $request)
     {
-        [$status_code, $status_message, $error_message] = (new GlobalSetting())->storeWebsiteSettings($request);
-        if ($status_code == ApiService::API_SUCCESS) {
-            return redirect()
-                ->route('website_settings.index')
-                ->with('success', $status_message);
-        }
-        return redirect()
-            ->back()
-            ->withInput()
-            ->withErrors($error_message) // must be an array of field → messages
-            ->with('error', $status_message);
+        //
     }
 
     /**
@@ -72,10 +61,24 @@ class WebsiteSettingsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, WebsiteSettings $websiteSettings)
+    public function update(Request $request, $id)
     {
-        //
+        [$status_code, $status_message, $error_message] =
+            (new GlobalSetting())->updateWebsiteSettings($request, $id);
+
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('website_settings.index')
+                ->with('success', $status_message);
+        }
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors($error_message)
+            ->with('error', $status_message);
     }
+
 
     /**
      * Remove the specified resource from storage.

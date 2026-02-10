@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Drivers;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -50,7 +51,9 @@ class DriverService
             $driver->areas()->sync($request->area_ids);
 
             // Create User
+            $role = Role::where('name','Driver')->first();
             $user = User::create([
+                'role_id' => $role->id ?? 2,
                 'name'      => $request->name,
                 'phone'     => $request->phone ?? null,
                 'email'     => 'driver' . $driver->id . '@example.com',

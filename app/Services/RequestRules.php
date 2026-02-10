@@ -441,6 +441,51 @@ class RequestRules{
         return [$rules, $messages];
     }
 
+    public static function IncomeExpenseTitleRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            //
+        ];
+
+        $messages = [
+            //
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function ExpenseEntryRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            //
+        ];
+
+        $messages = [
+            //
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function IncomeEntryRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            //
+        ];
+
+        $messages = [
+            //
+        ];
+
+        return [$rules, $messages];
+    }
+
 
 
 

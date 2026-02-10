@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -9,23 +8,24 @@ class WebsiteSettings extends Model
 {
     protected $guarded = [];
 
-    public function createWebsiteSettings($request)
+    public function updateWebsiteSettings($request)
     {
         $settingsData = [
-            'title' => $request->title,
-            'phone' => $request->phone,
+            'title'   => $request->title,
+            'phone'   => $request->phone,
             'address' => $request->address,
         ];
 
         if ($request->hasFile('logo')) {
-            $settingsData['logo'] = FileUploader::upload($request->logo, 'website_settings');
+            $settingsData['logo'] =
+                FileUploader::upload($request->logo, 'website_settings');
         }
 
         if ($request->hasFile('favicon')) {
-            $settingsData['favicon'] = FileUploader::upload($request->favicon, 'website_settings');
+            $settingsData['favicon'] =
+                FileUploader::upload($request->favicon, 'website_settings');
         }
 
-        return WebsiteSettings::create($settingsData);
+        return $this->update($settingsData);
     }
-
 }
