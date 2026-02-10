@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\ApiService;
 use App\Services\DriverIssueService;
 use App\Services\DriverService;
+use App\Services\StockService;
 use Illuminate\Http\Request;
 
 class DriverIssueController extends Controller
@@ -27,7 +28,7 @@ class DriverIssueController extends Controller
     public function create()
     {
         $data['drivers'] = (new DriverService())->getDriverList([],false,false)[2];
-        $data['products'] = Product::with('warehouseStock')->get();
+        $data['products'] = (new StockService())->getWarehouseStocks([],false,true)[2];
         return view($this->path.'.create', $data);
     }
 
@@ -60,7 +61,7 @@ class DriverIssueController extends Controller
     public function edit(string $id)
     {
         $data['drivers'] = (new DriverService())->getDriverList([],false,false)[2];
-        $data['products'] = Product::with('warehouseStock')->get();
+        $data['products'] = (new StockService())->getWarehouseStocks([],false,true)[2];
         $data['issue'] = (new DriverIssueService())->getIssueDataById($id)[2];
         if ($data['issue']->status !== 'open') {
             return redirect()

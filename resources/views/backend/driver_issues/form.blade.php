@@ -80,29 +80,10 @@
                                     required>
                                 <option value="">Select Product</option>
                                 @foreach($products as $product)
-                                    @php
-                                        $availableStock =
-                                            ($product->warehouseStock->purchase_qty ?? 0)
-                                            + ($product->warehouseStock->sales_return_qty ?? 0)
-                                            - (
-                                                ($product->warehouseStock->sales_qty ?? 0)
-                                                + ($product->warehouseStock->return_qty ?? 0)
-                                                + ($product->warehouseStock->sr_issue_qty ?? 0)
-                                            );
-                                    @endphp
-
-                                    <option value="{{ $product->id }}"
-                                        data-stock="{{ 
-                                            ($product->warehouseStock->purchase_qty ?? 0)
-                                            + ($product->warehouseStock->sales_return_qty ?? 0)
-                                            - (
-                                                ($product->warehouseStock->sales_qty ?? 0)
-                                                + ($product->warehouseStock->return_qty ?? 0)
-                                                + ($product->warehouseStock->sr_issue_qty ?? 0)
-                                            )
-                                        }}"
-                                        {{ $productId == $product->id ? 'selected' : '' }}>
-                                        {{ $product->name }}
+                                    <option value="{{ $product->product_id }}"
+                                        data-stock="{{ $product->available_qty }}"
+                                        {{ $productId == $product->product_id ? 'selected' : '' }}>
+                                        {{ $product->product->name }}
                                     </option>
 
                                 @endforeach
@@ -164,19 +145,9 @@ document.getElementById('addRow').addEventListener('click', function () {
                     class="form-select product-select" required>
                 <option value="">Select Product</option>
                 @foreach($products as $product)
-                    @php
-                        $availableStock =
-                            ($product->warehouseStock->purchase_qty ?? 0)
-                            + ($product->warehouseStock->sales_return_qty ?? 0)
-                            - (
-                                ($product->warehouseStock->sales_qty ?? 0)
-                                + ($product->warehouseStock->return_qty ?? 0)
-                                + ($product->warehouseStock->sr_issue_qty ?? 0)
-                            );
-                    @endphp
-                    <option value="{{ $product->id }}"
-                            data-stock="{{ $availableStock }}">
-                        {{ $product->name }}
+                    <option value="{{ $product->product_id }}"
+                            data-stock="{{ $product->available_qty }}">
+                        {{ $product->product->name }}
                     </option>
                 @endforeach
             </select>

@@ -9,9 +9,13 @@
         </span>
     </div>
 </nav>
+<form method="POST" action="" id="saleForm" enctype="multipart/form-data">
 
+    @csrf
+    @if($isEdit)
+        @method('PUT')
+    @endif
 <div class="container-fluid mt-3">
-
     <!-- Customer -->
     <div class="card mb-2">
         <div class="card-body">
@@ -67,6 +71,8 @@
     <div id="cartItems">
         {{-- JS inject cart rows --}}
     </div>
+    <input type="hidden" name="cart_items" id="cartItemsInput">
+
 
     <!-- Summary -->
     <div class="card mt-3">
@@ -102,12 +108,14 @@
 
 </div>
 
-<!-- Fixed Save Button -->
-<div class="fixed-action px-3">
-    <button type="submit" class="btn btn-primary btn-lg w-100">
-        {{ $isEdit ? 'Update Sale' : 'Save Sale' }}
-    </button>
-</div>
+    <!-- Fixed Save Button -->
+    <div class=" px-3">
+        <button type="button" id="saleSubmitBtn" class="btn btn-primary btn-lg w-100">
+            {{ $isEdit ? 'Update Sale' : 'Save Sale' }}
+        </button>
+
+    </div>
+</form>
 <!-- Product Modal -->
 <div class="modal fade" id="productModal" tabindex="-1">
     <div class="modal-dialog modal-fullscreen-sm-down">
@@ -173,6 +181,7 @@
         </div>
     </div>
 </div>
+@push('scripts')
 <script>
 let cart = [];
 let selectedProduct = null;
@@ -195,6 +204,8 @@ function selectProduct(id, name, price, availableQty, subUnits) {
     document.getElementById('productPrice').value = price;
     document.getElementById('productQty').value = 1;
 }
+
+
 function addToCart() {
 
     const qty = parseFloat(document.getElementById('productQty').value);
@@ -402,8 +413,17 @@ function removeItem(index) {
     renderCart();
 }
 
+document.querySelector('[name="discount"]').addEventListener('input', () => {
+    let subtotal = cart.reduce((sum, item) => sum + item.line_total, 0);
+    updateTotals(subtotal);
+});
 
-/* totals */
+document.querySelector('[name="paid_amount"]').addEventListener('input', () => {
+    let subtotal = cart.reduce((sum, item) => sum + item.line_total, 0);
+    updateTotals(subtotal);
+});
+
+
 function updateTotals(subtotal) {
     const discount = parseFloat(document.querySelector('[name="discount"]').value || 0);
     const paid = parseFloat(document.querySelector('[name="paid_amount"]').value || 0);
@@ -413,4 +433,52 @@ function updateTotals(subtotal) {
     document.getElementById('dueAmount').innerText =
         ((subtotal - discount) - paid).toFixed(2);
 }
+$('#saleSubmitBtn').on('click', function(e) {
+    e.preventDefault();
+
+    if(cart.length === 0) {
+        alert('Cart is empty!');
+        return;
+    }
+
+    // Add cart items
+    $('#cartItemsInput').val(JSON.stringify(cart));
+
+    var form = $('#saleForm')[0];
+    var formData = new FormData(form);
+
+    // Dynamically pick URL and method
+    var url = $(form).attr('action');
+    var method = $(form).find('input[name="_method"]').val() || $(form).attr('method');
+
+    $.ajax({
+        url: '{{ route('sales.store') }}',
+        method: 'POST', // use dynamic method
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(res) {
+            if(res.status === 'success'){
+                window.open(res.invoice_url, '_blank');
+                form.reset();
+                cart = [];
+                renderCart();
+                $(window).scrollTop(0);
+            } else {
+                alert(res.message || 'Something went wrong!');
+            }
+        },
+        error: function(err){
+            console.error(err);
+            alert('Server error!');
+        }
+    });
+});
+
+
 </script>
+
+@endpush
