@@ -9,10 +9,12 @@
 
         <div class="col-6">
             <div class="card shadow-sm text-center">
-                <div class="card-body p-3">
-                    <small class="text-muted">Sales</small>
-                    <h5 class="fw-bold mt-1">₹12,500</h5>
-                </div>
+                <a href="{{ route('sales.index') }}">
+                    <div class="card-body p-3">
+                        <small class="text-muted">Sales</small>
+                        <h5 class="fw-bold mt-1">0</h5>
+                    </div>
+                </a>
             </div>
         </div>
 

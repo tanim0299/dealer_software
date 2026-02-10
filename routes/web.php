@@ -63,6 +63,8 @@ Route::middleware('auth')->group(function () {
         'expense_entry' => ExpenseEntryController::class,
         'income_entry' => IncomeEntryController::class,
     ]);
+
+    Route::get('sales_invoice/{id}',[SalesController::class,'invoice'])->name('sales.invoice');
     Route::get('/api/products', [ProductController::class, 'fetch']);
 
     Route::post('get_itemwise_category',[CategoryController::class,'itemWiseCategory'])->name('category.get_itemwise_category');

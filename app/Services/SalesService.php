@@ -10,8 +10,24 @@ use App\Models\WareHouseStocks;
 use App\Traits\FileUploader;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class SalesService {
+    public function getSalesList($search = [], $is_paginate = true, $is_relation = true)
+    {
+        $status_code = $status_message = $response = '';
+        try {
+            $response = (new SalesLedger())->getSalesList($search, $is_paginate, $is_relation);
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Data Found';
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message, $response];
+    }    
+
     public function storeSales($request)
     {
         $status_code = $status_message = $invoice_url = '';
@@ -62,7 +78,7 @@ class SalesService {
                 'note'       => null,
                 'slip_image' => $slipPath,
                 'create_by'  => Auth::id(),
-                'driver_id'  => null,
+                'driver_id'  => Auth::user()->driver_id ?? null,
             ]);
 
             // 🔥 LOOP PRODUCTS
@@ -73,9 +89,13 @@ class SalesService {
 
                 $driverId = Auth::user()->driver_id;
 
+                $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
+
                 $issueItems = DriverIssueItem::where('product_id', $item['product_id'])
-                    ->whereHas('issue', function ($q) use ($driverId) {
-                        $q->where('driver_id', $driverId);
+                    ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
+                        $q->where('driver_id', $driverId)
+                        ->whereDate('issue_date', $today)   // today's date
+                        ->where('status', 'open');    // status = open
                     })
                     ->lockForUpdate()
                     ->orderBy('created_at', 'asc') // FIFO
@@ -159,5 +179,75 @@ class SalesService {
         }
 
         return [$status_code, $status_message, $invoice_url];
+    }
+
+    public function getSalesLedgerById($id)
+    {
+        $status_code = $status_message = $response = '';
+        try {
+            $response = (new SalesLedger())->find($id);
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Sales Found';
+        } catch (\Throwable $th) {
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+        return [$status_code, $status_message, $response];
+    }
+
+    public function deleteSalesById($id)
+    {
+        $status_code = $status_message = '';
+        try {
+            DB::beginTransaction();
+            $ledger = SalesLedger::with('items')->findOrFail($id);
+
+            // 1️⃣ Rollback sold_qty in driver_issue_items
+            foreach ($ledger->items as $entry) {
+                $requiredQty = $entry->final_quantity;
+
+                $driverId = $ledger->driver_id;
+                $today = $ledger->date;
+
+                // Get the driver issue items that were used (FIFO)
+                $issueItems = DriverIssueItem::where('product_id', $entry->product_id)
+                    ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
+                        $q->where('driver_id', $driverId)
+                        ->whereDate('issue_date', $today)
+                        ->where('status', 'open'); 
+                    })
+                    ->orderBy('created_at', 'asc')
+                    ->get();
+
+                $remainingQty = $requiredQty;
+
+                foreach ($issueItems as $issue) {
+                    $deduct = min($issue->sold_qty, $remainingQty); // make sure we don't go negative
+                    if ($deduct > 0) {
+                        $issue->decrement('sold_qty', $deduct);
+                        $remainingQty -= $deduct;
+                    }
+                    if ($remainingQty <= 0) break;
+                }
+            }
+
+            // 2️⃣ Delete Sales Entries
+            SalesEntry::where('ledger_id', $ledger->id)->delete();
+
+            // 3️⃣ Delete Payments
+            SalesPayment::where('ledger_id', $ledger->id)->delete();
+
+            // 4️⃣ Delete Ledger
+            $ledger->delete();
+            DB::commit();
+            $status_code = ApiService::API_SUCCESS;
+            $status_message = 'Sales Removed';
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $status_code = ApiService::API_SERVER_ERROR;
+            $status_message = $th->getMessage();
+        }
+
+        return [$status_code, $status_message];
     }
 }
