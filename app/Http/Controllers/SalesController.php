@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiService;
 use App\Services\CustomerService;
 use App\Services\SalesService;
 use App\Services\StockService;
@@ -13,9 +14,17 @@ class SalesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if(Auth::user()->hasRole('Driver'))
+        {
+            $data['search']['driver_id'] = auth()->user()->driver_id ?? null;
+            $data['search']['free_text'] = $request->free_text ?? null;
+            $data['search']['from_date'] = $request->from_date ?? date('Y-m-d');
+            $data['search']['to_date'] = $request->to_date ?? date('Y-m-d');
+            $data['sales'] = (new SalesService())->getSalesList($data['search'],true,true)[2];
+            return view('driver.sale.index',$data);
+        }
     }
 
     /**
@@ -37,13 +46,14 @@ class SalesController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         [$status_code, $status_message, $invoice_url] = (new SalesService())->storeSales($request);
         return response()->json([
             'status_code' => $status_code,
             'status_message' => $status_message,
-            'invoice_url' => 'sales_invoice/'.$invoice_url,
+            'invoice_url' => url('/sales_invoice/' . $invoice_url), // add slash
         ]);
+
     }
 
     /**
@@ -75,6 +85,23 @@ class SalesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        [$status_code, $status_message] = (new SalesService())->deleteSalesById($id);
+        if ($status_code == ApiService::API_SUCCESS) {
+                return redirect()
+                    ->route('sales.index')
+                    ->with('success', $status_message);
+            }
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $status_message);
+    }
+
+    public function invoice($id)
+    {
+        [$status_code, $status_message, $ledger] = (new SalesService())->getSalesLedgerById($id);
+        // return $ledger;
+        $data['ledger'] = $ledger;
+        return view('driver.sale.invoice',$data);
     }
 }

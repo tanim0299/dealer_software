@@ -9,7 +9,10 @@
         </span>
     </div>
 </nav>
-<form method="POST" action="" id="saleForm" enctype="multipart/form-data">
+<form method="POST"
+      action="{{ $isEdit ? route('sales.update', $sale->id) : route('sales.store') }}"
+      id="saleForm"
+      enctype="multipart/form-data">
 
     @csrf
     @if($isEdit)
@@ -447,12 +450,17 @@ $('#saleSubmitBtn').on('click', function(e) {
     var form = $('#saleForm')[0];
     var formData = new FormData(form);
 
+    if ($(form).find('input[name="_method"]').length) {
+        formData.append('_method', $(form).find('input[name="_method"]').val());
+    }
+
+
     // Dynamically pick URL and method
     var url = $(form).attr('action');
     var method = $(form).find('input[name="_method"]').val() || $(form).attr('method');
 
     $.ajax({
-        url: '{{ route('sales.store') }}',
+        url: url,
         method: 'POST', // use dynamic method
         data: formData,
         processData: false,
@@ -461,12 +469,17 @@ $('#saleSubmitBtn').on('click', function(e) {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         success: function(res) {
-            if(res.status === 'success'){
-                window.open(res.invoice_url, '_blank');
+            if(res.status_code === 200){
+                window.open(res.invoice_url, '_blank'); 
                 form.reset();
                 cart = [];
                 renderCart();
                 $(window).scrollTop(0);
+
+                setTimeout(() => {
+                    location.reload();
+                }, 500); // reload after 0.5 seconds
+
             } else {
                 alert(res.message || 'Something went wrong!');
             }
