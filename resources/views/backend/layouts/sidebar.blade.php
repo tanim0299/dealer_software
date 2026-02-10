@@ -8,12 +8,12 @@ $parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->first();
     <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-        <a href="index.html" class="logo">
+        <a href="" class="logo">
             <img
-            src="{{asset('build/backend')}}/img/kaiadmin/logo_light.svg"
+            src="{{ asset('storage/') }}{{!empty($settings->logo) ? $settings->logo:''}}"
             alt="navbar brand"
             class="navbar-brand"
-            height="20"
+            height="60"
             />
         </a>
         <div class="nav-toggle">
@@ -33,7 +33,7 @@ $parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->first();
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
         <ul class="nav nav-secondary">
-            
+
             @forelse($menuSections as $section)
             @php
             $menus = (new App\Models\Menu())->getMenuList([

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>@yield('title') || Site Title</title>
+    <title>@yield('title') || {{ $settings->title }}</title>
     <meta
       content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
       name="viewport"
@@ -46,7 +46,7 @@
     <style>
       .form-control, .form-select{
         border-radius: 0px;
-        
+
       }
       .form-select{
         line-height: 2;
