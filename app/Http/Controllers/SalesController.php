@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\CustomerService;
+use App\Services\SalesService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,13 @@ class SalesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
+        [$status_code, $status_message, $invoice_url] = (new SalesService())->storeSales($request);
+        return response()->json([
+            'status_code' => $status_code,
+            'status_message' => $status_message,
+            'invoice_url' => 'sales_invoice/'.$invoice_url,
+        ]);
     }
 
     /**
