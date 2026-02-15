@@ -66,6 +66,11 @@
                     🧾 Add Expense
                 </button>
             </div>
+            <div class="col-6">
+                <a class="btn btn-outline-danger w-100 py-2" href="">
+                    🧾 Sales Return
+                </a>
+            </div>
         </div>
 
     </div>
