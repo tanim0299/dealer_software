@@ -16,14 +16,18 @@ class SalesController extends Controller
      */
     public function index(Request $request)
     {
+        $data['search']['driver_id'] = auth()->user()->driver_id ?? null;
+        $data['search']['free_text'] = $request->free_text ?? null;
+        $data['search']['from_date'] = $request->from_date ?? date('Y-m-d');
+        $data['search']['to_date'] = $request->to_date ?? date('Y-m-d');
+        $data['sales'] = (new SalesService())->getSalesList($data['search'],true,true)[2];
         if(Auth::user()->hasRole('Driver'))
         {
-            $data['search']['driver_id'] = auth()->user()->driver_id ?? null;
-            $data['search']['free_text'] = $request->free_text ?? null;
-            $data['search']['from_date'] = $request->from_date ?? date('Y-m-d');
-            $data['search']['to_date'] = $request->to_date ?? date('Y-m-d');
-            $data['sales'] = (new SalesService())->getSalesList($data['search'],true,true)[2];
             return view('driver.sale.index',$data);
+        }
+        else
+        {
+            return view('backend.sales.index',$data);
         }
     }
 

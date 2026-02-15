@@ -24,6 +24,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\IncomeExpenseTitleController;
 use App\Http\Controllers\ExpenseEntryController;
 use App\Http\Controllers\IncomeEntryController;
+use App\Http\Controllers\SalesReturnController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,7 @@ Route::middleware('auth')->group(function () {
         'income_expense_title' => IncomeExpenseTitleController::class,
         'expense_entry' => ExpenseEntryController::class,
         'income_entry' => IncomeEntryController::class,
+        'sales_return' => SalesReturnController::class,
     ]);
 
     Route::get('sales_invoice/{id}',[SalesController::class,'invoice'])->name('sales.invoice');
