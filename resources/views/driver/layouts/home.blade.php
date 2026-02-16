@@ -72,7 +72,11 @@
                     </a>
                 </div>
             </div>
-
+            <div class="col-6">
+                <a class="btn btn-outline-danger w-100 py-2" href="{{ route('driver-issues.index') }}">
+                    🧾 Issue List
+                </a>
+            </div>
         </div>
 
         <!-- RECENT ACTIVITY -->
