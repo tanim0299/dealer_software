@@ -18,8 +18,8 @@ class SalesController extends Controller
     {
         $data['search']['driver_id'] = auth()->user()->driver_id ?? null;
         $data['search']['free_text'] = $request->free_text ?? null;
-        $data['search']['from_date'] = $request->from_date ?? date('Y-m-d');
-        $data['search']['to_date'] = $request->to_date ?? date('Y-m-d');
+        $data['search']['from_date'] = $request->from_date;
+        $data['search']['to_date'] = $request->to_date;
         $data['sales'] = (new SalesService())->getSalesList($data['search'],true,true)[2];
         if(Auth::user()->hasRole('Driver'))
         {

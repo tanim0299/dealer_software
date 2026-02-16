@@ -1297,6 +1297,564 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-01-27 17:57:46',
                 'updated_at' => '2026-01-27 17:57:46',
             ),
+            142 => 
+            array (
+                'id' => 169,
+                'name' => 'Customer Area create',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            143 => 
+            array (
+                'id' => 170,
+                'name' => 'Customer Area view',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            144 => 
+            array (
+                'id' => 171,
+                'name' => 'Customer Area edit',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            145 => 
+            array (
+                'id' => 172,
+                'name' => 'Customer Area destroy',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            146 => 
+            array (
+                'id' => 173,
+                'name' => 'Customer Area status',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            147 => 
+            array (
+                'id' => 174,
+                'name' => 'Customer Area restore',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            148 => 
+            array (
+                'id' => 175,
+                'name' => 'Customer Area delete',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            149 => 
+            array (
+                'id' => 176,
+                'name' => 'Customer Area print',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:20',
+                'updated_at' => '2026-02-04 18:48:20',
+            ),
+            150 => 
+            array (
+                'id' => 177,
+                'name' => 'Customer Area show',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:21',
+                'updated_at' => '2026-02-04 18:48:21',
+            ),
+            151 => 
+            array (
+                'id' => 178,
+                'name' => 'Customer Area trash',
+                'guard_name' => 'web',
+                'parent' => 'Customer Area',
+                'created_at' => '2026-02-04 18:48:21',
+                'updated_at' => '2026-02-04 18:48:21',
+            ),
+            152 => 
+            array (
+                'id' => 179,
+                'name' => 'Customer create',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            153 => 
+            array (
+                'id' => 180,
+                'name' => 'Customer view',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            154 => 
+            array (
+                'id' => 181,
+                'name' => 'Customer edit',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            155 => 
+            array (
+                'id' => 182,
+                'name' => 'Customer destroy',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            156 => 
+            array (
+                'id' => 183,
+                'name' => 'Customer status',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            157 => 
+            array (
+                'id' => 184,
+                'name' => 'Customer restore',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            158 => 
+            array (
+                'id' => 185,
+                'name' => 'Customer delete',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            159 => 
+            array (
+                'id' => 186,
+                'name' => 'Customer print',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            160 => 
+            array (
+                'id' => 187,
+                'name' => 'Customer show',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:46',
+                'updated_at' => '2026-02-04 18:48:46',
+            ),
+            161 => 
+            array (
+                'id' => 188,
+                'name' => 'Customer trash',
+                'guard_name' => 'web',
+                'parent' => 'Customer',
+                'created_at' => '2026-02-04 18:48:47',
+                'updated_at' => '2026-02-04 18:48:47',
+            ),
+            162 => 
+            array (
+                'id' => 189,
+                'name' => 'Website Settings create',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-16 18:05:41',
+                'updated_at' => '2026-02-16 18:05:41',
+            ),
+            163 => 
+            array (
+                'id' => 190,
+                'name' => 'Website Settings view',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-16 18:05:41',
+                'updated_at' => '2026-02-16 18:05:41',
+            ),
+            164 => 
+            array (
+                'id' => 191,
+                'name' => 'Sales Ledger create',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:04',
+                'updated_at' => '2026-02-16 18:11:04',
+            ),
+            165 => 
+            array (
+                'id' => 192,
+                'name' => 'Sales Ledger view',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:04',
+                'updated_at' => '2026-02-16 18:11:04',
+            ),
+            166 => 
+            array (
+                'id' => 193,
+                'name' => 'Sales Ledger edit',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            167 => 
+            array (
+                'id' => 194,
+                'name' => 'Sales Ledger destroy',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            168 => 
+            array (
+                'id' => 195,
+                'name' => 'Sales Ledger status',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            169 => 
+            array (
+                'id' => 196,
+                'name' => 'Sales Ledger restore',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            170 => 
+            array (
+                'id' => 197,
+                'name' => 'Sales Ledger delete',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            171 => 
+            array (
+                'id' => 198,
+                'name' => 'Sales Ledger print',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            172 => 
+            array (
+                'id' => 199,
+                'name' => 'Sales Ledger show',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            173 => 
+            array (
+                'id' => 200,
+                'name' => 'Sales Ledger trash',
+                'guard_name' => 'web',
+                'parent' => 'Sales Ledger',
+                'created_at' => '2026-02-16 18:11:05',
+                'updated_at' => '2026-02-16 18:11:05',
+            ),
+            174 => 
+            array (
+                'id' => 201,
+                'name' => 'Income Expense Title create',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:15',
+                'updated_at' => '2026-02-16 18:15:15',
+            ),
+            175 => 
+            array (
+                'id' => 202,
+                'name' => 'Income Expense Title view',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            176 => 
+            array (
+                'id' => 203,
+                'name' => 'Income Expense Title edit',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            177 => 
+            array (
+                'id' => 204,
+                'name' => 'Income Expense Title destroy',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            178 => 
+            array (
+                'id' => 205,
+                'name' => 'Income Expense Title status',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            179 => 
+            array (
+                'id' => 206,
+                'name' => 'Income Expense Title restore',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            180 => 
+            array (
+                'id' => 207,
+                'name' => 'Income Expense Title delete',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            181 => 
+            array (
+                'id' => 208,
+                'name' => 'Income Expense Title print',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            182 => 
+            array (
+                'id' => 209,
+                'name' => 'Income Expense Title show',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            183 => 
+            array (
+                'id' => 210,
+                'name' => 'Income Expense Title trash',
+                'guard_name' => 'web',
+                'parent' => 'Income Expense Title',
+                'created_at' => '2026-02-16 18:15:16',
+                'updated_at' => '2026-02-16 18:15:16',
+            ),
+            184 => 
+            array (
+                'id' => 211,
+                'name' => 'Expense Entry create',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            185 => 
+            array (
+                'id' => 212,
+                'name' => 'Expense Entry view',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            186 => 
+            array (
+                'id' => 213,
+                'name' => 'Expense Entry edit',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            187 => 
+            array (
+                'id' => 214,
+                'name' => 'Expense Entry destroy',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            188 => 
+            array (
+                'id' => 215,
+                'name' => 'Expense Entry status',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            189 => 
+            array (
+                'id' => 216,
+                'name' => 'Expense Entry restore',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            190 => 
+            array (
+                'id' => 217,
+                'name' => 'Expense Entry delete',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            191 => 
+            array (
+                'id' => 218,
+                'name' => 'Expense Entry print',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:57',
+                'updated_at' => '2026-02-16 18:15:57',
+            ),
+            192 => 
+            array (
+                'id' => 219,
+                'name' => 'Expense Entry show',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:58',
+                'updated_at' => '2026-02-16 18:15:58',
+            ),
+            193 => 
+            array (
+                'id' => 220,
+                'name' => 'Expense Entry trash',
+                'guard_name' => 'web',
+                'parent' => 'Expense Entry',
+                'created_at' => '2026-02-16 18:15:58',
+                'updated_at' => '2026-02-16 18:15:58',
+            ),
+            194 => 
+            array (
+                'id' => 221,
+                'name' => 'Income Entry create',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:25',
+                'updated_at' => '2026-02-16 18:16:25',
+            ),
+            195 => 
+            array (
+                'id' => 222,
+                'name' => 'Income Entry view',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:25',
+                'updated_at' => '2026-02-16 18:16:25',
+            ),
+            196 => 
+            array (
+                'id' => 223,
+                'name' => 'Income Entry edit',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:25',
+                'updated_at' => '2026-02-16 18:16:25',
+            ),
+            197 => 
+            array (
+                'id' => 224,
+                'name' => 'Income Entry destroy',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:25',
+                'updated_at' => '2026-02-16 18:16:25',
+            ),
+            198 => 
+            array (
+                'id' => 225,
+                'name' => 'Income Entry status',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:25',
+                'updated_at' => '2026-02-16 18:16:25',
+            ),
+            199 => 
+            array (
+                'id' => 226,
+                'name' => 'Income Entry restore',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:26',
+                'updated_at' => '2026-02-16 18:16:26',
+            ),
+            200 => 
+            array (
+                'id' => 227,
+                'name' => 'Income Entry delete',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:26',
+                'updated_at' => '2026-02-16 18:16:26',
+            ),
+            201 => 
+            array (
+                'id' => 228,
+                'name' => 'Income Entry print',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:26',
+                'updated_at' => '2026-02-16 18:16:26',
+            ),
+            202 => 
+            array (
+                'id' => 229,
+                'name' => 'Income Entry show',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:26',
+                'updated_at' => '2026-02-16 18:16:26',
+            ),
+            203 => 
+            array (
+                'id' => 230,
+                'name' => 'Income Entry trash',
+                'guard_name' => 'web',
+                'parent' => 'Income Entry',
+                'created_at' => '2026-02-16 18:16:26',
+                'updated_at' => '2026-02-16 18:16:26',
+            ),
         ));
         
         
