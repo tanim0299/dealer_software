@@ -66,6 +66,13 @@ Route::middleware('auth')->group(function () {
         'sales_return' => SalesReturnController::class,
     ]);
 
+    Route::get('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
+    ->name('driver-issues.accept');
+
+    Route::get('driver-issues/{id}/reject', [DriverIssueController::class, 'reject'])
+        ->name('driver-issues.reject');
+
+
     Route::get('sales_invoice/{id}',[SalesController::class,'invoice'])->name('sales.invoice');
     Route::get('/api/products', [ProductController::class, 'fetch']);
 

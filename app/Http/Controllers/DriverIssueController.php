@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DriverIssues;
 use App\Models\Product;
 use App\Services\ApiService;
 use App\Services\DriverIssueService;
 use App\Services\DriverService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DriverIssueController extends Controller
 {
@@ -17,8 +19,16 @@ class DriverIssueController extends Controller
      */
     public function index(Request $request)
     {
+        if(Auth::user()->hasRole('Driver'))
+        {
+            $data['search']['driver_id'] = Auth::user()->driver_id ?? null;
+        }
         $data['search']['free_text'] = $request->get('free_text', '');
         $data['issues'] =  (new DriverIssueService())->getDriverIssueList($data['search'], true, false)[2];
+        if(Auth::user()->hasRole('Driver'))
+        {
+            return view('driver.issues.index',$data);   
+        }
         return view($this->path.'.index', $data);
     }
 
@@ -98,4 +108,23 @@ class DriverIssueController extends Controller
         }
         return redirect()->back()->withInput()->with('error', $status_message);
     }
+
+    public function accept($id)
+    {
+        $issue = DriverIssues::findOrFail($id);
+        $issue->status = 'accepted';
+        $issue->save();
+
+        return back()->with('success', 'Issue accepted successfully');
+    }
+
+    public function reject($id)
+    {
+        $issue = DriverIssues::findOrFail($id);
+        $issue->status = 'rejected';
+        $issue->save();
+
+        return back()->with('success', 'Issue rejected successfully');
+    }
+
 }

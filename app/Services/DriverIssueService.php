@@ -43,6 +43,11 @@ class DriverIssueService {
                     });
                 });
             }
+
+            if(!empty($search['driver_id']))
+            {
+                $query->where('driver_id',$search['driver_id']);   
+            }
     
             if ($is_paginate) {
                 $issues = $query->orderBy('id', 'desc')->paginate(10);

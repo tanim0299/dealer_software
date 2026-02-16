@@ -40,7 +40,7 @@ class StockService {
                 ->whereHas('driverIssue', function ($q) use ($driver_id, $date) {
                     $q->where('driver_id', $driver_id)
                     ->where('issue_date', $date)
-                    ->where('status', 'open');
+                    ->where('status', 'accepted');
                 })
                 ->groupBy('product_id')
                 ->havingRaw('available_qty > 0')
