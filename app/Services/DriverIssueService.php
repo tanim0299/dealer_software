@@ -85,69 +85,15 @@ class DriverIssueService {
                 $issue = DriverIssues::create([
                     'driver_id' => $request->driver_id,
                     'issue_date' => now(),
-                    'status' => 'open',
+                    'status' => 'open', // changed from open
                 ]);
 
                 foreach ($request->items as $item) {
-
-                    $requiredQty = $item['issue_qty'];
-                    $totalCost = 0;
-                    $totalIssued = 0;
-
-                    $stocks = WareHouseStocks::where('product_id', $item['product_id'])
-                        ->lockForUpdate()
-                        ->orderBy('created_at', 'asc') // FIFO
-                        ->get();
-
-                    // Calculate total available stock first
-                    $totalAvailable = $stocks->sum(function ($stock) {
-                        return $stock->purchase_qty
-                            + $stock->sales_return_qty
-                            - $stock->sales_qty
-                            + $stock->return_qty
-                            - $stock->sr_issue_qty;
-                    });
-
-                    if ($totalAvailable < $requiredQty) {
-                        throw new Exception('Stock not sufficient');
-                    }
-
-                    foreach ($stocks as $stock) {
-
-                        $availableQty = $stock->purchase_qty
-                            + $stock->sales_return_qty
-                            - $stock->sales_qty
-                            + $stock->return_qty
-                            - $stock->sr_issue_qty;
-
-                        if ($availableQty <= 0) {
-                            continue;
-                        }
-
-                        $issueFromThisStock = min($availableQty, $requiredQty);
-
-                        // Accumulate cost
-                        $totalCost += $issueFromThisStock * $stock->purchase_price;
-                        $totalIssued += $issueFromThisStock;
-
-                        // Increment sr_issue_qty FIFO-wise
-                        $stock->increment('sr_issue_qty', $issueFromThisStock);
-
-                        $requiredQty -= $issueFromThisStock;
-
-                        if ($requiredQty <= 0) {
-                            break;
-                        }
-                    }
-
-                    // Weighted average purchase price
-                    $averagePrice = $totalCost / $totalIssued;
-
                     DriverIssueItem::create([
                         'driver_issue_id' => $issue->id,
                         'product_id'      => $item['product_id'],
-                        'issue_qty'       => $totalIssued,
-                        'purchase_price'       => $averagePrice,
+                        'issue_qty'       => $item['issue_qty'], // requested qty only
+                        'purchase_price'  => 0, // will calculate at approval time
                     ]);
                 }
 

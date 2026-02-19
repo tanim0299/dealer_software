@@ -95,7 +95,7 @@ class SalesService {
                     ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
                         $q->where('driver_id', $driverId)
                         ->whereDate('issue_date', $today)   // today's date
-                        ->where('status', 'open');    // status = open
+                        ->where('status', 'accepted');    // status = open
                     })
                     ->lockForUpdate()
                     ->orderBy('created_at', 'asc') // FIFO

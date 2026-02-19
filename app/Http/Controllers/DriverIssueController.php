@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DriverIssues;
 use App\Models\Product;
+use App\Models\WareHouseStocks;
 use App\Services\ApiService;
 use App\Services\DriverIssueService;
 use App\Services\DriverService;
@@ -111,10 +112,67 @@ class DriverIssueController extends Controller
 
     public function accept($id)
     {
-        $issue = DriverIssues::findOrFail($id);
-        $issue->status = 'accepted';
-        $issue->save();
+        $issue = DriverIssues::with('items')->findOrFail($id);
 
+        if ($issue->status !== 'open') {
+            throw new \Exception('Issue already processed');
+        }
+
+        foreach ($issue->items as $item) {
+
+            $requiredQty = $item->issue_qty;
+            $totalCost = 0;
+            $totalIssued = 0;
+
+            $stocks = WareHouseStocks::where('product_id', $item->product_id)
+                ->lockForUpdate()
+                ->orderBy('created_at', 'asc')
+                ->get();
+
+            $totalAvailable = $stocks->sum(function ($stock) {
+                return $stock->purchase_qty
+                    + $stock->sales_return_qty
+                    - $stock->sales_qty
+                    + $stock->return_qty
+                    - $stock->sr_issue_qty;
+            });
+
+            if ($totalAvailable < $requiredQty) {
+                throw new \Exception('Stock not sufficient');
+            }
+
+            foreach ($stocks as $stock) {
+
+                $availableQty = $stock->purchase_qty
+                    + $stock->sales_return_qty
+                    - $stock->sales_qty
+                    + $stock->return_qty
+                    - $stock->sr_issue_qty;
+
+                if ($availableQty <= 0) continue;
+
+                $issueFromThisStock = min($availableQty, $requiredQty);
+
+                $totalCost += $issueFromThisStock * $stock->purchase_price;
+                $totalIssued += $issueFromThisStock;
+
+                $stock->increment('sr_issue_qty', $issueFromThisStock);
+
+                $requiredQty -= $issueFromThisStock;
+
+                if ($requiredQty <= 0) break;
+            }
+
+            $averagePrice = $totalCost / $totalIssued;
+
+            $item->update([
+                'purchase_price' => $averagePrice
+            ]);
+        }
+
+        $issue->update([
+            'status' => 'accepted'
+        ]);
         return back()->with('success', 'Issue accepted successfully');
     }
 
