@@ -27,7 +27,7 @@ class SalesReturnController extends Controller
     {
         if(Auth::user()->hasRole('Driver'))
         {
-            return view('driver.')   
+            return view('driver.sales_return.create');   
         }
     }
 
