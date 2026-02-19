@@ -17,4 +17,9 @@ class SalesEntry extends Model
     {
         return $this->belongsTo(SubUnit::class,'sub_unit_id');
     }
+
+    public function returnEntries()
+    {
+        return $this->hasMany(SalesReturnEntries::class, 'sales_entry_id');
+    }
 }

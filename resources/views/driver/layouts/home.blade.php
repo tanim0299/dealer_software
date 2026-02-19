@@ -67,8 +67,13 @@
                     </button>
                 </div>
                 <div class="col-6">
-                    <a class="btn btn-outline-danger w-100 py-2" href="">
+                    <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.create') }}">
                         🧾 Sales Return
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.index') }}">
+                        🧾 Sales Return List
                     </a>
                 </div>
             </div>
