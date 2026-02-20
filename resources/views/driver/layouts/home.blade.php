@@ -6,12 +6,24 @@
         <!-- SUMMARY CARDS -->
         <div class="row g-2">
 
+            @php
+                use Illuminate\Support\Facades\DB;
+                use Carbon\Carbon;
+
+                $todaySalesAmount = DB::table('sales_ledgers')
+                    ->where('driver_id', auth()->user()->driver_id)
+                    ->whereDate('date', Carbon::today())
+                    ->sum('subtotal');
+            @endphp
+
             <div class="col-6">
                 <div class="card shadow-sm text-center">
                     <a href="{{ route('sales.index') }}">
                         <div class="card-body p-3">
-                            <small class="text-muted">Sales</small>
-                            <h5 class="fw-bold mt-1">0</h5>
+                            <small class="text-muted">Today Sales</small>
+                            <h5 class="fw-bold mt-1">
+                                ৳ {{ number_format($todaySalesAmount ?? 0, 2) }}
+                            </h5>
                         </div>
                     </a>
                 </div>
@@ -67,9 +79,9 @@
                     </a>
                 </div>
                 <div class="col-6">
-                    <button class="btn btn-outline-danger w-100 py-2">
+                    <a class="btn btn-outline-danger w-100 py-2" href="{{ route('expense_entry.create') }}">
                         🧾 Add Expense
-                    </button>
+                    </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.create') }}">

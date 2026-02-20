@@ -39,7 +39,7 @@ class SalesController extends Controller
      */
     public function create()
     {
-        
+
         if(Auth::user()->hasRole('Driver'))
         {
             $data['customers'] = (new CustomerService())->getrDriverCustomer(auth()->user()->driver_id)[2];
