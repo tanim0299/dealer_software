@@ -16,18 +16,14 @@ use Illuminate\Support\Facades\DB;
 class SalesReturnController extends Controller
 {
     protected $path;
-    public function __construct()
-    {
-        
-    }
+    public function __construct() {}
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        if(Auth::user()->hasRole('Driver'))
-        {
-             $query = SalesReturnLedger::with('customer')
+        if (Auth::user()->hasRole('Driver')) {
+            $query = SalesReturnLedger::with('customer')
                 ->where('create_by', auth()->id());
 
             // 🔹 Date Filter
@@ -39,8 +35,15 @@ class SalesReturnController extends Controller
             }
 
             $returns = $query->orderBy('date', 'desc')->paginate(15);
-            return view('driver.sales_return.index',compact('returns'));
+            return view('driver.sales_return.index', compact('returns'));
         }
+
+        // ================= Extra Backend Route =================
+        $returns = SalesReturnLedger::with('customer')
+            ->orderBy('date', 'desc')
+            ->paginate(15);
+
+        return view('backend.sales_return.index', compact('returns'));
     }
 
     /**
@@ -48,8 +51,7 @@ class SalesReturnController extends Controller
      */
     public function create(Request $request)
     {
-        if(Auth::user()->hasRole('Driver'))
-        {
+        if (Auth::user()->hasRole('Driver')) {
             $sales_ledgers = SalesLedger::where('driver_id', auth()->id())->get();
 
             $selectedLedger = null;
@@ -62,11 +64,11 @@ class SalesReturnController extends Controller
                     }
                 ])->find($request->invoice_id);
             }
-          
-            return view('driver.sales_return.create',compact(
+
+            return view('driver.sales_return.create', compact(
                 'sales_ledgers',
                 'selectedLedger'
-            ));   
+            ));
         }
     }
 
@@ -155,7 +157,6 @@ class SalesReturnController extends Controller
                         'reference_id'   => $returnLedger->id,
                         'note'           => 'Sales Return Cash Paid',
                     ]);
-
                 } elseif ($request->adjustment_type == 'due') {
 
                     // Due Adjust (No Cash Movement)
@@ -175,7 +176,6 @@ class SalesReturnController extends Controller
             DB::commit();
 
             return back()->with('success', 'Sales Return Successful');
-
         } catch (\Throwable $th) {
 
             DB::rollBack();
@@ -194,10 +194,9 @@ class SalesReturnController extends Controller
             'entries.product',
             'payments'
         ])->findOrFail($id);
-        if(Auth::user()->hasRole('Driver'))
-        {
-            return view('driver.sales_return.show',compact('return'));
-        }   
+        if (Auth::user()->hasRole('Driver')) {
+            return view('driver.sales_return.show', compact('return'));
+        }
         // return view('driver.sales_return_invoice', compact('return'));
     }
 
@@ -223,7 +222,7 @@ class SalesReturnController extends Controller
      */
     public function destroy($id)
     {
-        DB::transaction(function() use ($id) {
+        DB::transaction(function () use ($id) {
 
             $returnLedger = SalesReturnLedger::with('entries')
                 ->findOrFail($id);
@@ -260,10 +259,8 @@ class SalesReturnController extends Controller
 
             // 🔹 Finally Delete Return Ledger
             $returnLedger->delete();
-
         });
 
         return back()->with('success', 'Sales Return Deleted & Rolled Back Successfully');
     }
-
 }
