@@ -20,6 +20,7 @@ use App\Http\Controllers\SubUnitController;
 use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\CustomerAreaController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\IncomeExpenseTitleController;
 use App\Http\Controllers\ExpenseEntryController;
@@ -64,7 +65,10 @@ Route::middleware('auth')->group(function () {
         'expense_entry' => ExpenseEntryController::class,
         'income_entry' => IncomeEntryController::class,
         'sales_return' => SalesReturnController::class,
+        'customer_payment' => CustomerPaymentController::class,
     ]);
+
+    Route::get('customer-due/{id}', [SalesController::class, 'getCustomerDue'])->name('customer.get_due');
 
     Route::get('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
     ->name('driver-issues.accept');

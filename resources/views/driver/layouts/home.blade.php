@@ -57,9 +57,14 @@
 
             <div class="row g-2">
                 <div class="col-6">
-                    <button class="btn btn-outline-success w-100 py-2">
+                    <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.create') }}">
                         💰 Collect Due
-                    </button>
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.index') }}">
+                        💰 Collection List
+                    </a>
                 </div>
                 <div class="col-6">
                     <button class="btn btn-outline-danger w-100 py-2">

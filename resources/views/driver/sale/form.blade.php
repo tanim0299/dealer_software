@@ -23,8 +23,7 @@
     <div class="card mb-2">
         <div class="card-body">
             <label class="form-label">Customer</label>
-            <select name="customer_id" class="form-select">
-                <option value="">Walk-in</option>
+            <select name="customer_id" class="form-select js-example-basic-single">
                 @foreach($customers as $customer)
                     <option value="{{ $customer->id }}"
                         {{ $isEdit && $sale->customer_id == $customer->id ? 'selected' : '' }}>
