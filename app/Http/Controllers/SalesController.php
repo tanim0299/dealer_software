@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SalesLedger;
+use App\Models\SalesPayment;
+use App\Models\SalesReturnLedger;
 use App\Services\ApiService;
 use App\Services\CustomerService;
 use App\Services\SalesService;
@@ -108,4 +111,18 @@ class SalesController extends Controller
         $data['ledger'] = $ledger;
         return view('driver.sale.invoice',$data);
     }
+
+    public function getCustomerDue($id)
+    {
+        $totalSales   = SalesLedger::where('customer_id', $id)->sum('subtotal');
+        $totalReturn  = SalesReturnLedger::where('customer_id', $id)->sum('subtotal');
+        $totalPaid    = SalesPayment::where('customer_id', $id)->sum('amount');
+
+        $due = ($totalSales - $totalReturn) - $totalPaid;
+
+        return response()->json([
+            'due' => $due
+        ]);
+    }
+
 }
