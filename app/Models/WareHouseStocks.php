@@ -27,6 +27,7 @@ class WareHouseStocks extends Model
         $query = self::query()
         ->select(
             'product_id',
+            
             DB::raw('SUM(purchase_qty) as purchase_qty'),
             DB::raw('SUM(sales_qty) as sales_qty'),
             DB::raw('SUM(sales_return_qty) as sales_return_qty'),
@@ -36,7 +37,8 @@ class WareHouseStocks extends Model
                 (SUM(purchase_qty) + SUM(sales_return_qty))
                 - (SUM(sales_qty) + SUM(return_qty) + SUM(sr_issue_qty))
                 AS available_qty
-            ')
+            '),
+            DB::raw('MAX(purchase_price) as purchase_price'),
         )
         ->groupBy('product_id');
 
