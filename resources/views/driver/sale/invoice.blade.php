@@ -151,15 +151,15 @@
 
             <div class="company">
                 <h1>{{ $settings->title }}</h1>
-                <small>Trust Begins With Quality</small>
+                <small>{{ $settings->slogan }}</small>
             </div>
 
             <div class="contact">
-                <strong>Sakhawat Hossen</strong><br>
-                Chief Executive Officer<br>
+                <strong>{{ $settings->name }}</strong><br>
+                {{ $settings->designation }}<br>
                 📞 {{ $settings->phone }}<br>
                 {!! $settings->address !!}<br>
-                ✉ sakhawathossen5895@gmail.com
+                ✉ {{ $settings->email }}
             </div>
 
         </div>
