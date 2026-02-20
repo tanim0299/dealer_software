@@ -116,9 +116,10 @@ class SalesController extends Controller
     {
         $totalSales   = SalesLedger::where('customer_id', $id)->sum('subtotal');
         $totalReturn  = SalesReturnLedger::where('customer_id', $id)->sum('subtotal');
-        $totalPaid    = SalesPayment::where('customer_id', $id)->sum('amount');
+        $totalPaid    = SalesPayment::where('customer_id', $id)->where('type',1)->sum('amount');
+        $totalReturnPaid = SalesPayment::where('customer_id', $id)->where('type',2)->sum('amount') * -1;
 
-        $due = ($totalSales - $totalReturn) - $totalPaid;
+        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
 
         return response()->json([
             'due' => $due

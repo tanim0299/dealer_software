@@ -221,8 +221,49 @@ class SalesReturnController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        DB::transaction(function() use ($id) {
+
+            $returnLedger = SalesReturnLedger::with('entries')
+                ->findOrFail($id);
+
+            // 🔹 Loop Return Entries
+            foreach ($returnLedger->entries as $entry) {
+
+                // 🔄 Reverse Driver Issue return_qty
+                $driverIssue = DriverIssues::where('driver_id', auth()->id())
+                    ->whereDate('issue_date', $returnLedger->date)
+                    ->where('status', 'accepted')
+                    ->first();
+
+                if ($driverIssue) {
+
+                    $driverIssueItem = DriverIssueItem::where('driver_issue_id', $driverIssue->id)
+                        ->where('product_id', $entry->product_id)
+                        ->first();
+
+                    if ($driverIssueItem) {
+
+                        $driverIssueItem->decrement('return_qty', $entry->return_qty);
+                    }
+                }
+
+                // 🔹 Delete return entry
+                $entry->delete();
+            }
+
+            // 🔹 Delete Related SalesPayment (Return Type)
+            SalesPayment::where('reference_type', 'return')
+                ->where('reference_id', $returnLedger->id)
+                ->delete();
+
+            // 🔹 Finally Delete Return Ledger
+            $returnLedger->delete();
+
+        });
+
+        return back()->with('success', 'Sales Return Deleted & Rolled Back Successfully');
     }
+
 }

@@ -84,6 +84,17 @@
                        class="btn btn-sm btn-info">
                         View
                     </a>
+                    <form method="POST"
+                        action="{{ route('sales_return.destroy', $return->id) }}"
+                        onsubmit="return confirm('Are you sure to delete this return?')">
+                        @csrf
+                        @method('DELETE')
+
+                        <button class="btn btn-danger btn-sm">
+                            Delete Return
+                        </button>
+                    </form>
+
                 </td>
             </tr>
 
