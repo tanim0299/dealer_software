@@ -1,216 +1,256 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
+
 <head>
-<meta charset="UTF-8">
-<title>Invoice #{{ $ledger->invoice_no }}</title>
-<style>
-    body {
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        color: #444;
-        margin: 0;
-        padding: 0;
-        font-size: 14px;
-    }
+    <meta charset="utf-8">
+    <title>Invoice #{{ $ledger->invoice_no }}</title>
 
-    .invoice-box {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 30px;
-        border: 1px solid #eee;
-        /* box-shadow: 0 2px 8px rgba(0,0,0,0.05); */
-    }
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f6f8;
+        }
 
-    /* Header */
-    .invoice-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 30px;
-    }
+        .invoice-wrapper {
+            width: 210mm;
+            min-height: 297mm;
+            margin: auto;
+            background: #fff;
+        }
 
-    .invoice-header h1 {
-        color: #2E86C1;
-        font-size: 32px;
-        margin: 0;
-    }
+        /* HEADER (UPDATED) */
+        .header {
+            background: #1f6fae;
+            color: #fff;
+            padding: 12px 25px;
+            /* height কমানো */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .company-details {
-        text-align: right;
-    }
+        .company h1 {
+            margin: 0;
+            font-size: 22px;
+            /* ছোট করা */
+            letter-spacing: .5px;
+        }
 
-    .company-details p {
-        margin: 2px 0;
-        line-height: 1.3;
-    }
+        .company small {
+            font-size: 11px;
+            opacity: .9;
+        }
 
-    /* Customer Info */
-    .customer-info {
-        background: #f9f9f9;
-        padding: 15px;
-        border-radius: 5px;
-        margin-bottom: 25px;
-    }
+        .contact {
+            text-align: right;
+            font-size: 12px;
+            line-height: 1.4;
+        }
 
-    .customer-info h3 {
-        margin: 0 0 5px 0;
-        color: #2E86C1;
-        font-size: 16px;
-    }
+        /* BODY */
+        .body {
+            padding: 25px;
+        }
 
-    .customer-info p {
-        margin: 2px 0;
-    }
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #1f6fae;
+            margin-bottom: 15px;
+        }
 
-    /* Table */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 25px;
-    }
+        .info-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
 
-    table th {
-        background: #2E86C1;
-        color: #fff;
-        font-weight: bold;
-        padding: 10px;
-        text-align: left;
-    }
+        .box {
+            width: 50%;
+            background: #f9fbfd;
+            border: 1px solid #e3e8ee;
+            padding: 14px;
+            border-radius: 6px;
+        }
 
-    table td {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-    }
+        .box h4 {
+            margin: 0 0 6px;
+            color: #1f6fae;
+            font-size: 14px;
+        }
 
-    table tbody tr:nth-child(even) {
-        background: #f6f6f6;
-    }
+        .box p {
+            margin: 3px 0;
+            font-size: 12.5px;
+        }
 
-    /* Totals */
-    .totals {
-        width: 300px;
-        float: right;
-        margin-top: 15px;
-    }
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
 
-    .totals table {
-        border: 1px solid #eee;
-    }
+        th {
+            background: #1f6fae;
+            color: #fff;
+            padding: 9px;
+            font-size: 12.5px;
+            text-align: left;
+        }
 
-    .totals table td {
-        padding: 8px 12px;
-        border-bottom: 1px solid #eee;
-    }
+        td {
+            padding: 9px;
+            border-bottom: 1px solid #e6e6e6;
+            font-size: 12.5px;
+        }
 
-    .totals table tr:last-child td {
-        font-size: 18px;
-        font-weight: bold;
-        background: #2E86C1;
-        color: #fff;
-    }
+        tr:nth-child(even) {
+            background: #f8fafc;
+        }
 
-    /* Notes */
-    .notes {
-        margin-top: 30px;
-        padding: 15px;
-        border-left: 4px solid #2E86C1;
-        background: #f9f9f9;
-    }
+        /* TOTAL */
+        .total-box {
+            width: 300px;
+            margin-left: auto;
+            margin-top: 20px;
+        }
 
-    /* Footer */
-    .footer {
-        text-align: center;
-        font-size: 12px;
-        color: #888;
-        margin-top: 50px;
-    }
-</style>
+        .total-box table td {
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+
+        .grand {
+            background: #1f6fae;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 11.5px;
+            color: #777;
+            border-top: 1px solid #eee;
+            margin-top: 35px;
+        }
+    </style>
 </head>
+
 <body>
-<div class="invoice-box">
-    <!-- Header -->
-    <div class="invoice-header">
-        <h1>INVOICE</h1>
-        <div class="company-details">
-            <p><strong>Dealer Name</strong></p>
-            <p>Address Line 1</p>
-            <p>City, Zip</p>
-            <p>Phone: +123456789</p>
-            <p>Email: dealer@example.com</p>
+    <div class="invoice-wrapper">
+
+        <!-- HEADER -->
+        <div class="header">
+
+            <div class="company">
+                <h1>{{ $settings->title }}</h1>
+                <small>Trust Begins With Quality</small>
+            </div>
+
+            <div class="contact">
+                <strong>Sakhawat Hossen</strong><br>
+                Chief Executive Officer<br>
+                📞 {{ $settings->phone }}<br>
+                {!! $settings->address !!}<br>
+                ✉ sakhawathossen5895@gmail.com
+            </div>
+
         </div>
-    </div>
 
-    <!-- Customer Info -->
-    <div class="customer-info">
-        <h3>Bill To:</h3>
-        <p>{{ $ledger->customer->name ?? 'Customer Name' }}</p>
-        <p>{{ $ledger->customer->address ?? 'Customer Address' }}</p>
-        <p><strong>Invoice No:</strong> {{ $ledger->invoice_no }}</p>
-        <p><strong>Date:</strong> {{ $ledger->date }}</p>
-        <p><strong>Time:</strong> {{ $ledger->time }}</p>
-    </div>
+        <!-- BODY -->
+        <div class="body">
 
-    <!-- Items Table -->
-    <table>
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Product</th>
-                <th>Quantity</th>
-                <th>Unit</th>
-                <th>Price</th>
-                <th>Discount</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($ledger->items as $key => $entry)
-            <tr>
-                <td>{{ $key + 1 }}</td>
-                <td>{{ $entry->product->name ?? 'Product' }}</td>
-                <td>{{ $entry->final_quantity }}</td>
-                <td>{{ $entry->subUnit->name ?? '' }}</td>
-                <td>{{ number_format($entry->sale_price, 2) }}</td>
-                <td>{{ number_format($entry->discount, 2) }}</td>
-                <td>{{ number_format(($entry->final_quantity * $entry->sale_price) - $entry->discount, 2) }}</td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+            <div class="title">INVOICE</div>
 
-    <!-- Totals -->
-    <div class="totals">
-        <table>
-            <tr>
-                <td>Subtotal</td>
-                <td>{{ number_format($ledger->subtotal, 2) }}</td>
-            </tr>
-            <tr>
-                <td>Discount</td>
-                <td>{{ number_format($ledger->discount, 2) }}</td>
-            </tr>
-            <tr>
-                <td>Paid</td>
-                <td>{{ number_format($ledger->paid, 2) }}</td>
-            </tr>
-            <tr>
-                <td>Balance</td>
-                <td>{{ number_format($ledger->subtotal - $ledger->discount - $ledger->paid, 2) }}</td>
-            </tr>
-        </table>
-    </div>
+            <div class="info-grid">
 
-    <!-- Notes -->
-    @if($ledger->note)
-    <div class="notes">
-        <strong>Note:</strong>
-        <p>{{ $ledger->note }}</p>
-    </div>
-    @endif
+                <div class="box">
+                    <h4>Bill To</h4>
+                    <p>{{ $ledger->customer->name ?? '' }}</p>
+                    <p>{{ $ledger->customer->address ?? '' }}</p>
+                </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        Thank you for your business! This is a computer-generated invoice.
+                <div class="box">
+                    <h4>Invoice Info</h4>
+                    <p><b>Invoice No:</b> {{ $ledger->invoice_no }}</p>
+                    <p><b>Date:</b> {{ $ledger->date }}</p>
+                    <p><b>Time:</b> {{ $ledger->time }}</p>
+                </div>
+
+            </div>
+
+            <!-- ITEMS -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Unit</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($ledger->items as $key => $item)
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $item->product->name ?? '' }}</td>
+                            <td>{{ $item->final_quantity }}</td>
+                            <td>{{ $item->subUnit->name ?? '' }}</td>
+                            <td>{{ number_format($item->sale_price, 2) }}</td>
+                            <td>{{ number_format($item->discount, 2) }}</td>
+                            <td>{{ number_format($item->final_quantity * $item->sale_price - $item->discount, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <!-- TOTAL -->
+            <div class="total-box">
+                <table>
+                    <tr>
+                        <td>Subtotal</td>
+                        <td>{{ number_format($ledger->subtotal, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Discount</td>
+                        <td>{{ number_format($ledger->discount, 2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Paid</td>
+                        <td>{{ number_format($ledger->paid, 2) }}</td>
+                    </tr>
+                    <tr class="grand">
+                        <td>Balance</td>
+                        <td>{{ number_format($ledger->subtotal - $ledger->discount - $ledger->paid, 2) }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            @if ($ledger->note)
+                <div style="margin-top:25px;">
+                    <strong>Note:</strong>
+                    <p>{{ $ledger->note }}</p>
+                </div>
+            @endif
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            Thank you for your business • This is a computer generated invoice
+        </div>
+
     </div>
-</div>
 </body>
+
 </html>

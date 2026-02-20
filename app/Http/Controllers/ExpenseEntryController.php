@@ -45,7 +45,7 @@ class ExpenseEntryController extends Controller
 
         if(Auth::user()->hasRole('Driver'))
         {
-            return view('driver.expense.create');   
+            return view('driver.expense.create', $data);
         }
 
         return view($this->PATH . '.create', $data);
