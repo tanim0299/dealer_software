@@ -14,6 +14,10 @@ class WebsiteSettings extends Model
             'title'   => $request->title,
             'phone'   => $request->phone,
             'address' => $request->address,
+            'name'    => $request->name,
+            'email'   => $request->email,
+            'designation' => $request->designation,
+            'slogan' => $request->slogan,
         ];
 
         if ($request->hasFile('logo')) {

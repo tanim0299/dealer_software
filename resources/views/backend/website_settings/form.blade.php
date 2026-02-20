@@ -68,10 +68,20 @@
 
             <!-- Title -->
             <div class="mb-3">
-                <label class="form-label fw-semibold">Title <span class="text-danger">*</span></label>
+                <label class="form-label fw-semibold">Company Title <span class="text-danger">*</span></label>
                 <input type="text" class="form-control form-control-sm @error('title') is-invalid @enderror"
                     name="title" value="{{ old('title', $settings->title ?? '') }}">
                 @error('title')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Owner Name -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Owner Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm @error('name') is-invalid @enderror"
+                    name="name" value="{{ old('name', $settings->name ?? '') }}">
+                @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -82,6 +92,36 @@
                 <input type="text" class="form-control form-control-sm @error('phone') is-invalid @enderror"
                     name="phone" value="{{ old('phone', $settings->phone ?? '') }}">
                 @error('phone')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm @error('email') is-invalid @enderror"
+                    name="email" value="{{ old('email', $settings->email ?? '') }}">
+                @error('email')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Designation -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Designation <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm @error('designation') is-invalid @enderror"
+                    name="designation" value="{{ old('designation', $settings->designation ?? '') }}">
+                @error('designation')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <!-- Slogan -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Slogan <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-sm @error('slogan') is-invalid @enderror"
+                    name="slogan" value="{{ old('slogan', $settings->slogan ?? '') }}">
+                @error('slogan')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
