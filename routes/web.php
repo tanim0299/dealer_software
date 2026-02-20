@@ -28,6 +28,7 @@ use App\Http\Controllers\ExpenseEntryController;
 use App\Http\Controllers\IncomeEntryController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesReturnController;
+use App\Http\Controllers\SupplierPaymentController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -70,7 +71,10 @@ Route::middleware('auth')->group(function () {
         'customer_payment' => CustomerPaymentController::class,
         'driver_stock' => DriverStockController::class,
         'purchase_return' => PurchaseReturnController::class,
+        'supplier_payment' => SupplierPaymentController::class,
     ]);
+
+    Route::get('supplier-payment/due/{supplier}', [SupplierPaymentController::class, 'getDue']);
 
     Route::get('customer-due/{id}', [SalesController::class, 'getCustomerDue'])->name('customer.get_due');
 

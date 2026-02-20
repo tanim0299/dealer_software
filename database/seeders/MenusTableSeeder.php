@@ -141,7 +141,7 @@ class MenusTableSeeder extends Seeder
                 'system_name' => NULL,
                 'route' => NULL,
                 'slug' => NULL,
-                'icon' => 'fa fa-gear',
+                'icon' => 'fa fa-box',
                 'type' => 1,
                 'status' => 1,
                 'created_at' => '2025-12-08 18:14:59',
@@ -161,7 +161,7 @@ class MenusTableSeeder extends Seeder
                 'type' => 2,
                 'status' => 1,
                 'created_at' => '2025-12-08 18:16:06',
-                'updated_at' => '2025-12-08 18:16:06',
+                'updated_at' => '2026-02-20 08:47:10',
             ),
             9 => 
             array (
@@ -333,7 +333,7 @@ class MenusTableSeeder extends Seeder
                 'system_name' => NULL,
                 'route' => NULL,
                 'slug' => NULL,
-                'icon' => 'fa fa-cash',
+                'icon' => 'fa fa-box',
                 'type' => 1,
                 'status' => 1,
                 'created_at' => '2025-12-19 14:22:56',
@@ -365,7 +365,7 @@ class MenusTableSeeder extends Seeder
                 'system_name' => NULL,
                 'route' => NULL,
                 'slug' => NULL,
-                'icon' => 'fa fa-layer',
+                'icon' => 'fa fa-box',
                 'type' => 1,
                 'status' => 1,
                 'created_at' => '2026-01-11 17:27:54',
@@ -485,22 +485,6 @@ class MenusTableSeeder extends Seeder
             ),
             29 => 
             array (
-                'id' => 34,
-                'sl' => 31,
-                'menu_section_id' => 12,
-                'parent_id' => NULL,
-                'name' => 'Website Settings',
-                'system_name' => 'Website Settings',
-                'route' => 'website_settings',
-                'slug' => 'index',
-                'icon' => 'fa fa-gears',
-                'type' => 3,
-                'status' => 1,
-                'created_at' => '2026-02-16 18:05:29',
-                'updated_at' => '2026-02-16 18:05:29',
-            ),
-            30 => 
-            array (
                 'id' => 35,
                 'sl' => 32,
                 'menu_section_id' => 13,
@@ -509,13 +493,13 @@ class MenusTableSeeder extends Seeder
                 'system_name' => NULL,
                 'route' => NULL,
                 'slug' => NULL,
-                'icon' => 'fa fa-layer',
+                'icon' => 'fa fa-box',
                 'type' => 1,
                 'status' => 1,
                 'created_at' => '2026-02-16 18:10:26',
                 'updated_at' => '2026-02-16 18:10:26',
             ),
-            31 => 
+            30 => 
             array (
                 'id' => 36,
                 'sl' => 33,
@@ -531,7 +515,7 @@ class MenusTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:04',
                 'updated_at' => '2026-02-16 18:11:04',
             ),
-            32 => 
+            31 => 
             array (
                 'id' => 37,
                 'sl' => 34,
@@ -541,13 +525,13 @@ class MenusTableSeeder extends Seeder
                 'system_name' => NULL,
                 'route' => NULL,
                 'slug' => NULL,
-                'icon' => 'fa fa-layer',
+                'icon' => 'fa fa-box',
                 'type' => 1,
                 'status' => 1,
                 'created_at' => '2026-02-16 18:14:29',
                 'updated_at' => '2026-02-16 18:14:29',
             ),
-            33 => 
+            32 => 
             array (
                 'id' => 38,
                 'sl' => 35,
@@ -563,7 +547,7 @@ class MenusTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:15',
                 'updated_at' => '2026-02-16 18:15:15',
             ),
-            34 => 
+            33 => 
             array (
                 'id' => 39,
                 'sl' => 36,
@@ -579,7 +563,7 @@ class MenusTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            35 => 
+            34 => 
             array (
                 'id' => 40,
                 'sl' => 37,
@@ -594,6 +578,54 @@ class MenusTableSeeder extends Seeder
                 'status' => 1,
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
+            ),
+            35 => 
+            array (
+                'id' => 41,
+                'sl' => 38,
+                'menu_section_id' => 13,
+                'parent_id' => 35,
+                'name' => 'Sales Return List',
+                'system_name' => 'Sales Return List',
+                'route' => 'sales_return',
+                'slug' => 'index',
+                'icon' => NULL,
+                'type' => 2,
+                'status' => 1,
+                'created_at' => '2026-02-20 08:43:13',
+                'updated_at' => '2026-02-20 08:43:13',
+            ),
+            36 => 
+            array (
+                'id' => 42,
+                'sl' => 39,
+                'menu_section_id' => 8,
+                'parent_id' => 24,
+                'name' => 'Purchase Return',
+                'system_name' => 'Purchase Return',
+                'route' => 'purchase_return',
+                'slug' => 'create',
+                'icon' => NULL,
+                'type' => 2,
+                'status' => 1,
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            37 => 
+            array (
+                'id' => 43,
+                'sl' => 40,
+                'menu_section_id' => 8,
+                'parent_id' => 24,
+                'name' => 'Supplier Payment',
+                'system_name' => 'Supplier Payment',
+                'route' => 'supplier_payment',
+                'slug' => 'index',
+                'icon' => NULL,
+                'type' => 2,
+                'status' => 1,
+                'created_at' => '2026-02-20 13:25:58',
+                'updated_at' => '2026-02-20 13:25:58',
             ),
         ));
         
