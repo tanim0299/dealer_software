@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Drivers extends Model
 {
@@ -85,5 +86,24 @@ class Drivers extends Model
         $query = self::find($id);
 
         return $query;
+    }
+
+    public function getTodayDriverStock($driver_id = null)
+    {
+        $driverId = $driver_id ?? Auth::user()->driver_id;
+
+        $issue = DriverIssues::with(['items.product'])
+            ->where('driver_id', $driverId)
+            ->whereDate('issue_date', now()->toDateString())
+            ->where('status', 'accepted')
+            ->first();
+
+        $items = collect();
+
+        if ($issue) {
+            $items = $issue->items;
+        }
+
+        return $items;
     }
 }

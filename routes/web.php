@@ -21,10 +21,12 @@ use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\CustomerAreaController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
+use App\Http\Controllers\DriverStockController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\IncomeExpenseTitleController;
 use App\Http\Controllers\ExpenseEntryController;
 use App\Http\Controllers\IncomeEntryController;
+use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesReturnController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
@@ -66,6 +68,8 @@ Route::middleware('auth')->group(function () {
         'income_entry' => IncomeEntryController::class,
         'sales_return' => SalesReturnController::class,
         'customer_payment' => CustomerPaymentController::class,
+        'driver_stock' => DriverStockController::class,
+        'purchase_return' => PurchaseReturnController::class,
     ]);
 
     Route::get('customer-due/{id}', [SalesController::class, 'getCustomerDue'])->name('customer.get_due');
