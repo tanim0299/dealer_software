@@ -43,8 +43,7 @@ class ExpenseEntryController extends Controller
         $data['status_message'] = $status_message;
         $data['expenses'] = $expense;
 
-        if(Auth::user()->hasRole('Driver'))
-        {
+        if (Auth::user()->hasRole('Driver')) {
             return view('driver.expense.create', $data);
         }
 
@@ -56,12 +55,21 @@ class ExpenseEntryController extends Controller
      */
     public function store(Request $request)
     {
-        [$status_code, $status_message, $error_message] = (new ExpenseEntryService())->storeExpenseEntry($request);
+        [$status_code, $status_message, $error_message] =
+            (new ExpenseEntryService())->storeExpenseEntry($request);
+
         if ($status_code == ApiService::API_SUCCESS) {
-            return redirect()
-                ->route('expense_entry.index')
-                ->with('success', $status_message);
+
+            // Driver হলে driver index
+            if (Auth::user()->hasRole('Driver')) {
+                return redirect()
+                    ->route('driver.expense.index')
+                    ->with('success', $status_message);
+            }
+
+            return redirect()->route('expense_entry.index')->with('success', $status_message);
         }
+
         return redirect()->back()->withInput()->withErrors($error_message)->with('error', $status_message);
     }
 

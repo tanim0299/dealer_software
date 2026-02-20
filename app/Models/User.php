@@ -102,9 +102,9 @@ class User extends Authenticatable
             }
         }
         $role = Role::find($roles);
-        
+
         $user->assignRole($role);
-        
+
     }
 
     public function getUserList($search = [], $is_paginate = true, $is_relation = true)

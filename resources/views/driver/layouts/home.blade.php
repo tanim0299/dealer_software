@@ -10,10 +10,34 @@
                 use Illuminate\Support\Facades\DB;
                 use Carbon\Carbon;
 
+                $driverId = auth()->user()->driver_id;
+
+                // Today Sales
                 $todaySalesAmount = DB::table('sales_ledgers')
-                    ->where('driver_id', auth()->user()->driver_id)
+                    ->where('driver_id', $driverId)
                     ->whereDate('date', Carbon::today())
                     ->sum('subtotal');
+
+                // Today Paid
+                $todayPaid = DB::table('sales_ledgers')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('date', Carbon::today())
+                    ->sum('paid');
+
+                // Today Discount
+                $todayDiscount = DB::table('sales_ledgers')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('date', Carbon::today())
+                    ->sum('discount');
+
+                // Today Dues = subtotal - discount - paid
+                $todayDuesAmount = $todaySalesAmount - $todayDiscount - $todayPaid;
+
+                // Today Expenses
+                $todayExpensesAmount = DB::table('expense_entries')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('date', Carbon::today())
+                    ->sum('amount');
             @endphp
 
             <div class="col-6">
@@ -33,17 +57,21 @@
                 <div class="card shadow-sm text-center">
                     <div class="card-body p-3">
                         <small class="text-muted">Dues</small>
-                        <h5 class="fw-bold mt-1">₹3,200</h5>
+                        <h5 class="fw-bold mt-1">
+                            ৳ {{ number_format($todayDuesAmount ?? 0, 2) }}
+                        </h5>
                     </div>
                 </div>
             </div>
 
             <div class="col-6">
                 <div class="card shadow-sm text-center">
-                    <a href="">
+                    <a href="{{ route('expense_entry.index') }}">
                         <div class="card-body p-3">
                             <small class="text-muted">Expenses</small>
-                            <h5 class="fw-bold mt-1">₹1,100</h5>
+                            <h5 class="fw-bold mt-1">
+                                ৳ {{ number_format($todayExpensesAmount ?? 0, 2) }}
+                            </h5>
                         </div>
                     </a>
                 </div>
