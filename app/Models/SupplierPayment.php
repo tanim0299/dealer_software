@@ -15,4 +15,9 @@ class SupplierPayment extends Model
         self::TYPE_INVOICE_PAYMENT => 'Invoice Payment',
         self::TYPE_DUE_PAYMENT => 'Due Payment',
     ];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class,'supplier_id');
+    }
  }

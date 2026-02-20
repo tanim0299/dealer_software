@@ -1479,24 +1479,6 @@ class PermissionsTableSeeder extends Seeder
             ),
             162 => 
             array (
-                'id' => 189,
-                'name' => 'Website Settings create',
-                'guard_name' => 'web',
-                'parent' => 'Website Settings',
-                'created_at' => '2026-02-16 18:05:41',
-                'updated_at' => '2026-02-16 18:05:41',
-            ),
-            163 => 
-            array (
-                'id' => 190,
-                'name' => 'Website Settings view',
-                'guard_name' => 'web',
-                'parent' => 'Website Settings',
-                'created_at' => '2026-02-16 18:05:41',
-                'updated_at' => '2026-02-16 18:05:41',
-            ),
-            164 => 
-            array (
                 'id' => 191,
                 'name' => 'Sales Ledger create',
                 'guard_name' => 'web',
@@ -1504,7 +1486,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:04',
                 'updated_at' => '2026-02-16 18:11:04',
             ),
-            165 => 
+            163 => 
             array (
                 'id' => 192,
                 'name' => 'Sales Ledger view',
@@ -1513,7 +1495,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:04',
                 'updated_at' => '2026-02-16 18:11:04',
             ),
-            166 => 
+            164 => 
             array (
                 'id' => 193,
                 'name' => 'Sales Ledger edit',
@@ -1522,7 +1504,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            167 => 
+            165 => 
             array (
                 'id' => 194,
                 'name' => 'Sales Ledger destroy',
@@ -1531,7 +1513,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            168 => 
+            166 => 
             array (
                 'id' => 195,
                 'name' => 'Sales Ledger status',
@@ -1540,7 +1522,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            169 => 
+            167 => 
             array (
                 'id' => 196,
                 'name' => 'Sales Ledger restore',
@@ -1549,7 +1531,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            170 => 
+            168 => 
             array (
                 'id' => 197,
                 'name' => 'Sales Ledger delete',
@@ -1558,7 +1540,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            171 => 
+            169 => 
             array (
                 'id' => 198,
                 'name' => 'Sales Ledger print',
@@ -1567,7 +1549,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            172 => 
+            170 => 
             array (
                 'id' => 199,
                 'name' => 'Sales Ledger show',
@@ -1576,7 +1558,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            173 => 
+            171 => 
             array (
                 'id' => 200,
                 'name' => 'Sales Ledger trash',
@@ -1585,7 +1567,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:11:05',
                 'updated_at' => '2026-02-16 18:11:05',
             ),
-            174 => 
+            172 => 
             array (
                 'id' => 201,
                 'name' => 'Income Expense Title create',
@@ -1594,7 +1576,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:15',
                 'updated_at' => '2026-02-16 18:15:15',
             ),
-            175 => 
+            173 => 
             array (
                 'id' => 202,
                 'name' => 'Income Expense Title view',
@@ -1603,7 +1585,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            176 => 
+            174 => 
             array (
                 'id' => 203,
                 'name' => 'Income Expense Title edit',
@@ -1612,7 +1594,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            177 => 
+            175 => 
             array (
                 'id' => 204,
                 'name' => 'Income Expense Title destroy',
@@ -1621,7 +1603,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            178 => 
+            176 => 
             array (
                 'id' => 205,
                 'name' => 'Income Expense Title status',
@@ -1630,7 +1612,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            179 => 
+            177 => 
             array (
                 'id' => 206,
                 'name' => 'Income Expense Title restore',
@@ -1639,7 +1621,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            180 => 
+            178 => 
             array (
                 'id' => 207,
                 'name' => 'Income Expense Title delete',
@@ -1648,7 +1630,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            181 => 
+            179 => 
             array (
                 'id' => 208,
                 'name' => 'Income Expense Title print',
@@ -1657,7 +1639,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            182 => 
+            180 => 
             array (
                 'id' => 209,
                 'name' => 'Income Expense Title show',
@@ -1666,7 +1648,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            183 => 
+            181 => 
             array (
                 'id' => 210,
                 'name' => 'Income Expense Title trash',
@@ -1675,7 +1657,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:16',
                 'updated_at' => '2026-02-16 18:15:16',
             ),
-            184 => 
+            182 => 
             array (
                 'id' => 211,
                 'name' => 'Expense Entry create',
@@ -1684,7 +1666,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            185 => 
+            183 => 
             array (
                 'id' => 212,
                 'name' => 'Expense Entry view',
@@ -1693,7 +1675,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            186 => 
+            184 => 
             array (
                 'id' => 213,
                 'name' => 'Expense Entry edit',
@@ -1702,7 +1684,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            187 => 
+            185 => 
             array (
                 'id' => 214,
                 'name' => 'Expense Entry destroy',
@@ -1711,7 +1693,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            188 => 
+            186 => 
             array (
                 'id' => 215,
                 'name' => 'Expense Entry status',
@@ -1720,7 +1702,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            189 => 
+            187 => 
             array (
                 'id' => 216,
                 'name' => 'Expense Entry restore',
@@ -1729,7 +1711,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            190 => 
+            188 => 
             array (
                 'id' => 217,
                 'name' => 'Expense Entry delete',
@@ -1738,7 +1720,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            191 => 
+            189 => 
             array (
                 'id' => 218,
                 'name' => 'Expense Entry print',
@@ -1747,7 +1729,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:57',
                 'updated_at' => '2026-02-16 18:15:57',
             ),
-            192 => 
+            190 => 
             array (
                 'id' => 219,
                 'name' => 'Expense Entry show',
@@ -1756,7 +1738,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:58',
                 'updated_at' => '2026-02-16 18:15:58',
             ),
-            193 => 
+            191 => 
             array (
                 'id' => 220,
                 'name' => 'Expense Entry trash',
@@ -1765,7 +1747,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:15:58',
                 'updated_at' => '2026-02-16 18:15:58',
             ),
-            194 => 
+            192 => 
             array (
                 'id' => 221,
                 'name' => 'Income Entry create',
@@ -1774,7 +1756,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
             ),
-            195 => 
+            193 => 
             array (
                 'id' => 222,
                 'name' => 'Income Entry view',
@@ -1783,7 +1765,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
             ),
-            196 => 
+            194 => 
             array (
                 'id' => 223,
                 'name' => 'Income Entry edit',
@@ -1792,7 +1774,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
             ),
-            197 => 
+            195 => 
             array (
                 'id' => 224,
                 'name' => 'Income Entry destroy',
@@ -1801,7 +1783,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
             ),
-            198 => 
+            196 => 
             array (
                 'id' => 225,
                 'name' => 'Income Entry status',
@@ -1810,7 +1792,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:25',
                 'updated_at' => '2026-02-16 18:16:25',
             ),
-            199 => 
+            197 => 
             array (
                 'id' => 226,
                 'name' => 'Income Entry restore',
@@ -1819,7 +1801,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:26',
                 'updated_at' => '2026-02-16 18:16:26',
             ),
-            200 => 
+            198 => 
             array (
                 'id' => 227,
                 'name' => 'Income Entry delete',
@@ -1828,7 +1810,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:26',
                 'updated_at' => '2026-02-16 18:16:26',
             ),
-            201 => 
+            199 => 
             array (
                 'id' => 228,
                 'name' => 'Income Entry print',
@@ -1837,7 +1819,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:26',
                 'updated_at' => '2026-02-16 18:16:26',
             ),
-            202 => 
+            200 => 
             array (
                 'id' => 229,
                 'name' => 'Income Entry show',
@@ -1846,7 +1828,7 @@ class PermissionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:16:26',
                 'updated_at' => '2026-02-16 18:16:26',
             ),
-            203 => 
+            201 => 
             array (
                 'id' => 230,
                 'name' => 'Income Entry trash',
@@ -1854,6 +1836,357 @@ class PermissionsTableSeeder extends Seeder
                 'parent' => 'Income Entry',
                 'created_at' => '2026-02-16 18:16:26',
                 'updated_at' => '2026-02-16 18:16:26',
+            ),
+            202 => 
+            array (
+                'id' => 231,
+                'name' => 'Sales Return List view',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            203 => 
+            array (
+                'id' => 232,
+                'name' => 'Sales Return List edit',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            204 => 
+            array (
+                'id' => 233,
+                'name' => 'Sales Return List destroy',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            205 => 
+            array (
+                'id' => 234,
+                'name' => 'Sales Return List status',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            206 => 
+            array (
+                'id' => 235,
+                'name' => 'Sales Return List restore',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            207 => 
+            array (
+                'id' => 236,
+                'name' => 'Sales Return List delete',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            208 => 
+            array (
+                'id' => 237,
+                'name' => 'Sales Return List print',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            209 => 
+            array (
+                'id' => 238,
+                'name' => 'Sales Return List show',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            210 => 
+            array (
+                'id' => 239,
+                'name' => 'Sales Return List trash',
+                'guard_name' => 'web',
+                'parent' => 'Sales Return List',
+                'created_at' => '2026-02-20 08:43:14',
+                'updated_at' => '2026-02-20 08:43:14',
+            ),
+            211 => 
+            array (
+                'id' => 240,
+                'name' => 'Website Settings create',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            212 => 
+            array (
+                'id' => 241,
+                'name' => 'Website Settings view',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            213 => 
+            array (
+                'id' => 242,
+                'name' => 'Website Settings edit',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            214 => 
+            array (
+                'id' => 243,
+                'name' => 'Website Settings destroy',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            215 => 
+            array (
+                'id' => 244,
+                'name' => 'Website Settings status',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            216 => 
+            array (
+                'id' => 245,
+                'name' => 'Website Settings restore',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            217 => 
+            array (
+                'id' => 246,
+                'name' => 'Website Settings delete',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            218 => 
+            array (
+                'id' => 247,
+                'name' => 'Website Settings print',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            219 => 
+            array (
+                'id' => 248,
+                'name' => 'Website Settings show',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:10',
+                'updated_at' => '2026-02-20 08:47:10',
+            ),
+            220 => 
+            array (
+                'id' => 249,
+                'name' => 'Website Settings trash',
+                'guard_name' => 'web',
+                'parent' => 'Website Settings',
+                'created_at' => '2026-02-20 08:47:11',
+                'updated_at' => '2026-02-20 08:47:11',
+            ),
+            221 => 
+            array (
+                'id' => 250,
+                'name' => 'Purchase Return create',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            222 => 
+            array (
+                'id' => 251,
+                'name' => 'Purchase Return view',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            223 => 
+            array (
+                'id' => 252,
+                'name' => 'Purchase Return edit',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            224 => 
+            array (
+                'id' => 253,
+                'name' => 'Purchase Return destroy',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            225 => 
+            array (
+                'id' => 254,
+                'name' => 'Purchase Return status',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            226 => 
+            array (
+                'id' => 255,
+                'name' => 'Purchase Return restore',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:56',
+                'updated_at' => '2026-02-20 09:00:56',
+            ),
+            227 => 
+            array (
+                'id' => 256,
+                'name' => 'Purchase Return delete',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:57',
+                'updated_at' => '2026-02-20 09:00:57',
+            ),
+            228 => 
+            array (
+                'id' => 257,
+                'name' => 'Purchase Return print',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:57',
+                'updated_at' => '2026-02-20 09:00:57',
+            ),
+            229 => 
+            array (
+                'id' => 258,
+                'name' => 'Purchase Return show',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:57',
+                'updated_at' => '2026-02-20 09:00:57',
+            ),
+            230 => 
+            array (
+                'id' => 259,
+                'name' => 'Purchase Return trash',
+                'guard_name' => 'web',
+                'parent' => 'Purchase Return',
+                'created_at' => '2026-02-20 09:00:57',
+                'updated_at' => '2026-02-20 09:00:57',
+            ),
+            231 => 
+            array (
+                'id' => 260,
+                'name' => 'Supplier Payment create',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:58',
+                'updated_at' => '2026-02-20 13:25:58',
+            ),
+            232 => 
+            array (
+                'id' => 261,
+                'name' => 'Supplier Payment view',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            233 => 
+            array (
+                'id' => 262,
+                'name' => 'Supplier Payment edit',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            234 => 
+            array (
+                'id' => 263,
+                'name' => 'Supplier Payment destroy',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            235 => 
+            array (
+                'id' => 264,
+                'name' => 'Supplier Payment status',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            236 => 
+            array (
+                'id' => 265,
+                'name' => 'Supplier Payment restore',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            237 => 
+            array (
+                'id' => 266,
+                'name' => 'Supplier Payment delete',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            238 => 
+            array (
+                'id' => 267,
+                'name' => 'Supplier Payment print',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            239 => 
+            array (
+                'id' => 268,
+                'name' => 'Supplier Payment show',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
+            ),
+            240 => 
+            array (
+                'id' => 269,
+                'name' => 'Supplier Payment trash',
+                'guard_name' => 'web',
+                'parent' => 'Supplier Payment',
+                'created_at' => '2026-02-20 13:25:59',
+                'updated_at' => '2026-02-20 13:25:59',
             ),
         ));
         

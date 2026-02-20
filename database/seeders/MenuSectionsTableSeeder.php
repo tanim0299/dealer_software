@@ -111,15 +111,6 @@ class MenuSectionsTableSeeder extends Seeder
             ),
             10 => 
             array (
-                'id' => 12,
-                'sl' => 11,
-                'name' => 'Settings',
-                'status' => 1,
-                'created_at' => '2026-02-16 18:03:02',
-                'updated_at' => '2026-02-16 18:03:02',
-            ),
-            11 => 
-            array (
                 'id' => 13,
                 'sl' => 12,
                 'name' => 'Sales',
@@ -127,7 +118,7 @@ class MenuSectionsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 18:09:12',
                 'updated_at' => '2026-02-16 18:09:12',
             ),
-            12 => 
+            11 => 
             array (
                 'id' => 14,
                 'sl' => 13,
