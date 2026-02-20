@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\ApiService;
 use App\Services\IncomeExpenseService;
 use App\Services\ExpenseEntryService;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseEntryController extends Controller
 {
@@ -41,6 +42,11 @@ class ExpenseEntryController extends Controller
         $data['status_code'] = $status_code;
         $data['status_message'] = $status_message;
         $data['expenses'] = $expense;
+
+        if(Auth::user()->hasRole('Driver'))
+        {
+            return view('driver.expense.create');   
+        }
 
         return view($this->PATH . '.create', $data);
     }
