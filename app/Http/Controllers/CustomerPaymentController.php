@@ -15,20 +15,20 @@ class CustomerPaymentController extends Controller
      */
     public function index(Request $request)
     {
-         $query = SalesPayment::with('customer')
-        ->where('type', 1); // normal payment only
+        $query = SalesPayment::with('customer')
+            ->where('type', 1); // normal payment only
 
-        // 🔹 Default today filter
+        // 🔹 Role based restriction
+        if (Auth::user()->hasRole('Driver')) {
+            $query->where('create_by', Auth::user()->id);
+        }
+
+        // 🔹 Default today filter (only if no date selected)
         if (!$request->from_date && !$request->to_date) {
             $query->whereDate('date', now()->toDateString());
         }
 
-        if(Auth::user()->hasRole('Driver'))
-        {
-            $query->where('create_by',Auth::user()->id);   
-        }
-
-        // 🔹 Date Filter
+        // 🔹 Date filter
         if ($request->from_date && $request->to_date) {
             $query->whereBetween('date', [
                 $request->from_date,
@@ -36,26 +36,36 @@ class CustomerPaymentController extends Controller
             ]);
         }
 
-        // 🔹 Customer Filter
+        // 🔹 Customer filter
         if ($request->customer_id) {
             $query->where('customer_id', $request->customer_id);
         }
 
-        // 🔹 Amount Filter
+        // 🔹 Amount filter
         if ($request->amount) {
             $query->where('amount', $request->amount);
         }
 
-        $payments = $query->orderBy('date', 'desc')
+        $payments = $query
+            ->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate(10);
 
-        $data['customers'] = (new CustomerService())->getrDriverCustomer(Auth::user()->driver_id)[2];
-        $data['payments'] = $payments;
-        if(Auth::user()->hasRole('Driver'))
-        {
-            return view('driver.customer_payment.index',$data);
+        // 🔹 Customers list (driver wise)
+        $customers = (new CustomerService())
+            ->getrDriverCustomer(Auth::user()->driver_id)[2] ?? [];
+
+        $data = [
+            'payments'  => $payments,
+            'customers' => $customers,
+        ];
+
+        // 🔹 View switch (same pattern as Sales index)
+        if (Auth::user()->hasRole('Driver')) {
+            return view('driver.customer_payment.index', $data);
         }
+
+        return view('backend.customer_payment.index', $data);
     }
 
     /**
@@ -63,11 +73,23 @@ class CustomerPaymentController extends Controller
      */
     public function create()
     {
-        if(Auth::user()->hasRole('Driver'))
-        {
-            $data['customers'] = (new CustomerService())->getrDriverCustomer(Auth::user()->driver_id)[2];
-            return view('driver.customer_payment.create',$data);
+        // Driver user
+        if (Auth::user()->hasRole('Driver')) {
+            $customers = (new CustomerService())
+                ->getrDriverCustomer(Auth::user()->driver_id)[2] ?? [];
+
+            return view('driver.customer_payment.create', [
+                'customers' => $customers
+            ]);
         }
+
+        // Backend user (Admin / Staff)
+        $customers = (new CustomerService())
+            ->getrDriverCustomer(null)[2] ?? [];
+
+        return view('backend.customer_payment.create', [
+            'customers' => $customers
+        ]);
     }
 
     /**
@@ -79,7 +101,7 @@ class CustomerPaymentController extends Controller
             DB::beginTransaction();
             $request->validate([
                 'customer_id' => 'required',
-                
+
             ]);
 
             SalesPayment::create([
@@ -97,7 +119,7 @@ class CustomerPaymentController extends Controller
             return back()->with('success', 'Payment Added Successfully');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->with('error',$th->getMessage());
+            return back()->with('error', $th->getMessage());
         }
     }
 
@@ -134,6 +156,6 @@ class CustomerPaymentController extends Controller
 
         $payment->delete();
 
-        return back()->with('success','Payment Deleted Successfully');
+        return back()->with('success', 'Payment Deleted Successfully');
     }
 }
