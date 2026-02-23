@@ -63,7 +63,7 @@ class ExpenseEntryController extends Controller
             // Driver হলে driver index
             if (Auth::user()->hasRole('Driver')) {
                 return redirect()
-                    ->route('driver.expense.index')
+                    ->route('expense_entry.index')
                     ->with('success', $status_message);
             }
 

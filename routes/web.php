@@ -21,6 +21,7 @@ use App\Http\Controllers\WarehouseStockController;
 use App\Http\Controllers\CustomerAreaController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
+use App\Http\Controllers\DriverClosingController;
 use App\Http\Controllers\DriverStockController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\IncomeExpenseTitleController;
@@ -72,7 +73,10 @@ Route::middleware('auth')->group(function () {
         'driver_stock' => DriverStockController::class,
         'purchase_return' => PurchaseReturnController::class,
         'supplier_payment' => SupplierPaymentController::class,
+        'driver_closing' => DriverClosingController::class,
     ]);
+
+    Route::get('show_driver_closing',[DriverClosingController::class,'driverClosing'])->name('driver.show_closing');
 
     Route::get('supplier-payment/due/{supplier}', [SupplierPaymentController::class, 'getDue']);
 

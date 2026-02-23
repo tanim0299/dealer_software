@@ -134,6 +134,18 @@ class SalesReturnController extends Controller
                     if ($driverIssueItem) {
                         $driverIssueItem->increment('return_qty', $returnQty);
                     }
+                    else
+                    {
+                        DriverIssueItem::create([
+                            'driver_issue_id' => $driverIssue->id,
+                            'product_id'      => $entry->product_id,
+                            'issue_qty'       => 0,
+                            'sold_qty'        => 0,
+                            'return_qty'      => $returnQty,
+                            'purchase_price'  => $entry->purchase_price,
+                            'sale_price'      => $entry->sale_price,
+                        ]);   
+                    }
                 }
             }
 
