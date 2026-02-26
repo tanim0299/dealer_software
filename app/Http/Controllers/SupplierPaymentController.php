@@ -139,6 +139,7 @@ class SupplierPaymentController extends Controller
     public function getDue($supplier_id)
     {
         $totalPurchase = PurchaseLedger::where('supplier_id', $supplier_id)->sum('total_amount');
+        $totalPurchasePiad = PurchaseLedger::where('supplier_id', $supplier_id)->sum('paid_amount');
         $totalPurchaseDiscount = PurchaseLedger::where('supplier_id', $supplier_id)->sum('discount');
         $totalPaid = SupplierPayment::where('supplier_id', $supplier_id)
                         ->where('type', 2)
@@ -150,11 +151,13 @@ class SupplierPaymentController extends Controller
                         ->where('type', 3)
                         ->sum('amount') * -1;
 
+       
+
         
 
 
 
-        $due = $totalPurchase - $totalPurchaseDiscount - $totalPaid - $totalReturnMinus + $totalReturnPaid;
+        $due = $totalPurchase - $totalPurchaseDiscount - $totalPaid - $totalPurchasePiad - $totalReturnMinus + $totalReturnPaid;
 
         return response()->json(['due' => $due]);
     }

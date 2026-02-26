@@ -92,11 +92,11 @@
                             class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <button type="submit" class="btn btn-search pe-1">
+                                    <button type="button" class="btn btn-search pe-1">
                                         <i class="fa fa-search search-icon"></i>
                                     </button>
                                 </div>
-                                <input type="text" placeholder="Search ..." class="form-control" />
+                                <input type="text" id="menuSearch" placeholder="Search ..." class="form-control" />
                             </div>
                         </nav>
 
@@ -548,6 +548,39 @@
             $('.js-example-basic-single').select2();
         });
     </script>
+    <script>
+        document.getElementById('menuSearch').addEventListener('keyup', function () {
+            let filter = this.value.toLowerCase();
+            let navItems = document.querySelectorAll('.nav-item');
+
+            navItems.forEach(function (item) {
+                let text = item.innerText.toLowerCase();
+
+                if (text.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Optional: Hide section titles if all items inside are hidden
+            document.querySelectorAll('.nav-section').forEach(function (section) {
+                let nextItems = [];
+                let sibling = section.nextElementSibling;
+
+                while (sibling && !sibling.classList.contains('nav-section')) {
+                    if (sibling.classList.contains('nav-item')) {
+                        nextItems.push(sibling);
+                    }
+                    sibling = sibling.nextElementSibling;
+                }
+
+                let visible = nextItems.some(item => item.style.display !== 'none');
+
+                section.style.display = visible ? '' : 'none';
+            });
+        });
+        </script>
     @stack('scripts')
 </body>
 
