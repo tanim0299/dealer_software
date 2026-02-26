@@ -44,6 +44,7 @@ class PurchaseLedger extends Model
     {
         return $this->belongsTo(Supplier::class,'supplier_id');
     }
+    
 
     public function getPurchase($search = [], $is_paginate= true, $is_relation = true)
     {

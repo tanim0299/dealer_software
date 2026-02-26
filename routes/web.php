@@ -29,6 +29,8 @@ use App\Http\Controllers\ExpenseEntryController;
 use App\Http\Controllers\IncomeEntryController;
 use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesReturnController;
+use App\Http\Controllers\SupplierBalanceSheetController;
+use App\Http\Controllers\SupplierDueListController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
@@ -37,6 +39,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('login');
 });
+
+Route::get('supplier_due/{id}', [SupplierDueListController::class, 'show'])->name('supplier_due.show');
 
 Route::get('/dashboard', [BackendController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard.index');
 
@@ -74,7 +78,11 @@ Route::middleware('auth')->group(function () {
         'purchase_return' => PurchaseReturnController::class,
         'supplier_payment' => SupplierPaymentController::class,
         'driver_closing' => DriverClosingController::class,
+        'supplier_balance_sheet' => SupplierBalanceSheetController::class,
+        'supplier_due_list' => SupplierDueListController::class,
     ]);
+
+    Route::get('supplier_balance_sheet_print',[SupplierBalanceSheetController::class,'print'])->name('supplier_balance_sheet.print');
 
     Route::get('show_driver_closing',[DriverClosingController::class,'driverClosing'])->name('driver.show_closing');
 

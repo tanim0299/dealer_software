@@ -20,4 +20,14 @@ class SupplierPayment extends Model
     {
         return $this->belongsTo(Supplier::class,'supplier_id');
     }
+
+    public function purchase()
+    {
+        return $this->belongsTo(PurchaseLedger::class,'ledger_id');
+    }
+
+    public function return()
+    {
+        return $this->belongsTo(PurchaseReturnLedger::class,'reference_no');
+        }
  }

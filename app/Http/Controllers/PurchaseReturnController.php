@@ -124,18 +124,18 @@ class PurchaseReturnController extends Controller
             $ledger->update(['subtotal' => $totalAmount]);
 
             // 6️⃣ Handle supplier payment if Cash
-            if ($request->return_type == 1) { // Cash
+            
                 SupplierPayment::create([
                     'supplier_id' => $request->supplier_id,
                     'payment_date' => now()->toDateString(),
-                    'amount' => -$totalAmount,
+                    'amount' => $request->return_type == 1 ? -$totalAmount : 0, // Negative amount for cash return, zero for credit return
                     'payment_method' => 'Cash',
                     'note' => 'Purchase return',
                     'type' => 3,
                     'created_by' => auth()->id(),
                     'reference_no' => $ledger->id,
                 ]);
-            }
+            
 
             DB::commit();
             return redirect()->route('purchase_return.index')->with('success', 'Purchase return processed successfully.');

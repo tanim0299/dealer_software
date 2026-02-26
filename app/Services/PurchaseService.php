@@ -82,6 +82,7 @@ class PurchaseService {
             }
 
             SupplierPayment::create([
+                'ledger_id' => $purchase->id,
                 'supplier_id'    => $request->supplier_id,
                 'payment_date'   => $request->purchase_date,
                 'amount'         => $request->paid ?? 0,

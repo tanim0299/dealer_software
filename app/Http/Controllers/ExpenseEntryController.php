@@ -26,6 +26,10 @@ class ExpenseEntryController extends Controller
         $data['search']['free_text'] = $request->free_text ?? '';
         [$status_code, $status_message, $response] = (new ExpenseEntryService())->ExpenseEntryList($data['search'], true);
         $data['data'] = $response;
+        if(Auth::user()->hasRole('Driver'))
+        {
+               
+        }
         return view($this->PATH . '.index', $data);
     }
 
