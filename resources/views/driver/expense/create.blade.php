@@ -1,8 +1,11 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Add Expense')
+
 @section('body')
-<form method="POST" action="{{ route('expense_entry.store') }}" enctype="multipart/form-data">
-    @csrf
-    @include('driver.expense.form', ['expenses' => $expenses])
-</form>
+@include('driver.expense.form', [
+    'route' => route('expense_entry.store'),
+    'expenses' => $expenses,
+    'buttonText' => 'Save Expense'
+])
 @endsection

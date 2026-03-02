@@ -1,8 +1,10 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Collect Payment')
+
 @section('body')
 
-<div class="container py-3">
+<div class="page-card p-3">
 
     <div class="card shadow-sm">
         <div class="card-body">

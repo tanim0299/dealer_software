@@ -134,7 +134,36 @@ class CustomerService
                 ->pluck('area_id')
                 ->toArray();
 
-            $response = Customer::whereIn('area_id', $driverAreas)->get();
+            $cashCustomer = $this->getGlobalCashCustomer();
+            $cashCustomerId = $cashCustomer?->id;
+
+            if (empty($driverAreas) && !$cashCustomerId) {
+                $response = collect();
+                $status_code = ApiService::API_SUCCESS;
+                return [$status_code, $status_message, $response];
+            }
+
+            $response = Customer::query()
+                ->where(function ($query) use ($driverAreas, $cashCustomerId) {
+                    if (!empty($driverAreas)) {
+                        $query->whereIn('area_id', $driverAreas);
+                        $query->where(function ($subQuery) {
+                            $subQuery->whereNull('email')
+                                ->orWhere('email', 'not like', 'cash-driver%@example.com');
+                        });
+                    }
+
+                    if ($cashCustomerId) {
+                        if (!empty($driverAreas)) {
+                            $query->orWhere('id', $cashCustomerId);
+                        } else {
+                            $query->where('id', $cashCustomerId);
+                        }
+                    }
+                })
+                ->orderByRaw('CASE WHEN id = ? THEN 0 ELSE 1 END', [$cashCustomerId ?? 0])
+                ->orderBy('name')
+                ->get();
             $status_code = ApiService::API_SUCCESS;
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
@@ -142,5 +171,17 @@ class CustomerService
         }
 
         return [$status_code, $status_message, $response];
+    }
+
+    public function getGlobalCashCustomer(): ?Customer
+    {
+        return Customer::firstOrCreate(
+            ['name' => 'Cash Customer', 'area_id' => null],
+            [
+                'phone' => null,
+                'email' => null,
+                'address' => 'General cash customer',
+            ]
+        );
     }
 }

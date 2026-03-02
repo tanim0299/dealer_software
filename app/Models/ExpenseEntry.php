@@ -34,14 +34,38 @@ public function driver()
     public function ExpenseEntryList($search = [], $is_paginate = true)
     {
         $query = self::query();
+
+        if (!empty($search['driver_id'])) {
+            $query->where('driver_id', $search['driver_id']);
+        }
+
         if (!empty($search['title_id'])) {
-            $query = $query->where('title_id', $search['title_id']);
+            $query->where('title_id', $search['title_id']);
         }
+
+        if (!empty($search['amount'])) {
+            $query->where('amount', $search['amount']);
+        }
+
+        if (!empty($search['from_date'])) {
+            $query->whereDate('date', '>=', $search['from_date']);
+        }
+
+        if (!empty($search['to_date'])) {
+            $query->whereDate('date', '<=', $search['to_date']);
+        }
+
         if (!empty($search['free_text'])) {
-            $query = $query->where('amount', 'like', '%' . $search['free_text'] . '%');
+            $query->where(function ($q) use ($search) {
+                $q->where('amount', 'like', '%' . $search['free_text'] . '%')
+                  ->orWhere('note', 'like', '%' . $search['free_text'] . '%');
+            });
         }
+
+        $query->with('expense')->latest('date')->latest('id');
+
         if ($is_paginate) {
-            $query =  $query->paginate(10);
+            $query =  $query->paginate(10)->withQueryString();
         } else {
             $query =  $query->get();
         }

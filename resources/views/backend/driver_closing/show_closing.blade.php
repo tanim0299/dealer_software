@@ -136,13 +136,20 @@ button{
 </div>
 
 <div class="container">
+    @php
+        $closingDate = request('date', date('Y-m-d'));
+        $issueCashFromManager = (float) ($issue->cash_from_manager ?? 0);
+        $givenAmountTotal = (float) (($givenAmounts ?? collect())->sum('amount'));
+        $savedCashGivenToOthers = (float) ($closingStatus->cash_given_to_others ?? $givenAmountTotal);
+        $savedDriverCashTake = (float) ($closingStatus->driver_cash_take ?? ($issueCashFromManager - $savedCashGivenToOthers));
+    @endphp
     <form method="post" action="{{ route('driver_closing.store') }}">
         @csrf
         <input type="hidden" name="driver_id" value="{{ $driver->id }}">
-        <input type="hidden" name="date" id="date" value="{{ date('Y-m-d') }}">
+        <input type="hidden" name="date" id="date" value="{{ $closingDate }}">
     <div class="header-info">
         <div>Driver Name: {{ $driver->name }}</div>
-        <div>Date: {{ date('d F Y') }}</div>
+        <div>Date: {{ date('d F Y', strtotime($closingDate)) }}</div>
     </div>
 
     <!-- Sales -->
@@ -209,6 +216,41 @@ button{
         </tr>
     </table>
 
+    <div class="section-title">3.1 Sales Return Invoice & Product Details</div>
+    <table>
+        <tr>
+            <th>Return Invoice</th>
+            <th>Customer</th>
+            <th>Products</th>
+            <th>Return Amount</th>
+            <th>Adjustment</th>
+        </tr>
+        @forelse(($salesReturns ?? collect()) as $returnLedger)
+            @php
+                $productText = $returnLedger->entries->map(function($entry){
+                    return ($entry->product->name ?? 'Product') . ' x ' . rtrim(rtrim(number_format((float) $entry->return_qty, 4, '.', ''), '0'), '.');
+                })->implode(', ');
+
+                $payment = $returnLedger->payments->first();
+                $adjustmentType = 'Due Adjust';
+                if ($payment && (float) $payment->amount < 0) {
+                    $adjustmentType = 'Cash Paid';
+                }
+            @endphp
+            <tr>
+                <td>{{ $returnLedger->invoice_no ?? '-' }}</td>
+                <td>{{ $returnLedger->customer->name ?? '-' }}</td>
+                <td>{{ $productText ?: '-' }}</td>
+                <td>{{ number_format((float) $returnLedger->subtotal, 2) }}</td>
+                <td>{{ $adjustmentType }}</td>
+            </tr>
+        @empty
+            <tr>
+                <td colspan="5">No sales return found for this driver/date.</td>
+            </tr>
+        @endforelse
+    </table>
+
     <!-- Expense -->
     <div class="section-title">4. Expense Details</div>
     <table>
@@ -243,8 +285,48 @@ button{
         = {{ number_format($cashInHand,2) }}
     </div>
 
+    <div class="section-title">5. Manager Cash Distribution</div>
+    <table>
+        <tr>
+            <th>Cash Taken From Manager</th>
+            <td>
+                {{ number_format($closingStatus->cash_from_manager ?? $issueCashFromManager, 2) }}
+            </td>
+        </tr>
+        <tr>
+            <th>Cash Given To Other Employees</th>
+            <td id="cashGivenCell">{{ number_format($savedCashGivenToOthers, 2) }}</td>
+        </tr>
+        <tr>
+            <th>Driver Own Cash Take</th>
+            <td id="driverCashTakeCell">{{ number_format($savedDriverCashTake ?: ($issueCashFromManager - $savedCashGivenToOthers), 2) }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">6. Given Amount To Employees</div>
+    <table>
+        <tr>
+            <th>Employee</th>
+            <th>Amount</th>
+        </tr>
+        @forelse(($givenAmounts ?? collect()) as $given)
+        <tr>
+            <td>{{ $given->employee->name ?? '' }}</td>
+            <td>{{ number_format($given->amount,2) }}</td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="2">No given amount entries from driver panel.</td>
+        </tr>
+        @endforelse
+        <tr class="total-row">
+            <td>Total</td>
+            <td>{{ number_format(($givenAmounts ?? collect())->sum('amount'),2) }}</td>
+        </tr>
+    </table>
+
     <!-- Product Stock -->
-    <div class="section-title">4. Product Stock Summary</div>
+    <div class="section-title">7. Product Stock Summary</div>
     <table>
         <tr>
             <th>Product</th>

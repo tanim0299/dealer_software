@@ -9,6 +9,7 @@ use App\Models\WareHouseStocks;
 use App\Services\StockService;
 use App\Services\SupplierService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseReturnController extends Controller
@@ -132,7 +133,7 @@ class PurchaseReturnController extends Controller
                     'payment_method' => 'Cash',
                     'note' => 'Purchase return',
                     'type' => 3,
-                    'created_by' => auth()->id(),
+                    'created_by' => Auth::id(),
                     'reference_no' => $ledger->id,
                 ]);
             
@@ -178,25 +179,24 @@ class PurchaseReturnController extends Controller
         DB::beginTransaction();
         try {
             $ledger = (new PurchaseReturnLedger())->find($id);
+            if (!$ledger) {
+                throw new \Exception('Purchase return not found.');
+            }
             // 1️⃣ Rollback stock for each entry
             foreach ($ledger->entries as $entry) {
-                // Get warehouse stocks for this product, ordered FIFO
-                $stocks = WareHouseStocks::where('product_id', $entry->product_id)
-                            ->orderBy('purchase_price', 'asc')
-                            ->get();
+                $stock = WareHouseStocks::where('product_id', $entry->product_id)
+                            ->where('purchase_price', $entry->purchase_price)
+                            ->first();
 
-                $remainingQty = $entry->return_qty;
-
-                foreach ($stocks as $stock) {
-                    $qtyToReduce = min($remainingQty, $stock->return_qty);
-
-                    if ($qtyToReduce > 0) {
-                        $stock->decrement('return_qty', $qtyToReduce);
-                        $remainingQty -= $qtyToReduce;
-                    }
-
-                    if ($remainingQty <= 0) break;
+                if (!$stock) {
+                    throw new \Exception('Stock row not found for return rollback.');
                 }
+
+                if ($stock->return_qty < $entry->return_qty) {
+                    throw new \Exception('Invalid stock rollback quantity detected.');
+                }
+
+                $stock->decrement('return_qty', $entry->return_qty);
             }
 
             // 2️⃣ Delete entries

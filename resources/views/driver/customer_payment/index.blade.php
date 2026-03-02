@@ -1,8 +1,10 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Payment History')
+
 @section('body')
 
-<div class="container py-3">
+<div class="page-card p-3">
 
     <h5 class="mb-3 text-center">Customer Payments</h5>
 

@@ -29,13 +29,13 @@
                             <div class="col-4">
                                 <div class="form-group">
                                     <label>Date</label><span class="text-danger">*</span>
-                                    <input type="date" name="date" id="date" value="{{ date('Y-m-d') }}" readonly class="form-control">
+                                    <input type="date" name="date" id="date" value="{{ date('Y-m-d') }}" class="form-control">
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
                                     <br>
-                                    <button type="submit" class="btn btn-info btn-sm">Show Closing</button>
+                                    <button type="submit" class="btn btn-info btn-sm">Show Daily Report</button>
                                 </div>
                             </div>
                         </div>

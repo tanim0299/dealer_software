@@ -1,5 +1,7 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Dashboard')
+
 @section('body')
     <div class="container-fluid mt-3">
 
@@ -38,6 +40,60 @@
                     ->where('driver_id', $driverId)
                     ->whereDate('date', Carbon::today())
                     ->sum('amount');
+
+                // Current Stock Qty
+                $currentStockQty = DB::table('driver_issue_items')
+                    ->join('driver_issues', 'driver_issue_items.driver_issue_id', '=', 'driver_issues.id')
+                    ->where('driver_issues.driver_id', $driverId)
+                    ->where('driver_issues.status', 'accepted')
+                    ->sum(DB::raw('driver_issue_items.issue_qty - driver_issue_items.sold_qty - driver_issue_items.return_qty'));
+
+                // Manager cash issued today
+                $cashFromManager = DB::table('driver_issues')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('issue_date', Carbon::today())
+                    ->where('status', '!=', 'rejected')
+                    ->sum('cash_from_manager');
+
+                // Due collected today
+                $todayDueCollection = DB::table('sales_payments')
+                    ->where('type', 1)
+                    ->where('create_by', auth()->id())
+                    ->whereDate('date', Carbon::today())
+                    ->sum('amount');
+
+                // Sales return cash paid today (only cash paid, not due adjustment)
+                $todayReturnPaid = abs((float) DB::table('sales_payments as sp')
+                    ->join('sales_return_ledgers as srl', 'srl.id', '=', 'sp.reference_id')
+                    ->where('sp.type', 2)
+                    ->where('sp.reference_type', 'return')
+                    ->where('sp.amount', '<', 0)
+                    ->where('srl.create_by', auth()->id())
+                    ->whereDate('sp.date', Carbon::today())
+                    ->sum('sp.amount'));
+
+                // Given amount to other employees today
+                $todayGivenAmount = DB::table('driver_cash_distributions')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('date', Carbon::today())
+                    ->sum('amount');
+
+                // Live carrying cash
+                $currentCarryingCash = $cashFromManager
+                    + $todayPaid
+                    + $todayDueCollection
+                    - $todayReturnPaid
+                    - $todayExpensesAmount
+                    - $todayGivenAmount;
+
+                $todayClosingExists = DB::table('driver_closings')
+                    ->where('driver_id', $driverId)
+                    ->whereDate('date', Carbon::today())
+                    ->exists();
+
+                if ($todayClosingExists) {
+                    $currentCarryingCash = 0;
+                }
             @endphp
 
             <div class="col-6">
@@ -79,9 +135,22 @@
 
             <div class="col-6">
                 <div class="card shadow-sm text-center">
+                    <a href="{{ route('driver_stock.index') }}">
+                        <div class="card-body p-3">
+                            <small class="text-muted">Current Stock</small>
+                            <h5 class="fw-bold mt-1">{{ max(0, (int) $currentStockQty) }}</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card shadow-sm text-center border-success">
                     <div class="card-body p-3">
-                        <small class="text-muted">Stock</small>
-                        <h5 class="fw-bold mt-1">245</h5>
+                        <small class="text-muted">Current Carrying Cash</small>
+                        <h4 class="fw-bold mt-1 text-success">
+                            ৳ {{ number_format($currentCarryingCash, 2) }}
+                        </h4>
                     </div>
                 </div>
             </div>
@@ -107,8 +176,23 @@
                     </a>
                 </div>
                 <div class="col-6">
+                    <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.create') }}">
+                        💸 Give Amount
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.index') }}">
+                        💸 Given Amount List
+                    </a>
+                </div>
+                <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('expense_entry.create') }}">
                         🧾 Add Expense
+                    </a>
+                </div>
+                <div class="col-6">
+                    <a class="btn btn-outline-primary w-100 py-2" href="{{ route('driver_stock.index') }}">
+                        📦 Current Stock
                     </a>
                 </div>
                 <div class="col-6">

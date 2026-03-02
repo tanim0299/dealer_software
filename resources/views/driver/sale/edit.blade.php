@@ -1,5 +1,7 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Edit Sale')
+
 @section('body')
 <form method="POST" action="{{ route('sales.update', $sale->id) }}" enctype="multipart/form-data">
     @csrf

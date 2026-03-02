@@ -1,10 +1,12 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Current Stock')
+
 @section('body')
 
-<div class="container py-3">
+<div class="page-card p-3">
 
-    <h5 class="mb-3 text-center">Today Stock</h5>
+    <h5 class="mb-3 text-center">Current Stock</h5>
 
     @if($items->count())
 
@@ -43,7 +45,7 @@
     @else
 
         <div class="alert alert-warning text-center">
-            No Stock Issued Today
+            No Current Stock Available
         </div>
 
     @endif

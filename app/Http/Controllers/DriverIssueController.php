@@ -11,6 +11,7 @@ use App\Services\DriverService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DriverIssueController extends Controller
 {
@@ -112,68 +113,80 @@ class DriverIssueController extends Controller
 
     public function accept($id)
     {
-        $issue = DriverIssues::with('items')->findOrFail($id);
+        try {
+            DB::beginTransaction();
+            $issue = DriverIssues::with('items')->lockForUpdate()->findOrFail($id);
 
-        if ($issue->status !== 'open') {
-            throw new \Exception('Issue already processed');
-        }
-
-        foreach ($issue->items as $item) {
-
-            $requiredQty = $item->issue_qty;
-            $totalCost = 0;
-            $totalIssued = 0;
-
-            $stocks = WareHouseStocks::where('product_id', $item->product_id)
-                ->lockForUpdate()
-                ->orderBy('created_at', 'asc')
-                ->get();
-
-            $totalAvailable = $stocks->sum(function ($stock) {
-                return $stock->purchase_qty
-                    + $stock->sales_return_qty
-                    - $stock->sales_qty
-                    + $stock->return_qty
-                    - $stock->sr_issue_qty;
-            });
-
-            if ($totalAvailable < $requiredQty) {
-                throw new \Exception('Stock not sufficient');
+            if ($issue->status !== 'open') {
+                throw new \Exception('Issue already processed');
             }
 
-            foreach ($stocks as $stock) {
+            foreach ($issue->items as $item) {
 
-                $availableQty = $stock->purchase_qty
-                    + $stock->sales_return_qty
-                    - $stock->sales_qty
-                    + $stock->return_qty
-                    - $stock->sr_issue_qty;
+                $requiredQty = $item->issue_qty;
+                $totalCost = 0;
+                $totalIssued = 0;
 
-                if ($availableQty <= 0) continue;
+                $stocks = WareHouseStocks::where('product_id', $item->product_id)
+                    ->lockForUpdate()
+                    ->orderBy('created_at', 'asc')
+                    ->get();
 
-                $issueFromThisStock = min($availableQty, $requiredQty);
+                $totalAvailable = $stocks->sum(function ($stock) {
+                    return $stock->purchase_qty
+                        + $stock->sales_return_qty
+                        - $stock->sales_qty
+                        - $stock->return_qty
+                        - $stock->sr_issue_qty;
+                });
 
-                $totalCost += $issueFromThisStock * $stock->purchase_price;
-                $totalIssued += $issueFromThisStock;
+                if ($totalAvailable < $requiredQty) {
+                    throw new \Exception('Stock not sufficient');
+                }
 
-                $stock->increment('sr_issue_qty', $issueFromThisStock);
+                foreach ($stocks as $stock) {
 
-                $requiredQty -= $issueFromThisStock;
+                    $availableQty = $stock->purchase_qty
+                        + $stock->sales_return_qty
+                        - $stock->sales_qty
+                        - $stock->return_qty
+                        - $stock->sr_issue_qty;
 
-                if ($requiredQty <= 0) break;
+                    if ($availableQty <= 0) continue;
+
+                    $issueFromThisStock = min($availableQty, $requiredQty);
+
+                    $totalCost += $issueFromThisStock * $stock->purchase_price;
+                    $totalIssued += $issueFromThisStock;
+
+                    $stock->increment('sr_issue_qty', $issueFromThisStock);
+
+                    $requiredQty -= $issueFromThisStock;
+
+                    if ($requiredQty <= 0) break;
+                }
+
+                if ($totalIssued <= 0) {
+                    throw new \Exception('Stock not sufficient');
+                }
+
+                $averagePrice = $totalCost / $totalIssued;
+
+                $item->update([
+                    'purchase_price' => $averagePrice
+                ]);
             }
 
-            $averagePrice = $totalCost / $totalIssued;
-
-            $item->update([
-                'purchase_price' => $averagePrice
+            $issue->update([
+                'status' => 'accepted'
             ]);
-        }
 
-        $issue->update([
-            'status' => 'accepted'
-        ]);
-        return back()->with('success', 'Issue accepted successfully');
+            DB::commit();
+            return back()->with('success', 'Issue accepted successfully');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', $th->getMessage());
+        }
     }
 
     public function reject($id)

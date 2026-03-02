@@ -24,7 +24,7 @@ class SalesReturnController extends Controller
     {
         if (Auth::user()->hasRole('Driver')) {
             $query = SalesReturnLedger::with('customer')
-                ->where('create_by', auth()->id());
+                ->where('create_by', Auth::id());
 
             // 🔹 Date Filter
             if ($request->from_date && $request->to_date) {
@@ -52,7 +52,7 @@ class SalesReturnController extends Controller
     public function create(Request $request)
     {
         if (Auth::user()->hasRole('Driver')) {
-            $sales_ledgers = SalesLedger::where('driver_id', auth()->id())->get();
+            $sales_ledgers = SalesLedger::where('driver_id', Auth::user()->driver_id)->get();
 
             $selectedLedger = null;
 
@@ -89,7 +89,7 @@ class SalesReturnController extends Controller
                 'invoice_no'      => $salesLedger->invoice_no,
                 'date'            => now(),
                 'customer_id'     => $salesLedger->customer_id,
-                'create_by'      => auth()->id(),
+                'create_by'      => Auth::id(),
             ]);
 
             $subtotal = 0;
@@ -121,7 +121,7 @@ class SalesReturnController extends Controller
                 ]);
 
                 // 🔹 Update driver issue return_qty
-                $driverIssue = DriverIssues::where('driver_id', auth()->id())
+                $driverIssue = DriverIssues::where('driver_id', Auth::user()->driver_id)
                     ->whereDate('issue_date', now()->toDateString())
                     ->where('status', 'accepted')
                     ->first();
@@ -234,45 +234,43 @@ class SalesReturnController extends Controller
      */
     public function destroy($id)
     {
-        DB::transaction(function () use ($id) {
+        try {
+            DB::beginTransaction();
 
             $returnLedger = SalesReturnLedger::with('entries')
                 ->findOrFail($id);
 
-            // 🔹 Loop Return Entries
             foreach ($returnLedger->entries as $entry) {
-
-                // 🔄 Reverse Driver Issue return_qty
-                $driverIssue = DriverIssues::where('driver_id', auth()->id())
+                $driverIssue = DriverIssues::where('driver_id', Auth::user()->driver_id)
                     ->whereDate('issue_date', $returnLedger->date)
                     ->where('status', 'accepted')
                     ->first();
 
                 if ($driverIssue) {
-
                     $driverIssueItem = DriverIssueItem::where('driver_issue_id', $driverIssue->id)
                         ->where('product_id', $entry->product_id)
                         ->first();
 
                     if ($driverIssueItem) {
-
                         $driverIssueItem->decrement('return_qty', $entry->return_qty);
                     }
                 }
 
-                // 🔹 Delete return entry
                 $entry->delete();
             }
 
-            // 🔹 Delete Related SalesPayment (Return Type)
             SalesPayment::where('reference_type', 'return')
                 ->where('reference_id', $returnLedger->id)
                 ->delete();
 
-            // 🔹 Finally Delete Return Ledger
             $returnLedger->delete();
-        });
 
-        return back()->with('success', 'Sales Return Deleted & Rolled Back Successfully');
+            DB::commit();
+
+            return back()->with('success', 'Sales Return Deleted & Rolled Back Successfully');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->with('error', $th->getMessage());
+        }
     }
 }

@@ -14,17 +14,7 @@
     {{-- Driver --}}
     <input type="hidden" name="driver_id" value="{{ Auth::user()->driver_id }}">
 
-    <!-- Header -->
-    <nav class="navbar navbar-dark bg-primary">
-        <div class="container-fluid">
-            <button type="button" class="btn btn-primary" onclick="history.back()">←</button>
-            <span class="navbar-brand mx-auto">
-                {{ $isEdit ? 'Edit Expense' : 'New Expense' }}
-            </span>
-        </div>
-    </nav>
-
-    <div class="container-fluid mt-3">
+    <div class="page-card p-3">
 
         <!-- Date -->
         <div class="card mb-2">
@@ -87,7 +77,7 @@
     <!-- Fixed Save Button -->
     <div class="fixed-action px-3">
         <button type="submit" class="btn btn-primary btn-lg w-100">
-            {{ $isEdit ? 'Update Expense' : 'Save Expense' }}
+            {{ $buttonText ?? ($isEdit ? 'Update Expense' : 'Save Expense') }}
         </button>
     </div>
 

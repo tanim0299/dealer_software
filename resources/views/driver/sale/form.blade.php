@@ -1,14 +1,78 @@
 @php $isEdit = isset($sale); @endphp
 
-<!-- Header -->
-<nav class="navbar navbar-dark bg-primary">
-    <div class="container-fluid">
-        <button class="btn btn-primary" onclick="history.back()">←</button>
-        <span class="navbar-brand mx-auto">
-            {{ $isEdit ? 'Edit Sale' : 'New Sale' }}
-        </span>
-    </div>
-</nav>
+@push('styles')
+<style>
+    .sale-form-shell .section-card {
+        border: 0;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(15, 23, 42, .06);
+        margin-bottom: 12px;
+    }
+
+    .sale-form-shell .section-title {
+        font-size: .9rem;
+        font-weight: 700;
+        letter-spacing: .02em;
+        margin-bottom: 10px;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+
+    .sale-form-shell .form-label {
+        font-size: .85rem;
+        color: #475569;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .sale-form-shell .form-control,
+    .sale-form-shell .form-select {
+        border-radius: 10px;
+        min-height: 44px;
+    }
+
+    .sale-form-shell .summary-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px dashed #e2e8f0;
+        font-size: .95rem;
+    }
+
+    .sale-form-shell .summary-row:last-child {
+        border-bottom: 0;
+    }
+
+    .sale-form-shell .summary-amount {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .sale-form-shell .summary-due {
+        color: #dc2626;
+    }
+
+    .sale-form-shell .sticky-submit {
+        position: sticky;
+        bottom: 78px;
+        z-index: 10;
+        padding-top: 6px;
+    }
+
+    .sale-form-shell .cart-card {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 12px rgba(15, 23, 42, .04);
+    }
+
+    .sale-form-shell .cart-line-total {
+        font-weight: 700;
+        color: #0f172a;
+    }
+</style>
+@endpush
+
 <form method="POST"
       action="{{ $isEdit ? route('sales.update', $sale->id) : route('sales.store') }}"
       id="saleForm"
@@ -18,25 +82,35 @@
     @if($isEdit)
         @method('PUT')
     @endif
-<div class="container-fluid mt-3">
+<div class="page-card p-3 sale-form-shell">
     <!-- Customer -->
-    <div class="card mb-2">
+    <div class="card section-card">
         <div class="card-body">
+            <div class="section-title">Customer</div>
             <label class="form-label">Customer</label>
             <select name="customer_id" class="form-select js-example-basic-single">
                 @foreach($customers as $customer)
                     <option value="{{ $customer->id }}"
-                        {{ $isEdit && $sale->customer_id == $customer->id ? 'selected' : '' }}>
+                        data-is-cash="{{ (isset($cashCustomerId) && (int)$cashCustomerId === (int)$customer->id) ? 1 : 0 }}"
+                        {{ $isEdit && $sale->customer_id == $customer->id ? 'selected' : '' }}
+                        {{ !$isEdit && isset($cashCustomerId) && (int)$cashCustomerId === (int)$customer->id ? 'selected' : '' }}>
                         {{ $customer->name }}
+                        @if(isset($cashCustomerId) && (int)$cashCustomerId === (int)$customer->id)
+                            (Cash Customer)
+                        @endif
                     </option>
                 @endforeach
             </select>
+            @if(isset($cashCustomerId))
+                <small class="text-muted d-block mt-1">Default cash sale customer is selected.</small>
+            @endif
         </div>
     </div>
 
     <!-- Invoice Info -->
-    <div class="card mb-2">
+    <div class="card section-card">
         <div class="card-body row g-2">
+            <div class="section-title">Invoice Information</div>
             <div class="col-6">
                 <label class="form-label">Date</label>
                 <input type="date" name="sale_date" class="form-control"
@@ -51,17 +125,18 @@
     </div>
 
     <!-- Slip -->
-    <div class="card mb-2">
+    <div class="card section-card">
         <div class="card-body">
+            <div class="section-title">Attachment</div>
             <label class="form-label">Upload Slip</label>
             <input type="file" name="slip_image" class="form-control">
         </div>
     </div>
 
     <!-- Add Product -->
-    <div class="d-grid mb-2">
+    <div class="d-grid mb-3">
         <button type="button"
-                class="btn btn-success btn-lg"
+                class="btn btn-success btn-lg rounded-3"
                 data-bs-toggle="modal"
                 data-bs-target="#productModal">
             ➕ Add Product
@@ -77,11 +152,13 @@
 
 
     <!-- Summary -->
-    <div class="card mt-3">
+    <div class="card section-card mt-3">
         <div class="card-body">
-            <div class="d-flex justify-content-between mb-2">
+            <div class="section-title">Payment Summary</div>
+
+            <div class="summary-row">
                 <span>Subtotal</span>
-                <strong id="subtotal">0</strong>
+                <strong id="subtotal" class="summary-amount">0</strong>
             </div>
 
             <div class="mb-2">
@@ -90,9 +167,9 @@
                        value="{{ $isEdit ? $sale->discount : 0 }}">
             </div>
 
-            <div class="d-flex justify-content-between mb-2">
+            <div class="summary-row">
                 <span>Grand Total</span>
-                <strong id="grandTotal">0</strong>
+                <strong id="grandTotal" class="summary-amount">0</strong>
             </div>
 
             <div class="mb-2">
@@ -101,18 +178,70 @@
                        value="{{ $isEdit ? $sale->paid_amount : 0 }}">
             </div>
 
-            <div class="d-flex justify-content-between text-danger fw-bold">
+            <div class="summary-row fw-bold">
                 <span>Due</span>
-                <span id="dueAmount">0</span>
+                <span id="dueAmount" class="summary-due">0</span>
             </div>
         </div>
     </div>
 
 </div>
 
+<!-- Due Customer Modal -->
+<div class="modal fade" id="dueCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Due Found - Create Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning py-2 mb-3">
+                    Cash customer can not keep due. Please create a customer and continue sale.
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Customer Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="dueCustomerName" placeholder="Enter customer name">
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Phone</label>
+                    <input type="text" class="form-control" id="dueCustomerPhone" placeholder="Enter phone">
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="dueCustomerEmail" placeholder="Enter email">
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label">Area <span class="text-danger">*</span></label>
+                    <select class="form-select" id="dueCustomerAreaId">
+                        <option value="">Select area</option>
+                        @foreach(($driverAreas ?? collect()) as $area)
+                            <option value="{{ $area->id }}">{{ $area->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">Only assigned areas are available.</small>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control" id="dueCustomerAddress" rows="2" placeholder="Enter address"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="createCustomerAndSubmitBtn">Create Customer & Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <!-- Fixed Save Button -->
-    <div class=" px-3">
-        <button type="button" id="saleSubmitBtn" class="btn btn-primary btn-lg w-100">
+    <div class="px-3 sticky-submit">
+        <button type="button" id="saleSubmitBtn" class="btn btn-primary btn-lg w-100 rounded-3 shadow-sm">
             {{ $isEdit ? 'Update Sale' : 'Save Sale' }}
         </button>
 
@@ -138,7 +267,7 @@
                 <div id="productList" class="list-group">
                     @foreach($products as $product)
                         <button type="button"
-                            class="list-group-item list-group-item-action"
+                            class="list-group-item list-group-item-action py-3"
                             onclick='selectProduct(
                                 {{ $product->product_id }},
                                 @json($product->product->name),
@@ -147,7 +276,7 @@
                                 @json($product->product->unit->sub_unit)
                             )'>
                             {{ $product->product->name }}
-                            <span class="float-end text-muted">
+                            <span class="float-end text-muted fw-semibold">
                                 {{ $product->available_qty }} | ৳ {{ $product->product->sale_price }}
                             </span>
                         </button>
@@ -160,7 +289,7 @@
 
                 <!-- Selected Product -->
                 <div id="selectedProductArea" class="d-none">
-                    <h6 id="selectedProductName"></h6>
+                    <h6 id="selectedProductName" class="fw-bold"></h6>
 
                     <div class="row g-2">
                         <div class="col-6">
@@ -173,7 +302,7 @@
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-success w-100 mt-3"
+                    <button type="button" class="btn btn-success w-100 mt-3 rounded-3"
                             onclick="addToCart()">
                         Add to Cart
                     </button>
@@ -187,6 +316,7 @@
 <script>
 let cart = [];
 let selectedProduct = null;
+let submitAfterCustomerCreate = false;
 
 /* select product */
 function selectProduct(id, name, price, availableQty, subUnits) {
@@ -294,8 +424,8 @@ function renderCart() {
         });
 
         cartDiv.innerHTML += `
-        <div class="card mb-2">
-            <div class="card-body">
+        <div class="card mb-2 cart-card">
+            <div class="card-body p-3">
 
                 <div class="d-flex justify-content-between">
                     <strong>${item.name}</strong>
@@ -343,7 +473,7 @@ function renderCart() {
                     <small class="text-muted">
                         Base Qty: ${item.final_quantity.toFixed(4)}
                     </small>
-                    <strong>
+                    <strong class="cart-line-total">
                         ৳ ${item.line_total.toFixed(2)}
                     </strong>
                 </div>
@@ -443,6 +573,77 @@ $('#saleSubmitBtn').on('click', function(e) {
         return;
     }
 
+    const dueAmount = parseFloat(document.getElementById('dueAmount').innerText || 0);
+    const selectedOption = $('[name="customer_id"] option:selected');
+    const isCashCustomer = parseInt(selectedOption.data('is-cash') || 0) === 1;
+
+    if (isCashCustomer && dueAmount > 0) {
+        submitAfterCustomerCreate = true;
+        const modal = new bootstrap.Modal(document.getElementById('dueCustomerModal'));
+        modal.show();
+        return;
+    }
+
+    submitSaleForm();
+});
+
+$('#createCustomerAndSubmitBtn').on('click', function () {
+    const name = $('#dueCustomerName').val().trim();
+    const phone = $('#dueCustomerPhone').val().trim();
+    const email = $('#dueCustomerEmail').val().trim();
+    const areaId = $('#dueCustomerAreaId').val();
+    const address = $('#dueCustomerAddress').val().trim();
+
+    if (!name) {
+        alert('Customer name is required.');
+        return;
+    }
+
+    if (!areaId) {
+        alert('Please select area.');
+        return;
+    }
+
+    $.ajax({
+        url: '{{ route('sales.driver_customer.store') }}',
+        method: 'POST',
+        data: {
+            name: name,
+            phone: phone,
+            email: email,
+            area_id: areaId,
+            address: address,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function (res) {
+            if (res.status_code === 200 && res.customer) {
+                const optionHtml = `<option value="${res.customer.id}" data-is-cash="0" selected>${res.customer.name}</option>`;
+
+                if ($('[name="customer_id"] option[value="' + res.customer.id + '"]').length) {
+                    $('[name="customer_id"]').val(res.customer.id).trigger('change');
+                } else {
+                    $('[name="customer_id"]').append(optionHtml).val(res.customer.id).trigger('change');
+                }
+
+                bootstrap.Modal.getInstance(document.getElementById('dueCustomerModal')).hide();
+
+                if (submitAfterCustomerCreate) {
+                    submitAfterCustomerCreate = false;
+                    submitSaleForm();
+                }
+            } else {
+                alert(res.status_message || 'Unable to create customer.');
+            }
+        },
+        error: function (err) {
+            const message = err?.responseJSON?.status_message || 'Unable to create customer.';
+            alert(message);
+        }
+    });
+});
+
+function submitSaleForm() {
+
     // Add cart items
     $('#cartItemsInput').val(JSON.stringify(cart));
 
@@ -485,10 +686,11 @@ $('#saleSubmitBtn').on('click', function(e) {
         },
         error: function(err){
             console.error(err);
-            alert('Server error!');
+            const message = err?.responseJSON?.status_message || 'Server error!';
+            alert(message);
         }
     });
-});
+}
 
 
 </script>

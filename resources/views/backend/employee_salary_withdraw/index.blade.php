@@ -1,0 +1,94 @@
+@extends('backend.layouts.master')
+@section('title','Salary Withdraw List')
+
+@section('content')
+<div class="container">
+    <div class="page-inner">
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Employee Salary Withdraw List</h4>
+
+            @if(Auth::user()->can('Employee Salary Withdraw create'))
+            <a href="{{ route('employee_salary_withdraw.create') }}" class="btn btn-primary btn-sm">
+                <i class="fa fa-plus"></i> Create New
+            </a>
+            @endif
+        </div>
+
+        <br>
+
+        <form method="GET" class="card p-3 mb-3">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
+                </div>
+
+                <div class="col-md-3">
+                    <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
+                </div>
+
+                <div class="col-md-4">
+                    <select name="employee_id" class="form-select">
+                        <option value="">All Employees</option>
+                        @foreach($employees as $employee)
+                            <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
+                                {{ $employee->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="card">
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Amount</th>
+                            <th>Note</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($withdraws as $withdraw)
+                            <tr>
+                                <td>{{ $withdraw->id }}</td>
+                                <td>{{ $withdraw->withdraw_date }}</td>
+                                <td>{{ $withdraw->employee->name ?? 'N/A' }}</td>
+                                <td>{{ number_format($withdraw->amount, 2) }}</td>
+                                <td>{{ $withdraw->note }}</td>
+                                <td>
+                                    @if(Auth::user()->can('Employee Salary Withdraw destroy'))
+                                    <form action="{{ route('employee_salary_withdraw.destroy', $withdraw->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure to delete this withdraw record?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
+                                    </form>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">No withdraw records found</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
+                <div class="mt-3">
+                    {{ $withdraws->links() }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+@endsection

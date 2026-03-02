@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\SalesLedger;
 use App\Models\SalesPayment;
 use App\Models\SalesReturnLedger;
+use App\Models\Customer;
+use App\Models\Drivers;
 use App\Services\ApiService;
 use App\Services\CustomerService;
 use App\Services\SalesService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class SalesController extends Controller
 {
@@ -19,7 +23,7 @@ class SalesController extends Controller
      */
     public function index(Request $request)
     {
-        $data['search']['driver_id'] = auth()->user()->driver_id ?? null;
+        $data['search']['driver_id'] = Auth::user()->driver_id ?? null;
         $data['search']['free_text'] = $request->free_text ?? null;
         $data['search']['from_date'] = $request->from_date;
         $data['search']['to_date'] = $request->to_date;
@@ -42,8 +46,16 @@ class SalesController extends Controller
 
         if(Auth::user()->hasRole('Driver'))
         {
-            $data['customers'] = (new CustomerService())->getrDriverCustomer(auth()->user()->driver_id)[2];
-            $data['products'] = (new StockService())->getDriverStock(auth()->user()->driver_id, date('Y-m-d'))[2];
+            $driverId = Auth::user()->driver_id;
+            $driver = Drivers::with('areas')->findOrFail($driverId);
+
+            $cashCustomer = (new CustomerService())->getGlobalCashCustomer();
+
+            $data['customers'] = (new CustomerService())->getrDriverCustomer($driverId)[2];
+            $data['products'] = (new StockService())->getDriverStock($driverId, date('Y-m-d'))[2];
+            $data['driverAreas'] = $driver->areas;
+            $data['cashCustomerId'] = $cashCustomer?->id;
+
             return view('driver.sale.create',$data);
         }
     }
@@ -114,9 +126,9 @@ class SalesController extends Controller
 
     public function getCustomerDue($id)
     {
-        $totalSales   = SalesLedger::where('customer_id', $id)->sum('subtotal');
+        $totalSales   = SalesLedger::where('customer_id', $id)->sum(DB::raw('subtotal - discount'));
         $totalReturn  = SalesReturnLedger::where('customer_id', $id)->sum('subtotal');
-        $totalPaid    = SalesPayment::where('customer_id', $id)->where('type',1)->sum('amount');
+        $totalPaid    = SalesPayment::where('customer_id', $id)->whereIn('type',[0,1])->sum('amount');
         $totalReturnPaid = SalesPayment::where('customer_id', $id)->where('type',2)->sum('amount') * -1;
 
         $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
@@ -124,6 +136,60 @@ class SalesController extends Controller
         return response()->json([
             'due' => $due
         ]);
+    }
+
+    public function storeDriverCustomer(Request $request)
+    {
+        if (!Auth::user()->hasRole('Driver')) {
+            return response()->json([
+                'status_code' => ApiService::API_FORBIDDEN,
+                'status_message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $driver = Drivers::with('areas')->findOrFail(Auth::user()->driver_id);
+        $allowedAreaIds = $driver->areas->pluck('id')->toArray();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:30',
+            'email' => 'nullable|email|max:255',
+            'area_id' => 'required|exists:customer_areas,id',
+            'address' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status_code' => ApiService::Api_VALIDATION_ERROR,
+                'status_message' => 'Validation error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        if (!in_array((int) $request->area_id, $allowedAreaIds, true)) {
+            return response()->json([
+                'status_code' => ApiService::Api_VALIDATION_ERROR,
+                'status_message' => 'You can select only your assigned area.',
+            ], 422);
+        }
+
+        try {
+            $customer = (new Customer())->createCustomer($request);
+
+            return response()->json([
+                'status_code' => ApiService::API_SUCCESS,
+                'status_message' => 'Customer created successfully.',
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status_code' => ApiService::API_SERVER_ERROR,
+                'status_message' => $th->getMessage(),
+            ], 500);
+        }
     }
 
 }
