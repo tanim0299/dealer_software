@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\DriverIssueItem;
+use App\Models\Customer;
 use App\Models\SalesEntry;
 use App\Models\SalesLedger;
 use App\Models\SalesPayment;
@@ -21,7 +22,7 @@ class SalesService {
             $status_code = ApiService::API_SUCCESS;
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
-            $status_code = ApiService::API_SUCCESS;
+            $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
         }
 
@@ -48,6 +49,15 @@ class SalesService {
             $discount = $request->discount ?? 0;
             $grandTotal = $subtotal - $discount;
             $paid = $request->paid_amount ?? 0;
+            $dueAmount = $grandTotal - $paid;
+
+            $globalCashCustomer = Customer::where('name', 'Cash Customer')
+                ->whereNull('area_id')
+                ->first();
+
+            if ($globalCashCustomer && (int) $globalCashCustomer->id === (int) $request->customer_id && $dueAmount > 0) {
+                throw new \Exception('Cash sale can not have due. Please create/select customer for due sale.');
+            }
 
             // Auto Invoice No if empty
             $invoiceNo = $request->voucher_no;
@@ -214,7 +224,7 @@ class SalesService {
                     ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
                         $q->where('driver_id', $driverId)
                         ->whereDate('issue_date', $today)
-                        ->where('status', 'open'); 
+                        ->whereIn('status', ['accepted', 'closed']); 
                     })
                     ->orderBy('created_at', 'asc')
                     ->get();

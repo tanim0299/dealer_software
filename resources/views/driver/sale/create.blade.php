@@ -1,8 +1,8 @@
 @extends('driver.layouts.master')
 
-@section('body')
+@section('page_title', 'New Sale')
 
-    @csrf
+@section('body')
     @include('driver.sale.form', ['customers' => $customers])
 
 @endsection

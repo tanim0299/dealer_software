@@ -139,7 +139,7 @@ class PurchaseService {
 
             // 5️⃣ DELETE OLD SUPPLIER PAYMENT
             SupplierPayment::where([
-                'supplier_id' => $purchase->supplier_id,
+                'ledger_id'   => $purchase->id,
                 'type'        => SupplierPayment::TYPE_INVOICE_PAYMENT,
                 'note'        => 'Purchase payment'
             ])->delete();
@@ -209,6 +209,7 @@ class PurchaseService {
             // 8️⃣ INSERT NEW SUPPLIER PAYMENT
             if ($request->paid > 0) {
                 SupplierPayment::create([
+                    'ledger_id'      => $purchase->id,
                     'supplier_id'    => $request->supplier_id,
                     'payment_date'   => $request->purchase_date,
                     'amount'         => $request->paid,
@@ -294,7 +295,7 @@ class PurchaseService {
 
             // 5️⃣ DELETE SUPPLIER PAYMENTS
             SupplierPayment::where([
-                'supplier_id' => $purchase->supplier_id,
+                'ledger_id'   => $purchase->id,
                 'type'        => SupplierPayment::TYPE_INVOICE_PAYMENT,
                 'note'        => 'Purchase payment'
             ])->delete();

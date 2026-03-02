@@ -8,6 +8,11 @@ class SalesReturnLedger extends Model
 {
     protected $guarded = [];
 
+    public function salesLedger()
+    {
+        return $this->belongsTo(SalesLedger::class, 'sales_ledger_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class,'customer_id');

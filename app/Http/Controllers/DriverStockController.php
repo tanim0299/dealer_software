@@ -13,7 +13,7 @@ class DriverStockController extends Controller
      */
     public function index()
     {
-        $data['items'] = (new Drivers())->getTodayDriverStock(Auth::user()->driver_id);
+        $data['items'] = (new Drivers())->getCurrentDriverStock(Auth::user()->driver_id);
         return view('driver.stock.index',$data);
     }
 

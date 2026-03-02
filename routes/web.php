@@ -23,6 +23,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerPaymentController;
 use App\Http\Controllers\DriverClosingController;
 use App\Http\Controllers\DriverStockController;
+use App\Http\Controllers\DriverCashDistributionController;
+use App\Http\Controllers\DriverDailyReportController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\IncomeExpenseTitleController;
 use App\Http\Controllers\ExpenseEntryController;
@@ -32,6 +34,9 @@ use App\Http\Controllers\SalesReturnController;
 use App\Http\Controllers\SupplierBalanceSheetController;
 use App\Http\Controllers\SupplierDueListController;
 use App\Http\Controllers\SupplierPaymentController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EmployeeSalaryDepositController;
+use App\Http\Controllers\EmployeeSalaryWithdrawController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -80,15 +85,26 @@ Route::middleware('auth')->group(function () {
         'driver_closing' => DriverClosingController::class,
         'supplier_balance_sheet' => SupplierBalanceSheetController::class,
         'supplier_due_list' => SupplierDueListController::class,
+        'employee' => EmployeeController::class,
+        'employee_salary_deposit' => EmployeeSalaryDepositController::class,
+        'employee_salary_withdraw' => EmployeeSalaryWithdrawController::class,
     ]);
+
+    Route::resource('driver_cash_distribution', DriverCashDistributionController::class)
+        ->only(['index', 'create', 'store', 'destroy']);
+
+    Route::get('driver_daily_report', [DriverDailyReportController::class, 'index'])->name('driver_daily_report.index');
+    Route::get('driver_daily_report/statement', [DriverDailyReportController::class, 'statement'])->name('driver_daily_report.statement');
 
     Route::get('supplier_balance_sheet_print',[SupplierBalanceSheetController::class,'print'])->name('supplier_balance_sheet.print');
 
     Route::get('show_driver_closing',[DriverClosingController::class,'driverClosing'])->name('driver.show_closing');
 
     Route::get('supplier-payment/due/{supplier}', [SupplierPaymentController::class, 'getDue']);
+    Route::get('employee-salary/balance/{employee}', [EmployeeSalaryWithdrawController::class, 'getBalance'])->name('employee_salary.balance');
 
     Route::get('customer-due/{id}', [SalesController::class, 'getCustomerDue'])->name('customer.get_due');
+    Route::post('sales/driver/customer', [SalesController::class, 'storeDriverCustomer'])->name('sales.driver_customer.store');
 
     Route::get('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
     ->name('driver-issues.accept');
@@ -101,6 +117,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/products', [ProductController::class, 'fetch']);
 
     Route::post('get_itemwise_category',[CategoryController::class,'itemWiseCategory'])->name('category.get_itemwise_category');
+
+    Route::view('driver/profile', 'driver.profile')->name('driver.profile');
 
 });
 Route::post('role_permission/{id}',[RoleController::class,'permission'])->name('role.permission');

@@ -9,6 +9,7 @@ class RequestRules{
     {
         $rules = [
             'driver_id'              => 'required|exists:drivers,id',
+            'cash_from_manager'      => 'nullable|numeric|min:0',
             'items'                  => 'required|array',
             'items.*.product_id'     => 'required|exists:products,id',
             'items.*.issue_qty'      => 'required|numeric|min:1',
@@ -17,6 +18,8 @@ class RequestRules{
         $messages = [
             'driver_id.required'         => 'Driver is required.',
             'driver_id.exists'           => 'Selected driver does not exist.',
+            'cash_from_manager.numeric'  => 'Cash amount must be numeric.',
+            'cash_from_manager.min'      => 'Cash amount can not be negative.',
             'items.required'             => 'At least one item is required.',
             'items.array'                => 'Items must be an array.',
             'items.*.product_id.required'=> 'Product is required for each item.',
@@ -421,6 +424,91 @@ class RequestRules{
 
         $messages = [
             //
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function employeeRules($request, $id = null)
+    {
+        $isUpdate = !empty($id);
+
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => $isUpdate
+                ? 'nullable|email|unique:employees,email,' . $id
+                : 'nullable|email|unique:employees,email',
+            'phone' => $isUpdate
+                ? 'nullable|string|max:30|unique:employees,phone,' . $id
+                : 'nullable|string|max:30|unique:employees,phone',
+            'designation' => 'required|string|max:255',
+            'nid' => $isUpdate
+                ? 'nullable|string|max:100|unique:employees,nid,' . $id
+                : 'nullable|string|max:100|unique:employees,nid',
+            'salary' => 'required|numeric|min:0',
+            'status' => 'required|in:0,1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ];
+
+        $messages = [
+            'name.required' => 'Employee name is required.',
+            'email.email' => 'Please provide a valid email.',
+            'email.unique' => 'This email is already used by another employee.',
+            'phone.unique' => 'This phone is already used by another employee.',
+            'designation.required' => 'Designation is required.',
+            'nid.unique' => 'This NID is already used by another employee.',
+            'salary.required' => 'Salary is required.',
+            'salary.numeric' => 'Salary must be numeric.',
+            'salary.min' => 'Salary can not be negative.',
+            'status.required' => 'Status is required.',
+            'status.in' => 'Status must be active or inactive.',
+            'image.image' => 'Image must be a valid image file.',
+            'image.mimes' => 'Image must be jpeg, png, jpg, gif or webp.',
+            'image.max' => 'Image size can not be greater than 2MB.',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function employeeSalaryDepositRules($request)
+    {
+        $rules = [
+            'employee_id' => 'required|exists:employees,id',
+            'salary_month' => 'required|date_format:Y-m',
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string',
+        ];
+
+        $messages = [
+            'employee_id.required' => 'Employee is required.',
+            'employee_id.exists' => 'Selected employee does not exist.',
+            'salary_month.required' => 'Salary month is required.',
+            'salary_month.date_format' => 'Salary month format must be YYYY-MM.',
+            'amount.required' => 'Deposit amount is required.',
+            'amount.numeric' => 'Deposit amount must be numeric.',
+            'amount.min' => 'Deposit amount must be greater than 0.',
+        ];
+
+        return [$rules, $messages];
+    }
+
+    public static function employeeSalaryWithdrawRules($request)
+    {
+        $rules = [
+            'employee_id' => 'required|exists:employees,id',
+            'withdraw_date' => 'required|date',
+            'amount' => 'required|numeric|min:0.01',
+            'note' => 'nullable|string',
+        ];
+
+        $messages = [
+            'employee_id.required' => 'Employee is required.',
+            'employee_id.exists' => 'Selected employee does not exist.',
+            'withdraw_date.required' => 'Withdraw date is required.',
+            'withdraw_date.date' => 'Withdraw date is invalid.',
+            'amount.required' => 'Withdraw amount is required.',
+            'amount.numeric' => 'Withdraw amount must be numeric.',
+            'amount.min' => 'Withdraw amount must be greater than 0.',
         ];
 
         return [$rules, $messages];

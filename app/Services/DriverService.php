@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use App\Models\Drivers;
+use App\Models\Employee;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -63,6 +64,18 @@ class DriverService
             ]);
 
             $user->assignRole('Driver');
+
+            Employee::updateOrCreate(
+                ['driver_id' => $driver->id],
+                [
+                    'name' => $request->name,
+                    'email' => 'driver' . $driver->id . '@example.com',
+                    'phone' => $request->phone ?? null,
+                    'designation' => 'DSR',
+                    'salary' => 0,
+                    'status' => $request->status == Drivers::STATUS_ACTIVE ? Employee::STATUS_ACTIVE : Employee::STATUS_INACTIVE,
+                ]
+            );
 
             DB::commit();
 
@@ -132,6 +145,18 @@ class DriverService
                 ]);
             }
 
+            Employee::updateOrCreate(
+                ['driver_id' => $driver->id],
+                [
+                    'name' => $request->name,
+                    'email' => 'driver' . $driver->id . '@example.com',
+                    'phone' => $request->phone ?? null,
+                    'designation' => 'DSR',
+                    'salary' => Employee::where('driver_id', $driver->id)->value('salary') ?? 0,
+                    'status' => $request->status == Drivers::STATUS_ACTIVE ? Employee::STATUS_ACTIVE : Employee::STATUS_INACTIVE,
+                ]
+            );
+
             DB::commit();
 
             return [
@@ -157,6 +182,7 @@ class DriverService
 
         try {
             [$status_code, $status_message] = self::getDriverById($id);
+            Employee::where('driver_id', $id)->delete();
             Drivers::where('id', $id)->delete();
 
             $status_code = ApiService::API_SUCCESS;

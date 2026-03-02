@@ -18,6 +18,11 @@ class SalesLedger extends Model
         return $this->belongsTo(Customer::class,'customer_id');
     }
 
+    public function driver()
+    {
+        return $this->belongsTo(Drivers::class, 'driver_id');
+    }
+
     public function getSalesList($search = [], $is_paginate = true, $is_relation = true)
     {
         $query = self::query();

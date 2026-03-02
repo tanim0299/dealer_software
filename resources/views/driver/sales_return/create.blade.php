@@ -1,8 +1,10 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Sales Return')
+
 @section('body')
 
-<div class="container">
+<div class="page-card p-3">
     <h4>Sales Return</h4>
 
     {{-- Invoice Selection --}}

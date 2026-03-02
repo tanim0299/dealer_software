@@ -1,14 +1,9 @@
 @extends('driver.layouts.master')
 
-@section('body')
-<nav class="navbar navbar-dark bg-primary mb-4">
-    <div class="container-fluid">
-        <button class="btn btn-light" onclick="history.back()">← Back</button>
-        <span class="navbar-brand mx-auto">Issue List</span>
-    </div>
-</nav>
+@section('page_title', 'Issue List')
 
-<div class="container mx-auto p-2">
+@section('body')
+<div class="page-card p-3">
     <div class="space-y-4">
         <div class="">
             @forelse($issues as $key => $issue)

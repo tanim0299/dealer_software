@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Drivers extends Model
 {
@@ -36,6 +37,16 @@ class Drivers extends Model
             'driver_id',
             'area_id'
         );
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'driver_id');
+    }
+
+    public function cashCustomer()
+    {
+        return $this->belongsTo(Customer::class, 'cash_customer_id');
     }
 
     public function getrDriverList($search = [], $is_paginate = true, $is_relation = false)
@@ -105,5 +116,29 @@ class Drivers extends Model
         }
 
         return $items;
+    }
+
+    public function getCurrentDriverStock($driver_id = null)
+    {
+        $driverId = $driver_id ?? Auth::user()->driver_id;
+
+        return DriverIssueItem::query()
+            ->select(
+                'product_id',
+                DB::raw('SUM(issue_qty) as issue_qty'),
+                DB::raw('SUM(sold_qty) as sold_qty'),
+                DB::raw('SUM(return_qty) as return_qty')
+            )
+            ->whereHas('driverIssue', function ($query) use ($driverId) {
+                $query->where('driver_id', $driverId)
+                    ->where('status', 'accepted');
+            })
+            ->with('product')
+            ->groupBy('product_id')
+            ->get()
+            ->filter(function ($item) {
+                return ($item->issue_qty - $item->sold_qty - $item->return_qty) > 0;
+            })
+            ->values();
     }
 }

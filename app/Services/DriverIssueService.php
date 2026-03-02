@@ -11,6 +11,66 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DriverIssueService {
 
+    private function allocateAcceptedStock($productId, $requiredQty)
+    {
+        $stocks = WareHouseStocks::where('product_id', $productId)
+            ->lockForUpdate()
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $totalAvailable = $stocks->sum(function ($stock) {
+            return $stock->purchase_qty
+                + $stock->sales_return_qty
+                - $stock->sales_qty
+                - $stock->return_qty
+                - $stock->sr_issue_qty;
+        });
+
+        if ($totalAvailable < $requiredQty) {
+            throw new \Exception('Stock not sufficient');
+        }
+
+        $remainingQty = $requiredQty;
+        $totalCost = 0;
+        $totalSale = 0;
+        $totalIssued = 0;
+
+        foreach ($stocks as $stock) {
+            if ($remainingQty <= 0) {
+                break;
+            }
+
+            $availableQty = $stock->purchase_qty
+                + $stock->sales_return_qty
+                - $stock->sales_qty
+                - $stock->return_qty
+                - $stock->sr_issue_qty;
+
+            if ($availableQty <= 0) {
+                continue;
+            }
+
+            $issueFromThisStock = min($availableQty, $remainingQty);
+
+            $stock->increment('sr_issue_qty', $issueFromThisStock);
+
+            $totalCost += $issueFromThisStock * $stock->purchase_price;
+            $totalSale += $issueFromThisStock * ($stock->sale_price ?? 0);
+            $totalIssued += $issueFromThisStock;
+
+            $remainingQty -= $issueFromThisStock;
+        }
+
+        if ($totalIssued <= 0) {
+            throw new \Exception('Stock not sufficient');
+        }
+
+        return [
+            'purchase_price' => $totalCost / $totalIssued,
+            'sale_price' => $totalSale / $totalIssued,
+        ];
+    }
+
     public function getIssueDataById($id)
     {
         $status_code = $status_message = $response = '';
@@ -82,23 +142,111 @@ class DriverIssueService {
         {
             try {
                 DB::beginTransaction();
-                $issue = DriverIssues::create([
-                    'driver_id' => $request->driver_id,
-                    'issue_date' => now(),
-                    'status' => 'open', // changed from open
-                ]);
+                $issueDate = !empty($request->issue_date) ? date('Y-m-d', strtotime($request->issue_date)) : now()->toDateString();
 
-                foreach ($request->items as $item) {
-                    DriverIssueItem::create([
-                        'driver_issue_id' => $issue->id,
-                        'product_id'      => $item['product_id'],
-                        'issue_qty'       => $item['issue_qty'], // requested qty only
-                        'purchase_price'  => 0, // will calculate at approval time
+                $closedLedgerExists = DriverIssues::where('driver_id', $request->driver_id)
+                    ->whereDate('issue_date', $issueDate)
+                    ->where('status', 'closed')
+                    ->exists();
+
+                if ($closedLedgerExists) {
+                    throw new \Exception('This driver issue ledger is closed for this date. You can not issue more stock.');
+                }
+
+                $issue = DriverIssues::where('driver_id', $request->driver_id)
+                    ->whereDate('issue_date', $issueDate)
+                    ->where('status', '!=', 'closed')
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$issue) {
+                    $issue = DriverIssues::create([
+                        'driver_id' => $request->driver_id,
+                        'issue_date' => $issueDate,
+                        'cash_from_manager' => (float) ($request->cash_from_manager ?? 0),
+                        'status' => 'open',
                     ]);
+                } else {
+                    $extraCash = (float) ($request->cash_from_manager ?? 0);
+                    if ($extraCash > 0) {
+                        $issue->increment('cash_from_manager', $extraCash);
+                    }
+                }
+
+                if ($issue->status == 'rejected') {
+                    $issue->update(['status' => 'open']);
+                }
+
+                $groupedItems = collect($request->items)
+                    ->groupBy('product_id')
+                    ->map(function ($rows) {
+                        return [
+                            'product_id' => $rows->first()['product_id'],
+                            'issue_qty' => $rows->sum('issue_qty'),
+                        ];
+                    })->values();
+
+                foreach ($groupedItems as $item) {
+                    $productId = $item['product_id'];
+                    $addQty = (float) $item['issue_qty'];
+
+                    if ($addQty <= 0) {
+                        continue;
+                    }
+
+                    $issueItem = DriverIssueItem::where('driver_issue_id', $issue->id)
+                        ->where('product_id', $productId)
+                        ->lockForUpdate()
+                        ->first();
+
+                    if ($issue->status == 'accepted') {
+                        $allocated = $this->allocateAcceptedStock($productId, $addQty);
+
+                        if ($issueItem) {
+                            $oldQty = (float) $issueItem->issue_qty;
+                            $newQty = $oldQty + $addQty;
+
+                            $newPurchasePrice = $newQty > 0
+                                ? (($oldQty * (float) $issueItem->purchase_price) + ($addQty * (float) $allocated['purchase_price'])) / $newQty
+                                : 0;
+
+                            $newSalePrice = $newQty > 0
+                                ? (($oldQty * (float) $issueItem->sale_price) + ($addQty * (float) $allocated['sale_price'])) / $newQty
+                                : 0;
+
+                            $issueItem->update([
+                                'issue_qty' => $newQty,
+                                'purchase_price' => $newPurchasePrice,
+                                'sale_price' => $newSalePrice,
+                            ]);
+                        } else {
+                            DriverIssueItem::create([
+                                'driver_issue_id' => $issue->id,
+                                'product_id'      => $productId,
+                                'issue_qty'       => $addQty,
+                                'sold_qty'        => 0,
+                                'return_qty'      => 0,
+                                'purchase_price'  => $allocated['purchase_price'],
+                                'sale_price'      => $allocated['sale_price'],
+                            ]);
+                        }
+                    } else {
+                        if ($issueItem) {
+                            $issueItem->increment('issue_qty', $addQty);
+                        } else {
+                            DriverIssueItem::create([
+                                'driver_issue_id' => $issue->id,
+                                'product_id'      => $productId,
+                                'issue_qty'       => $addQty,
+                                'purchase_price'  => 0,
+                                'sale_price'      => 0,
+                            ]);
+                        }
+                    }
                 }
 
                 $status_code = ApiService::API_SUCCESS;
-                $status_message = 'Driver Issue Created';
+                $status_message = 'Driver Issue Updated';
                 DB::commit();
             } catch (\Throwable $th) {
                 DB::rollBack();
@@ -136,65 +284,50 @@ class DriverIssueService {
                     throw new \Exception('Issue already closed');
                 }
 
-                // Old items indexed by product_id
-                $oldItems = $issue->items->keyBy('product_id');
+                $incomingItems = collect($request->items)->keyBy('product_id');
 
-                foreach ($request->items as $item) {
+                $issue->update([
+                    'cash_from_manager' => (float) ($request->cash_from_manager ?? 0),
+                ]);
 
-                    $productId = $item['product_id'];
-                    $newQty    = (float) $item['issue_qty'];
-
-                    $oldQty = $oldItems[$productId]->issue_qty ?? 0;
-
-                    $difference = $newQty - $oldQty;
-
-                    if ($difference == 0) {
-                        continue; // no change
+                foreach ($incomingItems as $productId => $item) {
+                    $newQty = (float) ($item['issue_qty'] ?? 0);
+                    if ($newQty <= 0) {
+                        throw new \Exception('Issue quantity must be greater than zero.');
                     }
 
                     $stock = WareHouseStocks::where('product_id', $productId)
                         ->lockForUpdate()
-                        ->first();
+                        ->get();
 
-                    if (!$stock) {
-                        throw new \Exception('Stock not found');
+                    $availableStock = $stock->sum(function ($row) {
+                        return $row->purchase_qty + $row->sales_return_qty - $row->sales_qty - $row->return_qty - $row->sr_issue_qty;
+                    });
+
+                    if ($availableStock < $newQty) {
+                        throw new \Exception('Insufficient stock for product.');
                     }
 
-                    // AVAILABLE STOCK (exclude current issue qty)
-                    $availableStock =
-                        ($stock->purchase_qty + $stock->sales_return_qty)
-                        - (
-                            $stock->sales_qty
-                            + $stock->return_qty
-                            + $stock->sr_issue_qty
-                            - $oldQty // VERY IMPORTANT
-                        );
-
-                    // If increasing qty
-                    if ($difference > 0) {
-
-                        if ($availableStock < $difference) {
-                            throw new \Exception('Insufficient stock for product');
-                        }
-
-                        $stock->increment('sr_issue_qty', $difference);
-                    }
-
-                    // If decreasing qty
-                    if ($difference < 0) {
-                        $stock->decrement('sr_issue_qty', abs($difference));
-                    }
-
-                    // Update or create issue item
                     DriverIssueItem::updateOrCreate(
                         [
                             'driver_issue_id' => $issue->id,
                             'product_id'      => $productId,
                         ],
                         [
-                            'issue_qty' => $newQty
+                            'issue_qty' => $newQty,
+                            'sold_qty' => 0,
+                            'return_qty' => 0,
                         ]
                     );
+                }
+
+                $existingProductIds = $issue->items->pluck('product_id');
+                $incomingProductIds = $incomingItems->keys();
+                $toDelete = $existingProductIds->diff($incomingProductIds);
+                if ($toDelete->isNotEmpty()) {
+                    DriverIssueItem::where('driver_issue_id', $issue->id)
+                        ->whereIn('product_id', $toDelete->values())
+                        ->delete();
                 }
 
 
@@ -231,21 +364,6 @@ class DriverIssueService {
             }
 
             /**
-             * 🔄 Rollback issued qty to warehouse
-             */
-            foreach ($issue->items as $item) {
-
-                $stock = WareHouseStocks::where('product_id', $item->product_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($stock) {
-                    // subtract issued qty
-                    $stock->decrement('sr_issue_qty', $item->issue_qty);
-                }
-            }
-
-            /**
              * 🧹 Delete issue items
              */
             DriverIssueItem::where('driver_issue_id', $issue->id)->delete();
@@ -255,7 +373,7 @@ class DriverIssueService {
              */
             $issue->delete();
             DB::commit();
-            $status_code = ApiService::API_SERVER_ERROR;
+            $status_code = ApiService::API_SUCCESS;
             $status_message = 'Driver Issue Removed';
         } catch (\Throwable $th) {
             DB::rollBack();

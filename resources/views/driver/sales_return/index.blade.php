@@ -1,8 +1,10 @@
 @extends('driver.layouts.master')
 
+@section('page_title', 'Sales Return List')
+
 @section('body')
 
-<div class="container">
+<div class="page-card p-3">
 
     <h4 class="mb-3">Sales Return List</h4>
 

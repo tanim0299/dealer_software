@@ -18,52 +18,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Letterhead */
-.letterhead {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    border-bottom: 1px solid #000;
-    padding-bottom: 8px;
-}
-
-.logo {
-    width: 100px;
-}
-
-.logo img {
-    max-width: 100%;
-}
-
-.company-section {
-    flex: 1;
-    text-align: center;
-}
-
-.company-section h2 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.company-section p {
-    margin: 2px 0;
-    font-size: 12px;
-}
-
-/* Report title inside letterhead */
-.report-title {
-    margin-top: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.print-btn button {
-    font-size: 12px;
-    padding: 4px 8px;
-    cursor: pointer;
-}
 
 /* Hide print button while printing */
 @media print {

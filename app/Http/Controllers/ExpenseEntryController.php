@@ -21,14 +21,28 @@ class ExpenseEntryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['title_id'] = $request->title_id ?? null;
+        $data['search']['amount'] = $request->amount ?? null;
+        $data['search']['from_date'] = $request->from_date ?? null;
+        $data['search']['to_date'] = $request->to_date ?? null;
+
+        if(Auth::user()->hasRole('Driver')) {
+            $data['search']['driver_id'] = Auth::user()->driver_id;
+        }
+
         [$status_code, $status_message, $response] = (new ExpenseEntryService())->ExpenseEntryList($data['search'], true);
-        $data['data'] = $response;
+        $data['expenses'] = $response;
+
         if(Auth::user()->hasRole('Driver'))
         {
-               
+            [$titleStatus, $titleMessage, $expenseTitles] =
+                (new IncomeExpenseService())->IncomeExpenseTitleList(['type' => 2], false);
+            $data['expenseTitles'] = $expenseTitles;
+
+            return view('driver.expense.index', $data);
         }
         return view($this->PATH . '.index', $data);
     }
@@ -95,6 +109,13 @@ class ExpenseEntryController extends Controller
         [$status_code, $status_message, $expenseentry] = (new ExpenseEntryService())->getExpenseEntryById($id);
         $data['expenseentry'] = $expenseentry;
 
+        if (Auth::user()->hasRole('Driver')) {
+            if (!$expenseentry || (int)$expenseentry->driver_id !== (int)Auth::user()->driver_id) {
+                return redirect()->route('expense_entry.index')->with('error', 'Unauthorized expense access.');
+            }
+            return view('driver.expense.edit', $data);
+        }
+
         return view($this->PATH . '.edit', $data);
     }
 
@@ -125,6 +146,13 @@ class ExpenseEntryController extends Controller
      */
     public function destroy(string $id)
     {
+        if (Auth::user()->hasRole('Driver')) {
+            [$status_code, $status_message, $expenseentry] = (new ExpenseEntryService())->getExpenseEntryById($id);
+            if (!$expenseentry || (int)$expenseentry->driver_id !== (int)Auth::user()->driver_id) {
+                return redirect()->back()->with('error', 'Unauthorized expense delete attempt.');
+            }
+        }
+
         [$status_code, $status_message] = (new ExpenseEntryService())->deleteExpenseEntry($id);
 
         if ($status_code == ApiService::API_SUCCESS) {
