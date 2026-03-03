@@ -33,10 +33,14 @@ use App\Http\Controllers\PurchaseReturnController;
 use App\Http\Controllers\SalesReturnController;
 use App\Http\Controllers\SupplierBalanceSheetController;
 use App\Http\Controllers\SupplierDueListController;
+use App\Http\Controllers\CustomerDueListController;
+use App\Http\Controllers\CustomerBalanceSheetController;
 use App\Http\Controllers\SupplierPaymentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeSalaryDepositController;
 use App\Http\Controllers\EmployeeSalaryWithdrawController;
+use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\BankTransactionController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -85,9 +89,13 @@ Route::middleware('auth')->group(function () {
         'driver_closing' => DriverClosingController::class,
         'supplier_balance_sheet' => SupplierBalanceSheetController::class,
         'supplier_due_list' => SupplierDueListController::class,
+        'customer_due_list' => CustomerDueListController::class,
+        'customer_balance_sheet' => CustomerBalanceSheetController::class,
         'employee' => EmployeeController::class,
         'employee_salary_deposit' => EmployeeSalaryDepositController::class,
         'employee_salary_withdraw' => EmployeeSalaryWithdrawController::class,
+        'bank_account' => BankAccountController::class,
+        'bank_transaction' => BankTransactionController::class,
     ]);
 
     Route::resource('driver_cash_distribution', DriverCashDistributionController::class)
@@ -97,6 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::get('driver_daily_report/statement', [DriverDailyReportController::class, 'statement'])->name('driver_daily_report.statement');
 
     Route::get('supplier_balance_sheet_print',[SupplierBalanceSheetController::class,'print'])->name('supplier_balance_sheet.print');
+    Route::get('customer_balance_sheet_print',[CustomerBalanceSheetController::class,'print'])->name('customer_balance_sheet.print');
 
     Route::get('show_driver_closing',[DriverClosingController::class,'driverClosing'])->name('driver.show_closing');
 
@@ -104,6 +113,7 @@ Route::middleware('auth')->group(function () {
     Route::get('employee-salary/balance/{employee}', [EmployeeSalaryWithdrawController::class, 'getBalance'])->name('employee_salary.balance');
 
     Route::get('customer-due/{id}', [SalesController::class, 'getCustomerDue'])->name('customer.get_due');
+    Route::post('customer_due_list/payment', [CustomerDueListController::class, 'storePayment'])->name('customer_due_list.storePayment');
     Route::post('sales/driver/customer', [SalesController::class, 'storeDriverCustomer'])->name('sales.driver_customer.store');
 
     Route::get('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
@@ -119,6 +129,10 @@ Route::middleware('auth')->group(function () {
     Route::post('get_itemwise_category',[CategoryController::class,'itemWiseCategory'])->name('category.get_itemwise_category');
 
     Route::view('driver/profile', 'driver.profile')->name('driver.profile');
+
+    // Bank Management API
+    Route::get('bank-account/{id}/balance', [BankAccountController::class, 'getAccountBalance'])->name('bank_account.balance');
+    Route::get('bank-transaction/account/{id}', [BankTransactionController::class, 'getAccountBalance'])->name('bank_transaction.account_balance');
 
 });
 Route::post('role_permission/{id}',[RoleController::class,'permission'])->name('role.permission');

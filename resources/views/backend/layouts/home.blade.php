@@ -44,7 +44,7 @@
                         <div class="numbers">
                             <p class="card-category">Customer Receivable</p>
                             <h4 class="card-title">৳ {{ number_format($customerReceivable, 2) }}</h4>
-                            <a href="{{ route('sales.index') }}" class="small">View Sales</a>
+                            <a href="{{ route('customer_due_list.index') }}" class="small">View Customer Due</a>
                         </div>
                     </div>
                 </div>
