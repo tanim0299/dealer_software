@@ -3,6 +3,10 @@ namespace App\Services;
 
 use App\Models\Customer;
 use App\Models\DriverArea;
+use App\Models\SalesLedger;
+use App\Models\SalesReturnLedger;
+use App\Models\SalesPayment;
+use Illuminate\Support\Facades\DB;
 
 class CustomerService
 {
@@ -183,5 +187,93 @@ class CustomerService
                 'address' => 'General cash customer',
             ]
         );
+    }
+
+    public function getCustomerDueById($customer_id)
+    {
+        $totalSales   = SalesLedger::where('customer_id', $customer_id)->sum(DB::raw('subtotal - discount'));
+        $totalReturn  = SalesReturnLedger::where('customer_id', $customer_id)->sum('subtotal');
+        $totalPaid    = SalesPayment::where('customer_id', $customer_id)->whereIn('type', [0, 1])->sum('amount');
+        $totalReturnPaid = SalesPayment::where('customer_id', $customer_id)->where('type', 2)->sum('amount') * -1;
+
+        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+
+        return $due;
+    }
+
+    public function getCustomerDueByIdWithDateRange($customer_id, $from_date = null, $to_date = null)
+    {
+        $salesQuery = SalesLedger::where('customer_id', $customer_id);
+        $returnQuery = SalesReturnLedger::where('customer_id', $customer_id);
+        $paymentQuery = SalesPayment::where('customer_id', $customer_id)->whereIn('type', [0, 1]);
+        $returnPaidQuery = SalesPayment::where('customer_id', $customer_id)->where('type', 2);
+
+        // If date range exists
+        if (!empty($from_date) && !empty($to_date)) {
+            $from_date = \Carbon\Carbon::parse($from_date)->startOfDay();
+            $to_date   = \Carbon\Carbon::parse($to_date)->endOfDay();
+
+            $salesQuery->whereBetween('date', [$from_date, $to_date]);
+            $returnQuery->whereBetween('date', [$from_date, $to_date]);
+            $paymentQuery->whereBetween('date', [$from_date, $to_date]);
+            $returnPaidQuery->whereBetween('date', [$from_date, $to_date]);
+        }
+
+        $totalSales = $salesQuery->sum(DB::raw('subtotal - discount'));
+        $totalReturn = $returnQuery->sum('subtotal');
+        $totalPaid = $paymentQuery->sum('amount');
+        $totalReturnPaid = $returnPaidQuery->sum('amount') * -1;
+
+        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+
+        return $due;
+    }
+
+    public function getCustomerData($search = [])
+    {
+        $query = SalesPayment::with([
+            'sale.items.product',
+            'sale.items.subUnit',
+            'returnLedger.entries.product',
+        ])->whereIn('type', [0, 1, 2]);
+        
+        if(!empty($search['customer_id'])) {
+            $query = $query->where('customer_id', $search['customer_id']);
+        }
+
+        if (!empty($search['report_type'])) {
+            switch ($search['report_type']) {
+                case 'daily':
+                    if (!empty($search['date'])) {
+                        $date = \Carbon\Carbon::parse($search['date'])->toDateString();
+                        $query->whereDate('date', $date);
+                    }
+                    break;
+
+                case 'date_to_date':
+                    if (!empty($search['from_date']) && !empty($search['to_date'])) {
+                        $from = \Carbon\Carbon::parse($search['from_date'])->startOfDay();
+                        $to   = \Carbon\Carbon::parse($search['to_date'])->endOfDay();
+                        $query->whereBetween('date', [$from, $to]);
+                    }
+                    break;
+
+                case 'monthly':
+                    if (!empty($search['month'])) {
+                        $month = \Carbon\Carbon::createFromFormat('Y-m', $search['month']);
+                        $query->whereMonth('date', $month->month)
+                            ->whereYear('date', $month->year);
+                    }
+                    break;
+
+                case 'yearly':
+                    if (!empty($search['year'])) {
+                        $query->whereYear('date', $search['year']);
+                    }
+                    break;
+            }
+        }
+
+        return $query->orderBy('date', 'asc')->orderBy('id', 'asc')->get();
     }
 }

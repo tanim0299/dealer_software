@@ -12,4 +12,14 @@ class SalesPayment extends Model
     {
         return $this->belongsTo(Customer::class,'customer_id');
     }
+
+    public function sale()
+    {
+        return $this->belongsTo(SalesLedger::class,'ledger_id');
+    }
+
+    public function returnLedger()
+    {
+        return $this->belongsTo(SalesReturnLedger::class, 'reference_id');
+    }
 }
