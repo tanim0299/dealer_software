@@ -41,6 +41,7 @@ use App\Http\Controllers\EmployeeSalaryDepositController;
 use App\Http\Controllers\EmployeeSalaryWithdrawController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\BankTransactionController;
+use App\Http\Controllers\CashCloseController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -96,6 +97,7 @@ Route::middleware('auth')->group(function () {
         'employee_salary_withdraw' => EmployeeSalaryWithdrawController::class,
         'bank_account' => BankAccountController::class,
         'bank_transaction' => BankTransactionController::class,
+        'cash_close' => CashCloseController::class,
     ]);
 
     Route::resource('driver_cash_distribution', DriverCashDistributionController::class)
