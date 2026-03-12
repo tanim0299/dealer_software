@@ -50,6 +50,11 @@ Route::get('/', function () {
     return redirect('login');
 });
 
+Route::get('/storage-link', function () {
+    Artisan::call('storage:link');
+    return 'Storage link created';
+});
+
 Route::get('supplier_due/{id}', [SupplierDueListController::class, 'show'])->name('supplier_due.show');
 
 Route::get('/dashboard', [BackendController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard.index');
