@@ -128,10 +128,13 @@ class SalesController extends Controller
     {
         $totalSales   = SalesLedger::where('customer_id', $id)->sum(DB::raw('subtotal - discount'));
         $totalReturn  = SalesReturnLedger::where('customer_id', $id)->sum('subtotal');
-        $totalPaid    = SalesPayment::where('customer_id', $id)->whereIn('type',[0,1])->sum('amount');
-        $totalReturnPaid = SalesPayment::where('customer_id', $id)->where('type',2)->sum('amount') * -1;
+        $totalPaid    = SalesPayment::where('customer_id', $id)->whereIn('type', [0, 1])->sum('amount');
+        $totalReturnPaid = SalesPayment::where('customer_id', $id)->where('type', 2)->sum('amount') * -1;
+        $openingDue = SalesPayment::where('customer_id', $id)
+            ->where('type', SalesPayment::TYPE_PREVIOUS_DUE)
+            ->sum('amount');
 
-        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+        $due = $openingDue + ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
 
         return response()->json([
             'due' => $due
@@ -156,6 +159,7 @@ class SalesController extends Controller
             'email' => 'nullable|email|max:255',
             'area_id' => 'required|exists:customer_areas,id',
             'address' => 'nullable|string|max:1000',
+            'previous_due' => 'nullable|numeric|min:0',
         ]);
 
         if ($validator->fails()) {
@@ -174,7 +178,27 @@ class SalesController extends Controller
         }
 
         try {
+            DB::beginTransaction();
+
             $customer = (new Customer())->createCustomer($request);
+
+            $previousDue = (float) ($request->previous_due ?? 0);
+            if ($previousDue > 0) {
+                SalesPayment::create([
+                    'date' => now()->toDateString(),
+                    'time' => now()->toTimeString(),
+                    'ledger_id' => null,
+                    'customer_id' => $customer->id,
+                    'amount' => $previousDue,
+                    'type' => SalesPayment::TYPE_PREVIOUS_DUE,
+                    'reference_type' => 'opening_due',
+                    'reference_id' => null,
+                    'note' => 'Previous due at customer opening',
+                    'create_by' => Auth::id(),
+                ]);
+            }
+
+            DB::commit();
 
             return response()->json([
                 'status_code' => ApiService::API_SUCCESS,
@@ -185,6 +209,7 @@ class SalesController extends Controller
                 ],
             ]);
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'status_code' => ApiService::API_SERVER_ERROR,
                 'status_message' => $th->getMessage(),

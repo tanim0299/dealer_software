@@ -40,6 +40,12 @@ class RequestRules{
             'phone' => $isUpdate
                     ? 'required|unique:suppliers,phone,'.$id
                     : 'required|unique:suppliers,phone',
+            'email' => $isUpdate
+                ? 'nullable|email|max:255|unique:suppliers,email,'.$id
+                : 'nullable|email|max:255|unique:suppliers,email',
+            'address' => 'nullable|string|max:1000',
+            'status' => 'required|in:0,1',
+            'previous_due' => 'nullable|numeric|min:0',
         ];
 
         $messages = [
@@ -47,6 +53,12 @@ class RequestRules{
 
             'phone.required' => 'Phone number is required.',
             'phone.unique'   => 'This phone number is already associated with another supplier.',
+            'email.email' => 'Please provide a valid email address.',
+            'email.unique' => 'This email is already used by another supplier.',
+            'status.required' => 'Status is required.',
+            'status.in' => 'Status must be active or inactive.',
+            'previous_due.numeric' => 'Previous due must be a number.',
+            'previous_due.min' => 'Previous due can not be negative.',
         ];
 
         return [$rules, $messages];
@@ -419,11 +431,31 @@ class RequestRules{
         $isUpdate = !empty($id);
 
         $rules = [
-            //
+            'area_id' => 'required|exists:customer_areas,id',
+            'name' => 'required|string|max:255',
+            'phone' => $isUpdate
+                ? 'nullable|string|max:30|unique:customers,phone,' . $id
+                : 'nullable|string|max:30|unique:customers,phone',
+            'email' => $isUpdate
+                ? 'nullable|email|max:255|unique:customers,email,' . $id
+                : 'nullable|email|max:255|unique:customers,email',
+            'address' => 'nullable|string|max:1000',
+            'status' => 'required|in:active,inactive',
+            'previous_due' => 'nullable|numeric|min:0',
         ];
 
         $messages = [
-            //
+            'area_id.required' => 'Please select a customer area.',
+            'area_id.exists' => 'Selected customer area does not exist.',
+            'name.required' => 'Customer name is required.',
+            'name.max' => 'Customer name may not be greater than 255 characters.',
+            'phone.unique' => 'This phone is already used by another customer.',
+            'email.email' => 'Please provide a valid email address.',
+            'email.unique' => 'This email is already used by another customer.',
+            'status.required' => 'Status is required.',
+            'status.in' => 'Status must be active or inactive.',
+            'previous_due.numeric' => 'Previous due must be a number.',
+            'previous_due.min' => 'Previous due can not be negative.',
         ];
 
         return [$rules, $messages];

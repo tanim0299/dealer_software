@@ -111,7 +111,7 @@ th {
         </thead>
         <tbody>
             @php 
-            $balance = 0;
+            $balance = $previous_balance;
             @endphp
             <tr>
                 <td colspan="7"> 
@@ -128,6 +128,9 @@ th {
                         if($item->type == 1) {
                             // Purchase
                             $balance += ($item->purchase->total_amount - $item->purchase->discount) - $item->amount;
+                        } elseif($item->type == \App\Models\SupplierPayment::TYPE_PREVIOUS_DUE) {
+                            // Opening previous due
+                            $balance += $item->amount;
                         } elseif($item->type == 2) {
                             // Payment
                             $balance -= $item->amount;
@@ -147,6 +150,8 @@ th {
                         <td>
                             @if($item->type == 1)
                                 Purchase
+                            @elseif($item->type == \App\Models\SupplierPayment::TYPE_PREVIOUS_DUE)
+                                Previous Due
                             @elseif($item->type == 2)
                                 Payment
                             @elseif($item->type == 3)
@@ -160,6 +165,8 @@ th {
                             <a href="{{ route('purchase.invoice', $item->purchase->id) }}" target="_blank">
                                 {{ $item->purchase ? $item->purchase->invoice_no : 'N/A' }}
                             </a>
+                            @elseif($item->type == \App\Models\SupplierPayment::TYPE_PREVIOUS_DUE)
+                            Opening Due
                             @elseif($item->type == 2)
                             <a href="{{ route('supplier_payment.show', $item->id) }}" target="_blank">
                                 {{ $item->note ?? 'N/A' }} 
@@ -182,17 +189,21 @@ th {
                                  @empty
                                     N/A
                                 @endforelse
+                            @elseif($item->type == \App\Models\SupplierPayment::TYPE_PREVIOUS_DUE)
+                                Previous due brought forward
                             @endif
                         </td>
                         <td>
                             @if($item->type == 1)
                                 {{ number_format($item->purchase->total_amount - $item->purchase->discount, 2) }}
+                            @elseif($item->type == \App\Models\SupplierPayment::TYPE_PREVIOUS_DUE)
+                                {{ number_format($item->amount, 2) }}
                             @else
                                 -
                             @endif
                         </td>
                         <td>
-                            @if($item->amount > 0)
+                            @if($item->type == 1 || $item->type == 2)
                                 {{ number_format($item->amount, 2) }}
                             @else
                                 -
