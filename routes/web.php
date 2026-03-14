@@ -42,6 +42,7 @@ use App\Http\Controllers\EmployeeSalaryWithdrawController;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\BankTransactionController;
 use App\Http\Controllers\CashCloseController;
+use App\Http\Controllers\InventoryReportController;
 use App\Models\Item;
 use App\Models\WebsiteSettings;
 use Illuminate\Support\Facades\Route;
@@ -113,6 +114,32 @@ Route::middleware('auth')->group(function () {
 
     Route::get('supplier_balance_sheet_print',[SupplierBalanceSheetController::class,'print'])->name('supplier_balance_sheet.print');
     Route::get('customer_balance_sheet_print',[CustomerBalanceSheetController::class,'print'])->name('customer_balance_sheet.print');
+
+    Route::get('reports', [InventoryReportController::class, 'reportsHome'])->name('reports.index');
+
+    Route::get('reports/sales', [InventoryReportController::class, 'salesIndex'])->name('sales_report.index');
+    Route::get('reports/sales/print', [InventoryReportController::class, 'salesPrint'])->name('sales_report.print');
+
+    Route::get('reports/purchase', [InventoryReportController::class, 'purchaseIndex'])->name('purchase_report.index');
+    Route::get('reports/purchase/print', [InventoryReportController::class, 'purchasePrint'])->name('purchase_report.print');
+
+    Route::get('reports/cash', [InventoryReportController::class, 'cashIndex'])->name('cash_report.index');
+    Route::get('reports/cash/print', [InventoryReportController::class, 'cashPrint'])->name('cash_report.print');
+
+    Route::get('reports/stock', [InventoryReportController::class, 'stockIndex'])->name('stock_report.index');
+    Route::get('reports/stock/print', [InventoryReportController::class, 'stockPrint'])->name('stock_report.print');
+
+    Route::get('reports/sales-return', [InventoryReportController::class, 'salesReturnIndex'])->name('sales_return_report.index');
+    Route::get('reports/sales-return/print', [InventoryReportController::class, 'salesReturnPrint'])->name('sales_return_report.print');
+
+    Route::get('reports/purchase-return', [InventoryReportController::class, 'purchaseReturnIndex'])->name('purchase_return_report.index');
+    Route::get('reports/purchase-return/print', [InventoryReportController::class, 'purchaseReturnPrint'])->name('purchase_return_report.print');
+
+    Route::get('reports/income', [InventoryReportController::class, 'incomeIndex'])->name('income_report.index');
+    Route::get('reports/income/print', [InventoryReportController::class, 'incomePrint'])->name('income_report.print');
+
+    Route::get('reports/expense', [InventoryReportController::class, 'expenseIndex'])->name('expense_report.index');
+    Route::get('reports/expense/print', [InventoryReportController::class, 'expensePrint'])->name('expense_report.print');
 
     Route::get('show_driver_closing',[DriverClosingController::class,'driverClosing'])->name('driver.show_closing');
 

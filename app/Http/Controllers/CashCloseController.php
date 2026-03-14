@@ -23,7 +23,9 @@ class CashCloseController extends Controller
         $data['previousCash'] = $lastCashClose ? $lastCashClose->closing_balance : 0;
        
         $data['lastCloseDate'] = $lastCashClose ? $lastCashClose->close_date->copy()->addDay() : '2000-01-01';
-        $data['total_sales'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], today()])->sum('amount');
+        $data['total_sales'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], today()])
+            ->where('type', SalesPayment::TYPE_SALE)
+            ->sum('amount');
         $data['other_income'] = IncomeEntry::whereBetween('date', [$data['lastCloseDate'], today()])->sum('amount');
         $data['purchase_return'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], today()])
             ->where('type', 3)

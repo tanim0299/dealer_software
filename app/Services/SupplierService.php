@@ -6,6 +6,8 @@ use App\Models\PurchaseReturnLedger;
 use App\Models\Supplier;
 use App\Models\SupplierPayment;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class SupplierService {
 
@@ -66,10 +68,31 @@ class SupplierService {
         else
         {
             try {
-                (new Supplier())->storeSupplier($request);
+                DB::beginTransaction();
+
+                $supplier = (new Supplier())->storeSupplier($request);
+                if (!$supplier) {
+                    throw new \Exception('Supplier create failed.');
+                }
+
+                $previousDue = (float) ($request->previous_due ?? 0);
+                if ($previousDue > 0) {
+                    SupplierPayment::create([
+                        'supplier_id' => $supplier->id,
+                        'payment_date' => now()->toDateString(),
+                        'amount' => $previousDue,
+                        'payment_method' => 'Opening',
+                        'note' => 'Previous due at supplier opening',
+                        'type' => SupplierPayment::TYPE_PREVIOUS_DUE,
+                        'created_by' => Auth::id(),
+                    ]);
+                }
+
+                DB::commit();
                 $status_code = ApiService::API_SUCCESS;
                 $status_message = 'Supplier Created';
             } catch (\Throwable $th) {
+                DB::rollBack();
                 $status_code = ApiService::API_SERVER_ERROR;
                 $status_message = $th->getMessage();
             }
@@ -110,6 +133,8 @@ class SupplierService {
         $paymentQuery = SupplierPayment::where('supplier_id', $supplier_id);
         $returnQuery = PurchaseReturnLedger::where('supplier_id', $supplier_id);
         $returnPaidQuery = SupplierPayment::where('supplier_id', $supplier_id)->where('type', 3);
+        $openingDueQuery = SupplierPayment::where('supplier_id', $supplier_id)
+            ->where('type', SupplierPayment::TYPE_PREVIOUS_DUE);
 
         // If date range exists
         if (!empty($from_date) && !empty($to_date)) {
@@ -121,6 +146,7 @@ class SupplierService {
             $paymentQuery->whereBetween('payment_date', [$from_date, $to_date]);
             $returnQuery->whereBetween('date', [$from_date, $to_date]);
             $returnPaidQuery->whereBetween('payment_date', [$from_date, $to_date]);
+            $openingDueQuery->whereBetween('payment_date', [$from_date, $to_date]);
         }
 
         // Calculations
@@ -133,9 +159,10 @@ class SupplierService {
         $totalReturnMinus = $returnQuery->where('return_type', 2)->sum('subtotal');
         
         $totalReturnPaid = $returnPaidQuery->sum('amount') * -1;
+        $openingDue = $openingDueQuery->sum('amount');
       
         
-        $due = $totalPurchase + $totalReturnPaid - $totalPurchaseDiscount - $totalPaid - $totalPurchasePid - $totalReturnMinus;
+        $due = $openingDue + $totalPurchase + $totalReturnPaid - $totalPurchaseDiscount - $totalPaid - $totalPurchasePid - $totalReturnMinus;
 
         return $due;
     }

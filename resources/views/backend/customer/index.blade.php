@@ -46,7 +46,7 @@
                             <tbody>
                                 @forelse($data as $value)
                                     <tr>
-                                        <td>{{ $value->CustomerArea->name }}</td>
+                                        <td>{{ $value->CustomerArea->name ?? '-' }}</td>
                                         <td>{{ $value->name }}</td>
                                         <td>{{ $value->phone }}</td>
                                         <td>{{ $value->email }}</td>

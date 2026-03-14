@@ -62,6 +62,19 @@
                 @enderror
             </div>
         </div>
+        @if(empty($data?->id))
+        <div class="col-md-4 col-lg-4 col-12">
+            <div class="mb-3">
+                <label for="previous_due" class="form-label">Previous Due</label>
+                <input type="number" step="0.01" min="0" class="form-control @error('previous_due') is-invalid @enderror" id="previous_due" name="previous_due"
+                    placeholder="Enter opening due amount" value="{{ old('previous_due', 0) }}">
+                    @error('previous_due')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                <small class="text-muted">If provided, this amount will be recorded as opening due.</small>
+            </div>
+        </div>
+        @endif
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
                 <label for="status" class="form-label">Status</label><span class="text-danger">*</span>

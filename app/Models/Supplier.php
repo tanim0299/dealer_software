@@ -58,10 +58,10 @@ class Supplier extends Model
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
-            'address' => $request->email,
+            'address' => $request->address,
+            'status' => $request->status ?? self::STATUS_ACTIVE,
         ];
-        self::create($preparedData);
-        return;
+        return self::create($preparedData);
     }
     public function updateSupplierById($request,$id)
     {
@@ -69,7 +69,8 @@ class Supplier extends Model
             'name' => $request->name,
             'phone' => $request->phone,
             'email' => $request->email,
-            'address' => $request->email,
+            'address' => $request->address,
+            'status' => $request->status ?? self::STATUS_ACTIVE,
         ];
         self::where('id',$id)->update($preparedData);
         return;

@@ -6,6 +6,7 @@ use App\Models\DriverArea;
 use App\Models\SalesLedger;
 use App\Models\SalesReturnLedger;
 use App\Models\SalesPayment;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CustomerService
@@ -39,11 +40,32 @@ class CustomerService
         else
         {
             try {
-                (new Customer())->createCustomer($request);
+                DB::beginTransaction();
+
+                $customer = (new Customer())->createCustomer($request);
+
+                $previousDue = (float) ($request->previous_due ?? 0);
+                if ($previousDue > 0) {
+                    SalesPayment::create([
+                        'date' => now()->toDateString(),
+                        'time' => now()->toTimeString(),
+                        'ledger_id' => null,
+                        'customer_id' => $customer->id,
+                        'amount' => $previousDue,
+                        'type' => SalesPayment::TYPE_PREVIOUS_DUE,
+                        'reference_type' => 'opening_due',
+                        'reference_id' => null,
+                        'note' => 'Previous due at customer opening',
+                        'create_by' => Auth::id(),
+                    ]);
+                }
+
+                DB::commit();
                 $status_code = ApiService::API_SUCCESS;
                 $status_message = "Customer created successfully.";
                 $error_message = null;
             } catch (\Throwable $th) {
+                DB::rollBack();
                 $status_code = ApiService::API_SERVER_ERROR;
                 $status_message = $th->getMessage();
                 $error_message = [$th->getMessage()];
@@ -195,8 +217,11 @@ class CustomerService
         $totalReturn  = SalesReturnLedger::where('customer_id', $customer_id)->sum('subtotal');
         $totalPaid    = SalesPayment::where('customer_id', $customer_id)->whereIn('type', [0, 1])->sum('amount');
         $totalReturnPaid = SalesPayment::where('customer_id', $customer_id)->where('type', 2)->sum('amount') * -1;
+        $openingDue = SalesPayment::where('customer_id', $customer_id)
+            ->where('type', SalesPayment::TYPE_PREVIOUS_DUE)
+            ->sum('amount');
 
-        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+        $due = $openingDue + ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
 
         return $due;
     }
@@ -207,6 +232,8 @@ class CustomerService
         $returnQuery = SalesReturnLedger::where('customer_id', $customer_id);
         $paymentQuery = SalesPayment::where('customer_id', $customer_id)->whereIn('type', [0, 1]);
         $returnPaidQuery = SalesPayment::where('customer_id', $customer_id)->where('type', 2);
+        $openingDueQuery = SalesPayment::where('customer_id', $customer_id)
+            ->where('type', SalesPayment::TYPE_PREVIOUS_DUE);
 
         // If date range exists
         if (!empty($from_date) && !empty($to_date)) {
@@ -217,14 +244,16 @@ class CustomerService
             $returnQuery->whereBetween('date', [$from_date, $to_date]);
             $paymentQuery->whereBetween('date', [$from_date, $to_date]);
             $returnPaidQuery->whereBetween('date', [$from_date, $to_date]);
+            $openingDueQuery->whereBetween('date', [$from_date, $to_date]);
         }
 
         $totalSales = $salesQuery->sum(DB::raw('subtotal - discount'));
         $totalReturn = $returnQuery->sum('subtotal');
         $totalPaid = $paymentQuery->sum('amount');
         $totalReturnPaid = $returnPaidQuery->sum('amount') * -1;
+        $openingDue = $openingDueQuery->sum('amount');
 
-        $due = ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+        $due = $openingDue + ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
 
         return $due;
     }
@@ -235,7 +264,7 @@ class CustomerService
             'sale.items.product',
             'sale.items.subUnit',
             'returnLedger.entries.product',
-        ])->whereIn('type', [0, 1, 2]);
+        ])->whereIn('type', [0, 1, 2, SalesPayment::TYPE_PREVIOUS_DUE]);
         
         if(!empty($search['customer_id'])) {
             $query = $query->where('customer_id', $search['customer_id']);

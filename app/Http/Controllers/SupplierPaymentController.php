@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PurchaseLedger;
 use App\Models\SupplierPayment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SupplierPaymentController extends Controller
@@ -77,7 +78,7 @@ class SupplierPaymentController extends Controller
                 'payment_method' => 'Cash',
                 'note' => $request->note,
                 'type' => 2, // Normal payment
-                'created_by' => auth()->id(),
+                'created_by' => Auth::id(),
             ]);
 
             return redirect()->route('supplier_payment.create')->with('success', 'Payment added successfully.');
@@ -150,6 +151,9 @@ class SupplierPaymentController extends Controller
         $totalReturnPaid = SupplierPayment::where('supplier_id', $supplier_id)
                         ->where('type', 3)
                         ->sum('amount') * -1;
+        $openingDue = SupplierPayment::where('supplier_id', $supplier_id)
+                ->where('type', SupplierPayment::TYPE_PREVIOUS_DUE)
+                ->sum('amount');
 
        
 
@@ -157,7 +161,7 @@ class SupplierPaymentController extends Controller
 
 
 
-        $due = $totalPurchase - $totalPurchaseDiscount - $totalPaid - $totalPurchasePiad - $totalReturnMinus + $totalReturnPaid;
+        $due = $openingDue + $totalPurchase - $totalPurchaseDiscount - $totalPaid - $totalPurchasePiad - $totalReturnMinus + $totalReturnPaid;
 
         return response()->json(['due' => $due]);
     }

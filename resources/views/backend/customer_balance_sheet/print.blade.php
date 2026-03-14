@@ -128,6 +128,9 @@ th {
                             $saleAmount = ($item->sale->subtotal ?? 0) - ($item->sale->discount ?? 0);
                             $paidAmount = $item->amount;
                             $balance += ($saleAmount - $paidAmount);
+                        } elseif($item->type == \App\Models\SalesPayment::TYPE_PREVIOUS_DUE) {
+                            $saleAmount = $item->amount;
+                            $balance += $saleAmount;
                         } elseif($item->type == 1) {
                             $paidAmount = $item->amount;
                             $balance -= $paidAmount;
@@ -148,6 +151,8 @@ th {
                         <td>
                             @if($item->type == 0)
                                 Sale
+                            @elseif($item->type == \App\Models\SalesPayment::TYPE_PREVIOUS_DUE)
+                                Previous Due
                             @elseif($item->type == 1)
                                 Payment
                             @elseif($item->type == 2)
@@ -161,6 +166,8 @@ th {
                             <a href="{{ route('sales.invoice', $item->ledger_id) }}" target="_blank">
                                 {{ $item->sale->invoice_no ?? 'N/A' }}
                             </a>
+                            @elseif($item->type == \App\Models\SalesPayment::TYPE_PREVIOUS_DUE)
+                            Opening Due
                             @elseif($item->type == 2)
                             Sales Return #{{ $item->reference_id ?? 'N/A' }}
                             @else
@@ -176,6 +183,8 @@ th {
                                 @else
                                     Sale Transaction
                                 @endif
+                            @elseif($item->type == \App\Models\SalesPayment::TYPE_PREVIOUS_DUE)
+                                Previous due brought forward
                             @elseif($item->type == 1)
                                 Payment Received
                             @elseif($item->type == 2)
@@ -189,7 +198,7 @@ th {
                             @endif
                         </td>
                         <td class="amount">
-                            @if($item->type == 0)
+                            @if($item->type == 0 || $item->type == \App\Models\SalesPayment::TYPE_PREVIOUS_DUE)
                                 {{ number_format($saleAmount, 2) }}
                             @else
                                 -

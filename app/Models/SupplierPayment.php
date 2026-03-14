@@ -10,10 +10,14 @@ class SupplierPayment extends Model
 
     const TYPE_INVOICE_PAYMENT = 1;
     const TYPE_DUE_PAYMENT = 2;
+    const TYPE_PURCHASE_RETURN = 3;
+    const TYPE_PREVIOUS_DUE = 4;
 
     const TYPE = [
         self::TYPE_INVOICE_PAYMENT => 'Invoice Payment',
         self::TYPE_DUE_PAYMENT => 'Due Payment',
+        self::TYPE_PURCHASE_RETURN => 'Purchase Return',
+        self::TYPE_PREVIOUS_DUE => 'Previous Due',
     ];
 
     public function supplier()
