@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Driver Closing')
 @section('content')
  <div class="container">
@@ -46,3 +46,4 @@
     </div>
 </div>
 @endsection
+

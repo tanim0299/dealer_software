@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Bank Transactions')
 @section('content')
 <div class="container">
@@ -83,9 +83,9 @@
                                         </td>
                                         <td>
                                             @if($transaction->type == 'deposit')
-                                                <span class="badge badge-success">Deposit ↓</span>
+                                                <span class="badge badge-success">Deposit â†“</span>
                                             @else
-                                                <span class="badge badge-danger">Withdraw ↑</span>
+                                                <span class="badge badge-danger">Withdraw â†‘</span>
                                             @endif
                                         </td>
                                         <td class="text-right">
@@ -134,3 +134,4 @@
     </div>
 </div>
 @endsection
+

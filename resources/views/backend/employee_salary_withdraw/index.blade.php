@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Salary Withdraw List')
 
 @section('content')
@@ -92,3 +92,4 @@
     </div>
 </div>
 @endsection
+

@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Purchase List')
 
 @section('content')
@@ -27,7 +27,7 @@
                             <label class="form-label">Search</label>
                             <input type="text" name="free_text" class="form-control"
                                    placeholder="Invoice / Supplier"
-                                   value="{{ request('free_text') }}">
+                                   value="{{ $search['free_text'] ?? '' }}">
                         </div>
 
                         <div class="col-md-2">
@@ -140,3 +140,4 @@
     </div>
 </div>
 @endsection
+
