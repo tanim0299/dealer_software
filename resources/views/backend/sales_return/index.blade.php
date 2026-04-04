@@ -22,11 +22,11 @@
 
                             <div class="col-md-3">
                                 <input type="date" name="from_date" class="form-control"
-                                    value="{{ request('from_date') }}">
+                                    value="{{ data_get($search ?? [], 'from_date') }}">
                             </div>
 
                             <div class="col-md-3">
-                                <input type="date" name="to_date" class="form-control" value="{{ request('to_date') }}">
+                                <input type="date" name="to_date" class="form-control" value="{{ data_get($search ?? [], 'to_date') }}">
                             </div>
 
                             <div class="col-md-2 d-grid">
@@ -104,4 +104,8 @@
         </div>
     </div>
 @endsection
+
+
+
+
 

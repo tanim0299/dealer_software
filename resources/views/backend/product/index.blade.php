@@ -32,7 +32,7 @@
                             <select name="item_id" class="form-select">
                                 <option value="">All Items</option>
                                 @foreach($items as $item)
-                                    <option value="{{ $item->id }}" {{ request('item_id') == $item->id ? 'selected' : '' }}>
+                                    <option value="{{ $item->id }}" {{ data_get($search ?? [], 'item_id') == $item->id ? 'selected' : '' }}>
                                         {{ $item->name }}
                                     </option>
                                 @endforeach
@@ -43,7 +43,7 @@
                             <select name="category_id" class="form-select">
                                 <option value="">All Categories</option>
                                 @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                    <option value="{{ $category->id }}" {{ data_get($search ?? [], 'category_id') == $category->id ? 'selected' : '' }}>
                                         {{ $category->name }}
                                     </option>
                                 @endforeach
@@ -54,7 +54,7 @@
                             <select name="brand_id" class="form-select">
                                 <option value="">All Brands</option>
                                 @foreach($brands as $brand)
-                                    <option value="{{ $brand->id }}" {{ request('brand_id') == $brand->id ? 'selected' : '' }}>
+                                    <option value="{{ $brand->id }}" {{ data_get($search ?? [], 'brand_id') == $brand->id ? 'selected' : '' }}>
                                         {{ $brand->name }}
                                     </option>
                                 @endforeach
@@ -65,7 +65,7 @@
                             <select name="status" class="form-select">
                                 <option value="">All Status</option>
                                 @foreach(App\Models\Product::STATUS as $key=>$value)
-                                    <option value="{{ $key }}" {{ request('status') == (string)$key ? 'selected' : '' }}>
+                                    <option value="{{ $key }}" {{ data_get($search ?? [], 'status') == (string)$key ? 'selected' : '' }}>
                                         {{ $value }}
                                     </option>
                                 @endforeach
@@ -147,4 +147,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

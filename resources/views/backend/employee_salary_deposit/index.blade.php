@@ -23,7 +23,7 @@
                     <select name="employee_id" class="form-select">
                         <option value="">All Employees</option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
+                            <option value="{{ $employee->id }}" {{ data_get($search ?? [], 'employee_id') == $employee->id ? 'selected' : '' }}>
                                 {{ $employee->name }}
                             </option>
                         @endforeach
@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="col-md-3">
-                    <input type="month" name="month" value="{{ request('month') }}" class="form-control">
+                    <input type="month" name="month" value="{{ data_get($search ?? [], 'month') }}" class="form-control">
                 </div>
 
                 <div class="col-md-2">
@@ -88,4 +88,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

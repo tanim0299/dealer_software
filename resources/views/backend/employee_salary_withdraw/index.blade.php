@@ -20,18 +20,18 @@
         <form method="GET" class="card p-3 mb-3">
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
+                    <input type="date" name="from_date" value="{{ data_get($search ?? [], 'from_date') }}" class="form-control">
                 </div>
 
                 <div class="col-md-3">
-                    <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
+                    <input type="date" name="to_date" value="{{ data_get($search ?? [], 'to_date') }}" class="form-control">
                 </div>
 
                 <div class="col-md-4">
                     <select name="employee_id" class="form-select">
                         <option value="">All Employees</option>
                         @foreach($employees as $employee)
-                            <option value="{{ $employee->id }}" {{ request('employee_id') == $employee->id ? 'selected' : '' }}>
+                            <option value="{{ $employee->id }}" {{ data_get($search ?? [], 'employee_id') == $employee->id ? 'selected' : '' }}>
                                 {{ $employee->name }}
                             </option>
                         @endforeach
@@ -92,4 +92,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

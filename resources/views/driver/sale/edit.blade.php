@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Edit Sale')
 
@@ -9,3 +9,4 @@
     @include('driver.sale.form', ['sale' => $sale, 'customers' => $customers])
 </form>
 @endsection
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -178,7 +178,7 @@ th {
                             @if($item->type == 0)
                                 @if(!empty($item->sale) && count($item->sale->items) > 0)
                                     @foreach($item->sale->items as $entry)
-                                        {{ $entry->product->name ?? 'N/A' }} - {{ $entry->final_quantity }} {{ $entry->subUnit->name ?? '' }} × {{ number_format($entry->sale_price, 2) }} - Dis: {{ number_format($entry->discount, 2) }} = {{ number_format(($entry->final_quantity * $entry->sale_price) - $entry->discount, 2) }}<br>
+                                        {{ $entry->product->name ?? 'N/A' }} - {{ $entry->final_quantity }} {{ $entry->subUnit->name ?? '' }} Ã— {{ number_format($entry->sale_price, 2) }} - Dis: {{ number_format($entry->discount, 2) }} = {{ number_format(($entry->final_quantity * $entry->sale_price) - $entry->discount, 2) }}<br>
                                     @endforeach
                                 @else
                                     Sale Transaction
@@ -190,7 +190,7 @@ th {
                             @elseif($item->type == 2)
                                 @if(!empty($item->returnLedger) && count($item->returnLedger->entries) > 0)
                                     @foreach($item->returnLedger->entries as $entry)
-                                        {{ $entry->product->name ?? 'N/A' }} - Return Qty: {{ $entry->return_qty }} × {{ number_format($entry->sale_price, 2) }} = {{ number_format($entry->return_qty * $entry->sale_price, 2) }}<br>
+                                        {{ $entry->product->name ?? 'N/A' }} - Return Qty: {{ $entry->return_qty }} Ã— {{ number_format($entry->sale_price, 2) }} = {{ number_format($entry->return_qty * $entry->sale_price, 2) }}<br>
                                     @endforeach
                                 @else
                                     Sales Return
@@ -242,3 +242,4 @@ th {
 
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -229,15 +229,15 @@
 
 <div class="section-title">Cash Summary</div>
 <div class="summary-grid">
-    <div class="summary-item">Sales Paid<br><span class="strong">৳ {{ number_format((float) $report['sales']->sum('paid'), 2) }}</span></div>
-    <div class="summary-item">Due Collection<br><span class="strong">৳ {{ number_format((float) $report['collections']->sum('amount'), 2) }}</span></div>
-    <div class="summary-item">Manager Cash<br><span class="strong">৳ {{ number_format((float) $report['cashFromManager'], 2) }}</span></div>
-    <div class="summary-item">Given Amount<br><span class="strong">৳ {{ number_format((float) $report['givenAmountTotal'], 2) }}</span></div>
-    <div class="summary-item">Expense<br><span class="strong">৳ {{ number_format((float) $report['expenses']->sum('amount'), 2) }}</span></div>
-    <div class="summary-item">Return Paid<br><span class="strong">৳ {{ number_format((float) $report['returnCashPaid'], 2) }}</span></div>
+    <div class="summary-item">Sales Paid<br><span class="strong">à§³ {{ number_format((float) $report['sales']->sum('paid'), 2) }}</span></div>
+    <div class="summary-item">Due Collection<br><span class="strong">à§³ {{ number_format((float) $report['collections']->sum('amount'), 2) }}</span></div>
+    <div class="summary-item">Manager Cash<br><span class="strong">à§³ {{ number_format((float) $report['cashFromManager'], 2) }}</span></div>
+    <div class="summary-item">Given Amount<br><span class="strong">à§³ {{ number_format((float) $report['givenAmountTotal'], 2) }}</span></div>
+    <div class="summary-item">Expense<br><span class="strong">à§³ {{ number_format((float) $report['expenses']->sum('amount'), 2) }}</span></div>
+    <div class="summary-item">Return Paid<br><span class="strong">à§³ {{ number_format((float) $report['returnCashPaid'], 2) }}</span></div>
     <div class="summary-item" style="grid-column: span 3;">
         Cash In Hand (Computed)<br>
-        <span class="strong">৳ {{ number_format((float) $report['cashInHand'], 2) }}</span>
+        <span class="strong">à§³ {{ number_format((float) $report['cashInHand'], 2) }}</span>
     </div>
 </div>
 
@@ -247,3 +247,4 @@
 </body>
 
 </html>
+

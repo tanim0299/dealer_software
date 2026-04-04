@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <title>Purchase Invoice</title>
@@ -209,3 +209,4 @@
 
 </body>
 </html>
+

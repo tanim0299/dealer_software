@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Current Stock')
 
@@ -53,3 +53,4 @@
 </div>
 
 @endsection
+

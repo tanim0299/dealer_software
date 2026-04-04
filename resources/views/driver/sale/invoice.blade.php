@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 
 <head>
@@ -25,7 +25,7 @@
             background: #1f6fae;
             color: #fff;
             padding: 12px 25px;
-            /* height কমানো */
+            /* height à¦•à¦®à¦¾à¦¨à§‹ */
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -34,7 +34,7 @@
         .company h1 {
             margin: 0;
             font-size: 22px;
-            /* ছোট করা */
+            /* à¦›à§‹à¦Ÿ à¦•à¦°à¦¾ */
             letter-spacing: .5px;
         }
 
@@ -157,9 +157,9 @@
             <div class="contact">
                 <strong>{{ $settings->name }}</strong><br>
                 {{ $settings->designation }}<br>
-                📞 {{ $settings->phone }}<br>
+                ðŸ“ž {{ $settings->phone }}<br>
                 {!! $settings->address !!}<br>
-                ✉ {{ $settings->email }}
+                âœ‰ {{ $settings->email }}
             </div>
 
         </div>
@@ -247,10 +247,11 @@
 
         <!-- FOOTER -->
         <div class="footer">
-            Thank you for your business • This is a computer generated invoice
+            Thank you for your business â€¢ This is a computer generated invoice
         </div>
 
     </div>
 </body>
 
 </html>
+

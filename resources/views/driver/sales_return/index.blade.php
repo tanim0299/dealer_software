@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Sales Return List')
 
@@ -8,21 +8,21 @@
 
     <h4 class="mb-3">Sales Return List</h4>
 
-    {{-- 🔹 Date Filter --}}
+    {{-- ðŸ”¹ Date Filter --}}
     <form method="GET" action="{{ route('sales_return.index') }}">
         <div class="row mb-3">
 
             <div class="col-md-3">
                 <label>From Date</label>
                 <input type="date" name="from_date"
-                       value="{{ request('from_date') }}"
+                       value="{{ data_get($search ?? [], 'from_date') }}"
                        class="form-control">
             </div>
 
             <div class="col-md-3">
                 <label>To Date</label>
                 <input type="date" name="to_date"
-                       value="{{ request('to_date') }}"
+                       value="{{ data_get($search ?? [], 'to_date') }}"
                        class="form-control">
             </div>
 
@@ -40,7 +40,7 @@
         </div>
     </form>
 
-    {{-- 🔹 Return Table --}}
+    {{-- ðŸ”¹ Return Table --}}
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -116,3 +116,4 @@
 </div>
 
 @endsection
+

@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Collect Payment')
 
@@ -97,3 +97,4 @@ $(document).ready(function() {
 @endpush
 
 @endsection
+

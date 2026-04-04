@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Sales Return')
 
@@ -16,7 +16,7 @@
                     <option value="">Select Invoice</option>
                     @foreach($sales_ledgers as $ledger)
                         <option value="{{ $ledger->id }}"
-                            {{ request('invoice_id') == $ledger->id ? 'selected' : '' }}>
+                            {{ data_get($search ?? [], 'invoice_id') == $ledger->id ? 'selected' : '' }}>
                             {{ $ledger->invoice_no }}
                         </option>
                     @endforeach
@@ -90,3 +90,4 @@
 </div>
 
 @endsection
+

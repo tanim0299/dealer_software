@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title', 'Create Customer Payment')
 
 @section('content')
@@ -134,3 +134,4 @@ $(document).ready(function () {
 });
 </script>
 @endpush
+

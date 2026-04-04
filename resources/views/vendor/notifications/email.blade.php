@@ -1,4 +1,4 @@
-<x-mail::message>
+﻿<x-mail::message>
 {{-- Greeting --}}
 @if (! empty($greeting))
 # {{ $greeting }}
@@ -56,3 +56,4 @@
 </x-slot:subcopy>
 @endisset
 </x-mail::message>
+

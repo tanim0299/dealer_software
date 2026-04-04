@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 
 @section('title','Dashboard')
 
@@ -31,7 +31,7 @@
                     <div class="card-body">
                         <div class="numbers">
                             <p class="card-category">Current Stock Value</p>
-                            <h4 class="card-title">৳ {{ number_format($currentStockValue, 2) }}</h4>
+                            <h4 class="card-title">à§³ {{ number_format($currentStockValue, 2) }}</h4>
                             <a href="{{ route('warehouse_stock.index') }}" class="small">Inventory Value</a>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
                     <div class="card-body">
                         <div class="numbers">
                             <p class="card-category">Customer Receivable</p>
-                            <h4 class="card-title">৳ {{ number_format($customerReceivable, 2) }}</h4>
+                            <h4 class="card-title">à§³ {{ number_format($customerReceivable, 2) }}</h4>
                             <a href="{{ route('customer_due_list.index') }}" class="small">View Customer Due</a>
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                     <div class="card-body">
                         <div class="numbers">
                             <p class="card-category">Supplier Payable</p>
-                            <h4 class="card-title">৳ {{ number_format($supplierPayable, 2) }}</h4>
+                            <h4 class="card-title">à§³ {{ number_format($supplierPayable, 2) }}</h4>
                             <a href="{{ route('supplier_due_list.index') }}" class="small">View Supplier Due</a>
                         </div>
                     </div>
@@ -89,12 +89,12 @@
                 <div class="card card-round">
                     <div class="card-header"><h4 class="card-title mb-0">Today Business Summary</h4></div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2"><span>Sales Amount</span><strong>৳ {{ number_format($todaySalesAmount,2) }}</strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Sales Paid</span><strong>৳ {{ number_format($todaySalesPaid,2) }}</strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Due Collection</span><strong>৳ {{ number_format($todayCollectionAmount,2) }}</strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Purchase Amount</span><strong>৳ {{ number_format($todayPurchaseAmount,2) }}</strong></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Expense</span><strong class="text-danger">৳ {{ number_format($todayExpenseAmount,2) }}</strong></div>
-                        <div class="d-flex justify-content-between"><span>Return Paid</span><strong class="text-danger">৳ {{ number_format($todayReturnPaid,2) }}</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Sales Amount</span><strong>à§³ {{ number_format($todaySalesAmount,2) }}</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Sales Paid</span><strong>à§³ {{ number_format($todaySalesPaid,2) }}</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Due Collection</span><strong>à§³ {{ number_format($todayCollectionAmount,2) }}</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Purchase Amount</span><strong>à§³ {{ number_format($todayPurchaseAmount,2) }}</strong></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Expense</span><strong class="text-danger">à§³ {{ number_format($todayExpenseAmount,2) }}</strong></div>
+                        <div class="d-flex justify-content-between"><span>Return Paid</span><strong class="text-danger">à§³ {{ number_format($todayReturnPaid,2) }}</strong></div>
                     </div>
                 </div>
             </div>
@@ -142,7 +142,7 @@
                                         <td>{{ $sale->invoice_no }}</td>
                                         <td>{{ $driverDisplay }}</td>
                                         <td>{{ $customerDisplay }}</td>
-                                        <td class="text-end">৳ {{ number_format(($sale->subtotal - $sale->discount),2) }}</td>
+                                        <td class="text-end">à§³ {{ number_format(($sale->subtotal - $sale->discount),2) }}</td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="4" class="text-center text-muted">No sales found.</td></tr>
@@ -169,7 +169,7 @@
                                     <tr>
                                         <td>{{ $purchase->invoice_no }}</td>
                                         <td>{{ $purchase->supplier->name ?? '-' }}</td>
-                                        <td class="text-end">৳ {{ number_format(($purchase->total_amount - $purchase->discount),2) }}</td>
+                                        <td class="text-end">à§³ {{ number_format(($purchase->total_amount - $purchase->discount),2) }}</td>
                                     </tr>
                                 @empty
                                     <tr><td colspan="3" class="text-center text-muted">No purchases found.</td></tr>
@@ -183,3 +183,4 @@
     </div>
 </div>
 @endsection
+

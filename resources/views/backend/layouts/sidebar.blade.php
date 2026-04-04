@@ -1,4 +1,4 @@
-@php
+﻿@php
 $menuSections = (new App\Models\MenuSection())->MenuSectionList(['status' => App\Models\MenuSection::STATUS_ACTIVE], false);
 $currentRoute = Route::currentRouteName();
 $baseRoute = explode('.',$currentRoute);
@@ -109,3 +109,4 @@ $parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->first();
         </div>
     </div>
 </div>
+

@@ -22,13 +22,13 @@
 
                 <div class="col-md-2">
                     <input type="date" name="from_date"
-                        value="{{ request('from_date') }}"
+                        value="{{ data_get($search ?? [], 'from_date') }}"
                         class="form-control">
                 </div>
 
                 <div class="col-md-2">
                     <input type="date" name="to_date"
-                        value="{{ request('to_date') }}"
+                        value="{{ data_get($search ?? [], 'to_date') }}"
                         class="form-control">
                 </div>
 
@@ -37,7 +37,7 @@
                         <option value="">All Suppliers</option>
                         @foreach($suppliers as $supplier)
                             <option value="{{ $supplier->id }}"
-                                {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                                {{ data_get($search ?? [], 'supplier_id') == $supplier->id ? 'selected' : '' }}>
                                 {{ $supplier->name }}
                             </option>
                         @endforeach
@@ -46,14 +46,14 @@
 
                 <div class="col-md-2">
                     <input type="number" step="0.01" name="min_amount"
-                        value="{{ request('min_amount') }}"
+                        value="{{ data_get($search ?? [], 'min_amount') }}"
                         class="form-control"
                         placeholder="Min Amount">
                 </div>
 
                 <div class="col-md-2">
                     <input type="number" step="0.01" name="max_amount"
-                        value="{{ request('max_amount') }}"
+                        value="{{ data_get($search ?? [], 'max_amount') }}"
                         class="form-control"
                         placeholder="Max Amount">
                 </div>
@@ -126,3 +126,7 @@
     </div>
 </div>
 @endsection
+
+
+
+

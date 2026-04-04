@@ -1,4 +1,4 @@
-<form action="{{ $route ?? '' }}" method="POST" enctype="multipart/form-data">
+﻿<form action="{{ $route ?? '' }}" method="POST" enctype="multipart/form-data">
     @csrf
     @isset($method)
         @method($method)
@@ -70,3 +70,4 @@
         {{ $buttonText ?? 'Submit' }}
     </button>
 </form>
+

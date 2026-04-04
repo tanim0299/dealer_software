@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -169,7 +169,7 @@
 <body>
 @php
     $driverUser = auth()->user();
-    $currentRoute = request()->route()?->getName() ?? '';
+    $currentRoute = Route::currentRouteName() ?? '';
     $userImage = !empty($driverUser?->image) ? asset('storage' . $driverUser->image) : null;
     $userInitials = collect(explode(' ', trim($driverUser?->name ?? 'D')))
         ->filter()
@@ -236,27 +236,27 @@
 
 <!-- Bottom Navigation -->
 <div class="bottom-nav d-flex">
-    <a href="{{ route('dashboard.index') }}" class="{{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+    <a href="{{ route('dashboard.index') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-house-door"></i>
         <span>Home</span>
     </a>
-    <a href="{{ route('sales.index') }}" class="{{ request()->routeIs('sales.index') ? 'active' : '' }}">
+    <a href="{{ route('sales.index') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-receipt"></i>
         <span>Sales</span>
     </a>
-    <a href="{{ route('sales.create') }}" class="{{ request()->routeIs('sales.create') ? 'active' : '' }}">
+    <a href="{{ route('sales.create') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-plus-circle"></i>
         <span>New</span>
     </a>
-    <a href="{{ route('driver_stock.index') }}" class="{{ request()->routeIs('driver_stock.index') ? 'active' : '' }}">
+    <a href="{{ route('driver_stock.index') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-box-seam"></i>
         <span>Stock</span>
     </a>
-    <a href="{{ route('driver_cash_distribution.index') }}" class="{{ request()->routeIs('driver_cash_distribution.*') ? 'active' : '' }}">
+    <a href="{{ route('driver_cash_distribution.index') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-cash-coin"></i>
         <span>Cash</span>
     </a>
-    <a href="{{ route('driver.profile') }}" class="{{ request()->routeIs('driver.profile') ? 'active' : '' }}">
+    <a href="{{ route('driver.profile') }}" class="{{ Route::is('') ? 'active' : '' }}">
         <i class="bi bi-person"></i>
         <span>Account</span>
     </a>
@@ -289,3 +289,4 @@
 </script>
 </body>
 </html>
+

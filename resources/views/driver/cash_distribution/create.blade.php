@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Give Amount')
 
@@ -38,3 +38,4 @@
     </form>
 </div>
 @endsection
+

@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Create Driver Issues')
 @section('content')
  <div class="container">
@@ -24,3 +24,4 @@
     </div>
 </div>
 @endsection
+

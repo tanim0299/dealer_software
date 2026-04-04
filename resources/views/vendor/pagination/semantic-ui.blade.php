@@ -1,4 +1,4 @@
-@if ($paginator->hasPages())
+﻿@if ($paginator->hasPages())
     <div class="ui pagination menu" role="navigation">
         {{-- Previous Page Link --}}
         @if ($paginator->onFirstPage())
@@ -34,3 +34,4 @@
         @endif
     </div>
 @endif
+

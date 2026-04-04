@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title', $reportTitle)
 
 @section('content')
@@ -39,3 +39,4 @@
     </div>
 </div>
 @endsection
+

@@ -11,16 +11,16 @@
         <form method="GET" class="mb-3">
             <div class="row g-2">
                 <div class="col-md-3">
-                    <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control" placeholder="From Date">
+                    <input type="date" name="from_date" value="{{ data_get($search ?? [], 'from_date') }}" class="form-control" placeholder="From Date">
                 </div>
                 <div class="col-md-3">
-                    <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control" placeholder="To Date">
+                    <input type="date" name="to_date" value="{{ data_get($search ?? [], 'to_date') }}" class="form-control" placeholder="To Date">
                 </div>
                 <div class="col-md-3">
                     <select name="supplier_id" class="form-select">
                         <option value="">-- Select Supplier --</option>
                         @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->id }}" {{ request('supplier_id') == $supplier->id ? 'selected' : '' }}>
+                            <option value="{{ $supplier->id }}" {{ data_get($search ?? [], 'supplier_id') == $supplier->id ? 'selected' : '' }}>
                                 {{ $supplier->name }}
                             </option>
                         @endforeach
@@ -29,8 +29,8 @@
                 <div class="col-md-2">
                     <select name="return_type" class="form-select">
                         <option value="">-- Return Type --</option>
-                        <option value="1" {{ request('return_type') == 1 ? 'selected' : '' }}>Cash</option>
-                        <option value="2" {{ request('return_type') == 2 ? 'selected' : '' }}>Minus From Due</option>
+                        <option value="1" {{ data_get($search ?? [], 'return_type') == 1 ? 'selected' : '' }}>Cash</option>
+                        <option value="2" {{ data_get($search ?? [], 'return_type') == 2 ? 'selected' : '' }}>Minus From Due</option>
                     </select>
                 </div>
                 <div class="col-md-1">
@@ -80,10 +80,14 @@
 
                 {{-- Pagination --}}
                 <div class="mt-3">
-                    {{ $ledgers->appends(request()->query())->links() }}
+                    {{ $ledgers->appends((}search ?? []))->links() }}
                 </div>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+
+
+

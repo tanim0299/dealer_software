@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Expense List')
 
@@ -17,7 +17,7 @@
             <select name="title_id" class="form-control js-example-basic-single">
                 <option value="">All Expense Types</option>
                 @foreach(($expenseTitles ?? []) as $title)
-                    <option value="{{ $title->id }}" {{ request('title_id') == $title->id ? 'selected' : '' }}>
+                    <option value="{{ $title->id }}" {{ data_get($search ?? [], 'title_id') == $title->id ? 'selected' : '' }}>
                         {{ $title->title }}
                     </option>
                 @endforeach
@@ -27,17 +27,17 @@
         <div class="mb-2">
             <input type="number" step="0.01"
                    name="amount"
-                   value="{{ request('amount') }}"
+                     value="{{ data_get($search ?? [], 'amount') }}"
                    placeholder="Filter by Amount"
                    class="form-control">
         </div>
 
         <div class="row g-2">
             <div class="col-6">
-                <input type="date" name="from_date" value="{{ request('from_date') }}" class="form-control">
+                <input type="date" name="from_date" value="{{ data_get($search ?? [], 'from_date') }}" class="form-control">
             </div>
             <div class="col-6">
-                <input type="date" name="to_date" value="{{ request('to_date') }}" class="form-control">
+                <input type="date" name="to_date" value="{{ data_get($search ?? [], 'to_date') }}" class="form-control">
             </div>
         </div>
 
@@ -63,7 +63,7 @@
                 @endif
             </div>
             <div class="text-end">
-                <div class="fw-bold text-danger">৳ {{ number_format($expense->amount, 2) }}</div>
+                <div class="fw-bold text-danger">à§³ {{ number_format($expense->amount, 2) }}</div>
             </div>
         </div>
 
@@ -88,3 +88,4 @@
     {{ $expenses->links() }}
 </div>
 @endsection
+

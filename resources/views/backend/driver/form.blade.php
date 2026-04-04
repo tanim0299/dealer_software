@@ -1,4 +1,4 @@
-<form action="@if (isset($route)) {{ $route }} @endif" method="POST">
+﻿<form action="@if (isset($route)) {{ $route }} @endif" method="POST">
     @csrf
     @if (isset($method))
         @method($method)
@@ -104,3 +104,4 @@
         {{ $buttonText ?? 'Submit' }}
     </button>
 </form>
+

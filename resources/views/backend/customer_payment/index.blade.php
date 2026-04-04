@@ -29,7 +29,7 @@
                                     <option value="">All Customers</option>
                                     @foreach($customers as $customer)
                                         <option value="{{ $customer->id }}"
-                                            {{ request('customer_id') == $customer->id ? 'selected' : '' }}>
+                                            {{ data_get($search ?? [], 'customer_id') == $customer->id ? 'selected' : '' }}>
                                             {{ $customer->name }}
                                         </option>
                                     @endforeach
@@ -39,7 +39,7 @@
                             <div class="col-lg-2 col-md-4">
                                 <input type="number" step="0.01"
                                        name="amount"
-                                       value="{{ request('amount') }}"
+                                       value="{{ data_get($search ?? [], 'amount') }}"
                                        placeholder="Amount"
                                        class="form-control">
                             </div>
@@ -47,14 +47,14 @@
                             <div class="col-lg-2 col-md-4">
                                 <input type="date"
                                        name="from_date"
-                                       value="{{ request('from_date') }}"
+                                       value="{{ data_get($search ?? [], 'from_date') }}"
                                        class="form-control">
                             </div>
 
                             <div class="col-lg-2 col-md-4">
                                 <input type="date"
                                        name="to_date"
-                                       value="{{ request('to_date') }}"
+                                       value="{{ data_get($search ?? [], 'to_date') }}"
                                        class="form-control">
                             </div>
 
@@ -121,4 +121,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

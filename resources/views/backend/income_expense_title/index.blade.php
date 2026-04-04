@@ -26,7 +26,7 @@
                                         <option value="">Select Status</option>
                                         @foreach (\App\Models\MenuSection::STATUS as $key => $value)
                                             <option value="{{ $key }}"
-                                                @if (request()->get('status') == $key) selected @endif>{{ $value }}
+                                                @if (data_get($search ?? [], 'status') == $key) selected @endif>{{ $value }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -83,4 +83,8 @@
         </div>
     </div>
 @endsection
+
+
+
+
 

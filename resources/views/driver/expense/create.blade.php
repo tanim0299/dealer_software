@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Add Expense')
 
@@ -9,3 +9,4 @@
     'buttonText' => 'Save Expense'
 ])
 @endsection
+

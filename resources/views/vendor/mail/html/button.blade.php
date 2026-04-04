@@ -1,4 +1,4 @@
-@props([
+﻿@props([
     'url',
     'color' => 'primary',
     'align' => 'center',
@@ -22,3 +22,4 @@
 </td>
 </tr>
 </table>
+
