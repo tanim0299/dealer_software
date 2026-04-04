@@ -24,7 +24,7 @@
                         {{-- Free Text Search --}}
                         <div class="col-md-3 mb-2">
                             <input type="text" name="free_text" class="form-control"
-                                value="{{ request('free_text') }}"
+                                value="{{ $search['free_text'] ?? '' }}"
                                 placeholder="Search product, item, category, brand">
                         </div>
 

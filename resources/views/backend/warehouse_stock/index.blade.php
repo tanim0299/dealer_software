@@ -19,6 +19,7 @@
                         name="free_text"
                         class="form-control"
                         placeholder="Search product or SKU..."
+                        value="{{ $search['free_text'] ?? '' }}"
                     >
                 </div>
                 <div class="col-md-2">

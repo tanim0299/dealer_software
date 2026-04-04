@@ -17,7 +17,7 @@
                         <div class="row g-2">
                             <div class="col-md-4">
                                 <input type="text" name="free_text" class="form-control" placeholder="Invoice / Customer"
-                                    value="{{ request('free_text') }}">
+                                    value="{{ $search['free_text'] ?? '' }}">
                             </div>
 
                             <div class="col-md-3">
