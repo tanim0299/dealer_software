@@ -16,7 +16,7 @@
                     <form method="get" action="{{ route('customer.index') }}">
                         <div class="filter row">
                             <div class="col-lg-4 col-md-4">
-                                <input type="text" id="free_text" name="free_text" class="form-control" placeholder="Search..." value="{{ request()->get('free_text') }}">
+                                <input type="text" id="free_text" name="free_text" class="form-control" placeholder="Search..." value="{{ $search['free_text'] ?? '' }}">
                             </div>
                             <div class="col-lg-4 col-md-4">
                                 <select id="status" class="form-control" name="status">

@@ -19,7 +19,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-2">
                             <input type="text" name="free_text" class="form-control"
-                                value="{{ request('free_text') }}"
+                                value="{{ $search['free_text'] ?? '' }}"
                                 placeholder="Search account name, number, or bank">
                         </div>
                         <div class="col-md-4 mb-2">

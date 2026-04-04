@@ -23,7 +23,7 @@
                             <div class="row mb-3">
                                 <div class="col-lg-4 col-md-4">
                                     <input type="text" name="free_text" class="form-control" placeholder="Search..."
-                                        value="{{ request('free_text') }}">
+                                        value="{{ $search['free_text'] ?? '' }}">
                                 </div>
 
                                 <div class="col-lg-4 col-md-4">
