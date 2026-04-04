@@ -79,7 +79,7 @@
                         <tbody>
                             @forelse($purchases as $key => $purchase)
                                 <tr>
-                                    <td>{{ $purchases->firstItem() + $key }}</td>
+                                    <td>{{ method_exists($purchases, 'firstItem') ? ($purchases->firstItem() + $key) : ($key + 1) }}</td>
                                     <td>{{ $purchase->invoice_no }}</td>
                                     <td>{{ $purchase->supplier->name ?? '-' }}</td>
                                     <td>{{ $purchase->purchase_date }}</td>
@@ -131,7 +131,7 @@
 
                 <!-- PAGINATION -->
                 <div class="mt-3">
-                    {{ $purchases->withQueryString()->links() }}
+                    {{ method_exists($purchases, 'appends') ? $purchases->appends($search ?? [])->links() : '' }}
                 </div>
 
             </div>
