@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Issue List')
 
@@ -37,11 +37,11 @@
 
                             @if($issue->status === 'open')
                                 <a class="btn btn-success btn-sm" href="{{ route('driver-issues.accept', $issue->id) }}">
-                                    ✔ Accept
+                                    âœ” Accept
                                 </a>
                                 
                                 <a class="btn btn-danger btn-sm" href="{{ route('driver-issues.reject', $issue->id) }}">
-                                    ✖ Reject
+                                    âœ– Reject
                                 </a>
                             @elseif($issue->status == 'rejected')
                                 <span class="badge bg-danger w-100 text-center">
@@ -67,3 +67,4 @@
     </div>
 </div>
 @endsection
+

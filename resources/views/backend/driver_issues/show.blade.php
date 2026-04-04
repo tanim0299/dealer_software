@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Driver Issue Details')
 
 @section('content')
@@ -32,7 +32,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">🚚 Driver Information</h6>
+                        <h6 class="mb-0">ðŸšš Driver Information</h6>
                     </div>
                     <div class="card-body">
                         <p><strong>Name :</strong> {{ $issue->driver->name ?? 'N/A' }}</p>
@@ -45,7 +45,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">📦 Issue Information</h6>
+                        <h6 class="mb-0">ðŸ“¦ Issue Information</h6>
                     </div>
                     <div class="card-body">
                         <p><strong>Issue Date :</strong>
@@ -79,7 +79,7 @@
                 <div class="card">
 
                     <div class="card-header">
-                        <h6 class="mb-0">🧾 Issued Product List</h6>
+                        <h6 class="mb-0">ðŸ§¾ Issued Product List</h6>
                     </div>
 
                     <div class="card-body">
@@ -133,3 +133,4 @@
     </div>
 </div>
 @endsection
+

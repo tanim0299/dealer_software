@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Role Permission')
 @section('content')
  <div class="container">
@@ -83,7 +83,7 @@
         allChecks.forEach(ch => ch.checked = this.checked);
     });
 
-    // PARENT → CHILDREN
+    // PARENT â†’ CHILDREN
     document.querySelectorAll('.parent-permission').forEach(parent => {
         parent.addEventListener('change', function() {
             let parentBox = this;
@@ -93,7 +93,7 @@
         });
     });
 
-    // CHILDREN → PARENT
+    // CHILDREN â†’ PARENT
     document.querySelectorAll('.child-permission').forEach(child => {
         child.addEventListener('change', function() {
             let card = this.closest('.border');
@@ -106,3 +106,4 @@
 @endpush
 
 @endsection
+

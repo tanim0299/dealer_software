@@ -1,4 +1,4 @@
-<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
+﻿<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
     @csrf
     @if(isset($method))
         @method($method)
@@ -172,3 +172,4 @@
         typeSelect.addEventListener('change', updatePermissions);
     });
 </script>
+

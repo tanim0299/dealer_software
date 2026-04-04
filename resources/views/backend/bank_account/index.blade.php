@@ -26,7 +26,7 @@
                             <select name="status" class="form-select">
                                 <option value="">All Status</option>
                                 @foreach(\App\Models\BankAccount::STATUS as $key => $value)
-                                    <option value="{{ $key }}" {{ request('status') == (string)$key ? 'selected' : '' }}>
+                                    <option value="{{ $key }}" {{ data_get($search ?? [], 'status') == (string)$key ? 'selected' : '' }}>
                                         {{ $value }}
                                     </option>
                                 @endforeach
@@ -117,4 +117,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

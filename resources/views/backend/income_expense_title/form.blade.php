@@ -1,4 +1,4 @@
-<form action="{{ isset($route) ? $route : '' }}" method="POST">
+﻿<form action="{{ isset($route) ? $route : '' }}" method="POST">
     @csrf
     @isset($method)
         @method($method)
@@ -68,3 +68,4 @@
         {{ $buttonText ?? 'Submit' }}
     </button>
 </form>
+

@@ -1,4 +1,4 @@
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+﻿    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <div class="">
         <form id="purchaseForm" data-submit-route="{{ $route }}">
@@ -531,7 +531,7 @@
             quantity: qty,
             unit_price: price,
 
-            sale_price: price, // ✅ DEFAULT (editable later)
+            sale_price: price, // âœ… DEFAULT (editable later)
 
             discount: 0,
             total_price: total,
@@ -675,7 +675,7 @@
 
                     <td>
                         <button class="btn btn-sm btn-danger"
-                            onclick="removeFromCart(${index})">✕</button>
+                            onclick="removeFromCart(${index})">âœ•</button>
                     </td>
                 </tr>
                 `;
@@ -808,7 +808,7 @@
         // Total price
         item.total_price = Math.max(0, gross - discount);
 
-        // ✅ Final Quantity (BASE UNIT)
+        // âœ… Final Quantity (BASE UNIT)
         item.final_quantity = calculateFinalQuantity(item);
 
         updateCart();
@@ -822,10 +822,10 @@
         cart[index].sub_unit_id = option.value;
         cart[index].sub_unit_name = option.text;
 
-        // 🔴 IMPORTANT: get sub_unit_data
+        // ðŸ”´ IMPORTANT: get sub_unit_data
         cart[index].unit_data = parseFloat(option.dataset.conversion || 1);
 
-        recalculateCartItem(index); // ✅ recalculates final_quantity
+        recalculateCartItem(index); // âœ… recalculates final_quantity
     }
 
 

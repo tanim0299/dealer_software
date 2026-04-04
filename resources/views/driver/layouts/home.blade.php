@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Dashboard')
 
@@ -102,7 +102,7 @@
                         <div class="card-body p-3">
                             <small class="text-muted">Today Sales</small>
                             <h5 class="fw-bold mt-1">
-                                ৳ {{ number_format($todaySalesAmount ?? 0, 2) }}
+                                à§³ {{ number_format($todaySalesAmount ?? 0, 2) }}
                             </h5>
                         </div>
                     </a>
@@ -114,7 +114,7 @@
                     <div class="card-body p-3">
                         <small class="text-muted">Dues</small>
                         <h5 class="fw-bold mt-1">
-                            ৳ {{ number_format($todayDuesAmount ?? 0, 2) }}
+                            à§³ {{ number_format($todayDuesAmount ?? 0, 2) }}
                         </h5>
                     </div>
                 </div>
@@ -126,7 +126,7 @@
                         <div class="card-body p-3">
                             <small class="text-muted">Expenses</small>
                             <h5 class="fw-bold mt-1">
-                                ৳ {{ number_format($todayExpensesAmount ?? 0, 2) }}
+                                à§³ {{ number_format($todayExpensesAmount ?? 0, 2) }}
                             </h5>
                         </div>
                     </a>
@@ -149,7 +149,7 @@
                     <div class="card-body p-3">
                         <small class="text-muted">Current Carrying Cash</small>
                         <h4 class="fw-bold mt-1 text-success">
-                            ৳ {{ number_format($currentCarryingCash, 2) }}
+                            à§³ {{ number_format($currentCarryingCash, 2) }}
                         </h4>
                     </div>
                 </div>
@@ -161,54 +161,54 @@
         <div class="mt-4">
 
             <a href="{{ route('sales.create') }}" class="btn btn-primary w-100 py-3 mb-2">
-                ➕ New Sale
+                âž• New Sale
             </a>
 
             <div class="row g-2">
                 <div class="col-6">
                     <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.create') }}">
-                        💰 Collect Due
+                        ðŸ’° Collect Due
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.index') }}">
-                        💰 Collection List
+                        ðŸ’° Collection List
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.create') }}">
-                        💸 Give Amount
+                        ðŸ’¸ Give Amount
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.index') }}">
-                        💸 Given Amount List
+                        ðŸ’¸ Given Amount List
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('expense_entry.create') }}">
-                        🧾 Add Expense
+                        ðŸ§¾ Add Expense
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-primary w-100 py-2" href="{{ route('driver_stock.index') }}">
-                        📦 Current Stock
+                        ðŸ“¦ Current Stock
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.create') }}">
-                        🧾 Sales Return
+                        ðŸ§¾ Sales Return
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.index') }}">
-                        🧾 Sales Return List
+                        ðŸ§¾ Sales Return List
                     </a>
                 </div>
             </div>
             <div class="col-6">
                 <a class="btn btn-outline-danger w-100 py-2" href="{{ route('driver-issues.index') }}">
-                    🧾 Issue List
+                    ðŸ§¾ Issue List
                 </a>
             </div>
         </div>
@@ -221,15 +221,15 @@
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Sale</span>
-                    <span class="fw-bold text-success">₹500</span>
+                    <span class="fw-bold text-success">â‚¹500</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Expense</span>
-                    <span class="fw-bold text-danger">₹120</span>
+                    <span class="fw-bold text-danger">â‚¹120</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Due Collected</span>
-                    <span class="fw-bold text-primary">₹300</span>
+                    <span class="fw-bold text-primary">â‚¹300</span>
                 </li>
             </ul>
 
@@ -237,3 +237,4 @@
 
     </div>
 @endsection
+

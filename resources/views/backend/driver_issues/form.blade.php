@@ -1,4 +1,4 @@
-<form action="{{ isset($issue)
+﻿<form action="{{ isset($issue)
         ? route('driver-issues.update', $issue->id)
         : route('driver-issues.store') }}"
       method="POST">
@@ -126,7 +126,7 @@
                         <td class="text-center">
                             <button type="button"
                                     class="btn btn-danger btn-sm remove-row">
-                                ✖
+                                âœ–
                             </button>
                         </td>
                     </tr>
@@ -178,7 +178,7 @@ document.getElementById('addRow').addEventListener('click', function () {
                    min="1" required>
         </td>
         <td class="text-center">
-            <button type="button" class="btn btn-danger btn-sm remove-row">✖</button>
+            <button type="button" class="btn btn-danger btn-sm remove-row">âœ–</button>
         </td>
     </tr>
     `;
@@ -257,3 +257,4 @@ document.addEventListener('input', function (e) {
 });
 </script>
 @endpush
+

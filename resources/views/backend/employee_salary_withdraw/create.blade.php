@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Salary Withdraw')
 
 @section('content')
@@ -79,3 +79,4 @@
 </script>
 @endpush
 @endsection
+

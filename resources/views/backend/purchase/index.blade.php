@@ -33,13 +33,13 @@
                         <div class="col-md-2">
                             <label class="form-label">From Date</label>
                             <input type="date" name="from_date" class="form-control"
-                                   value="{{ request('from_date') }}">
+                                   value="{{ data_get($search ?? [], 'from_date') }}">
                         </div>
 
                         <div class="col-md-2">
                             <label class="form-label">To Date</label>
                             <input type="date" name="to_date" class="form-control"
-                                   value="{{ request('to_date') }}">
+                                   value="{{ data_get($search ?? [], 'to_date') }}">
                         </div>
 
                         <div class="col-md-3 d-flex align-items-end">
@@ -140,4 +140,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

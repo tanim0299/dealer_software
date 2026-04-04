@@ -35,13 +35,13 @@
                                                    name="search" 
                                                    class="form-control" 
                                                    placeholder="Search by customer name or phone"
-                                                   value="{{ request('search') }}">
+                                                   value="{{ data_get($search ?? [], 'search') }}">
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fa fa-search"></i> Search
                                             </button>
                                         </div>
                                     </div>
-                                    @if(request('search'))
+                                    @if(data_get($search ?? [], 'search'))
                                         <div class="col-md-6 text-end">
                                             <a href="{{ route('customer_due_list.index') }}" class="btn btn-secondary">
                                                 <i class="fa fa-times"></i> Clear Search
@@ -52,10 +52,10 @@
                             </form>
                         </div>
 
-                        @if(request('search'))
+                        @if(data_get($search ?? [], 'search'))
                             <div class="alert alert-info alert-dismissible fade show" role="alert">
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                Search Results for: <strong>{{ request('search') }}</strong>
+                                Search Results for: <strong>{{ data_get($search ?? [], 'search') }}</strong>
                             </div>
                         @endif
 
@@ -159,4 +159,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

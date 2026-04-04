@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -137,7 +137,7 @@ button{
 
 <div class="container">
     @php
-        $closingDate = request('date', date('Y-m-d'));
+        $closingDate = data_get($search ?? [], 'date', date('Y-m-d'));
         $issueCashFromManager = (float) ($issue->cash_from_manager ?? 0);
         $givenAmountTotal = (float) (($givenAmounts ?? collect())->sum('amount'));
         $savedCashGivenToOthers = (float) ($closingStatus->cash_given_to_others ?? $givenAmountTotal);

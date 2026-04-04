@@ -1,4 +1,4 @@
-<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
+﻿<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
     @csrf
     @if(isset($method))
         @method($method)
@@ -53,7 +53,7 @@
                 <input type="number" step="0.01" class="form-control @error('amount') is-invalid @enderror" id="amount" name="amount"
                     placeholder="Enter Amount" value="{{ old('amount', @$bankTransaction->amount) }}">
                 <small class="text-danger" id="balance_warning" style="display:none;">
-                    ⚠️ Insufficient balance for this withdrawal!
+                    âš ï¸ Insufficient balance for this withdrawal!
                 </small>
                 @error('amount')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -138,3 +138,4 @@ document.addEventListener('DOMContentLoaded', function() {
     updateBalance();
 });
 </script>
+

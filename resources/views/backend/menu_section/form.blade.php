@@ -1,4 +1,4 @@
-<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
+﻿<form action="@if(isset($route)) {{ $route }} @endif" method="POST" enctype="multipart/form-data">
     @csrf
     @if(isset($method))
         @method($method)
@@ -44,3 +44,4 @@
     <button type="submit" class="btn btn-primary">Submit</button>
     @endif
 </form>
+

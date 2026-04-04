@@ -1,4 +1,4 @@
-<form method="post" enctype="multipart/form-data" action="{{ $route ?? '' }}">
+﻿<form method="post" enctype="multipart/form-data" action="{{ $route ?? '' }}">
     @csrf
     @if (!empty($method))
         @method($method)
@@ -144,3 +144,4 @@
         </div>
     </div>
 </form>
+

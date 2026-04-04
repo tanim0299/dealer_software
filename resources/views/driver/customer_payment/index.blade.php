@@ -1,4 +1,4 @@
-@extends('driver.layouts.master')
+﻿@extends('driver.layouts.master')
 
 @section('page_title', 'Payment History')
 
@@ -8,7 +8,7 @@
 
     <h5 class="mb-3 text-center">Customer Payments</h5>
 
-    {{-- 🔹 Filter Card --}}
+    {{-- ðŸ”¹ Filter Card --}}
     <div class="card mb-3">
         <div class="card-body">
 
@@ -20,7 +20,7 @@
                         <option value="">All Customers</option>
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}"
-                                {{ request('customer_id') == $customer->id ? 'selected' : '' }}>
+                                {{ data_get($search ?? [], 'customer_id') == $customer->id ? 'selected' : '' }}>
                                 {{ $customer->name }}
                             </option>
                         @endforeach
@@ -30,7 +30,7 @@
                 <div class="mb-2">
                     <input type="number" step="0.01"
                            name="amount"
-                           value="{{ request('amount') }}"
+                              value="{{ data_get($search ?? [], 'amount') }}"
                            placeholder="Filter by Amount"
                            class="form-control">
                 </div>
@@ -39,13 +39,13 @@
                     <div class="col-6">
                         <input type="date"
                                name="from_date"
-                               value="{{ request('from_date') }}"
+                               value="{{ data_get($search ?? [], 'from_date') }}"
                                class="form-control">
                     </div>
                     <div class="col-6">
                         <input type="date"
                                name="to_date"
-                               value="{{ request('to_date') }}"
+                               value="{{ data_get($search ?? [], 'to_date') }}"
                                class="form-control">
                     </div>
                 </div>
@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    {{-- 🔹 Payment List --}}
+    {{-- ðŸ”¹ Payment List --}}
     @foreach($payments as $payment)
 
         <div class="card mb-2 shadow-sm">
@@ -105,3 +105,4 @@
 </div>
 
 @endsection
+

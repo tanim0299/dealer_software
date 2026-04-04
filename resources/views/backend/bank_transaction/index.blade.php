@@ -21,7 +21,7 @@
                             <select name="bank_account_id" class="form-select">
                                 <option value="">All Accounts</option>
                                 @foreach($bankAccounts as $account)
-                                    <option value="{{ $account->id }}" {{ request('bank_account_id') == $account->id ? 'selected' : '' }}>
+                                    <option value="{{ $account->id }}" {{ data_get($search ?? [], 'bank_account_id') == $account->id ? 'selected' : '' }}>
                                         {{ $account->account_name }}
                                     </option>
                                 @endforeach
@@ -31,7 +31,7 @@
                             <select name="type" class="form-select">
                                 <option value="">All Types</option>
                                 @foreach(\App\Models\BankTransaction::TYPES as $key => $value)
-                                    <option value="{{ $key }}" {{ request('type') == $key ? 'selected' : '' }}>
+                                    <option value="{{ $key }}" {{ data_get($search ?? [], 'type') == $key ? 'selected' : '' }}>
                                         {{ $value }}
                                     </option>
                                 @endforeach
@@ -39,11 +39,11 @@
                         </div>
                         <div class="col-md-2 mb-2">
                             <input type="date" name="start_date" class="form-control" 
-                                value="{{ request('start_date') }}" placeholder="From Date">
+                                value="{{ data_get($search ?? [], 'start_date') }}" placeholder="From Date">
                         </div>
                         <div class="col-md-2 mb-2">
                             <input type="date" name="end_date" class="form-control" 
-                                value="{{ request('end_date') }}" placeholder="To Date">
+                                value="{{ data_get($search ?? [], 'end_date') }}" placeholder="To Date">
                         </div>
                         <div class="col-md-3 mb-2">
                             <button class="btn btn-primary w-100"><i class="fa fa-filter"></i> Filter</button>
@@ -134,4 +134,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 

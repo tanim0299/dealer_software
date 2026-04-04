@@ -22,7 +22,7 @@
                                 <select id="status" class="form-control" name="status">
                                     <option value="">Select Status</option>
                                     @foreach(\App\Models\Category::STATUS as $key => $value)
-                                        <option value="{{ $key }}" @if(request()->get('status')==$key) selected @endif>{{ $value }}</option>
+                                        <option value="{{ $key }}" @if(data_get($search ?? [], 'status')==$key) selected @endif>{{ $value }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -74,4 +74,8 @@
     </div>
 </div>
 @endsection
+
+
+
+
 
