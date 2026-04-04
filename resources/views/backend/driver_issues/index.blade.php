@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','Driver Issue List')
 
 @section('content')
@@ -93,7 +93,7 @@
                                                         @method('DELETE')
 
                                                         <button type="submit" class="btn btn-danger btn-sm">
-                                                            🗑 Delete
+                                                            ðŸ—‘ Delete
                                                         </button>
                                                     </form>
                                                     @endif
@@ -124,3 +124,4 @@
     </div>
 </div>
 @endsection
+

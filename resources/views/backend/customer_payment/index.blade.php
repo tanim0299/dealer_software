@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title', 'List Of Customer Payment')
 
 @section('content')
@@ -20,7 +20,7 @@
             <div class="card">
                 <div class="card-body">
 
-                    {{-- 🔹 Filter (driver page logic) --}}
+                    {{-- ðŸ”¹ Filter (driver page logic) --}}
                     <form method="GET" action="{{ route('customer_payment.index') }}">
                         <div class="row mb-3">
 
@@ -67,7 +67,7 @@
                         </div>
                     </form>
 
-                    {{-- 🔹 Table (UI unchanged) --}}
+                    {{-- ðŸ”¹ Table (UI unchanged) --}}
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">
@@ -121,3 +121,4 @@
     </div>
 </div>
 @endsection
+

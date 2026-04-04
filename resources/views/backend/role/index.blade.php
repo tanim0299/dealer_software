@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 @section('title','List Of Role')
 @section('content')
  <div class="container">
@@ -76,3 +76,4 @@
     </div>
 </div>
 @endsection
+

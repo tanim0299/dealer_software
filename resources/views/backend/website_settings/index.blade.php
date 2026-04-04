@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 
 @section('title', 'Edit Website Settings')
 
@@ -29,3 +29,4 @@
         </div>
     </div>
 @endsection
+

@@ -1,4 +1,4 @@
-@extends('backend.layouts.master')
+﻿@extends('backend.layouts.master')
 
 @section('title', 'Sales Return List')
 
@@ -104,3 +104,4 @@
         </div>
     </div>
 @endsection
+
