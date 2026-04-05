@@ -80,7 +80,7 @@
 
                 {{-- Pagination --}}
                 <div class="mt-3">
-                    {{ $ledgers->appends((}search ?? []))->links() }}
+                    {{ $ledgers->appends($search ?? [])->links() }}
                 </div>
             </div>
         </div>
