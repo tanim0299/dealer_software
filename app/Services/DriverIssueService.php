@@ -119,10 +119,22 @@ class DriverIssueService {
             $status_code = ApiService::API_SUCCESS;
             $status_message = 'Driver Issue List Retrieved';
             $response = $issues;
+            
+            LoggerService::driver('driver-issues')->info('Issue list retrieved', [
+                'count' => $issues->count(),
+                'is_paginated' => $is_paginate,
+                'search_criteria' => $search,
+            ]);
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
             $response = $is_paginate ? null : collect();
+            
+            LoggerService::logDatabaseError('Failed to retrieve issue list', 'driver_issues', 'read', [
+                'error' => $th->getMessage(),
+                'trace' => $th->getTraceAsString(),
+                'search_criteria' => $search,
+            ]);
         } finally {
             return [$status_code, $status_message, $response];
         }
@@ -249,11 +261,26 @@ class DriverIssueService {
 
                 $status_code = ApiService::API_SUCCESS;
                 $status_message = 'Driver Issue Updated';
+                
+                LoggerService::logDriverIssue('created', [
+                    'driver_id' => $request->driver_id,
+                    'issue_id' => $issue->id,
+                    'issue_date' => $issueDate,
+                    'items_count' => count($groupedItems),
+                    'cash_from_manager' => $request->cash_from_manager ?? 0,
+                ]);
+                
                 DB::commit();
             } catch (\Throwable $th) {
                 DB::rollBack();
                 $status_code = ApiService::API_SERVER_ERROR;
                 $status_message = $th->getMessage();
+                
+                LoggerService::logDatabaseError('Failed to store driver issue', 'driver_issues', 'create', [
+                    'driver_id' => $request->driver_id ?? null,
+                    'error' => $th->getMessage(),
+                    'trace' => $th->getTraceAsString(),
+                ]);
             } finally {
                 return [$status_code, $status_message, $error_message];
             }
@@ -375,12 +402,24 @@ class DriverIssueService {
              */
             $issue->delete();
             DB::commit();
+            
             $status_code = ApiService::API_SUCCESS;
             $status_message = 'Driver Issue Removed';
+            
+            LoggerService::logDriverIssue('deleted', [
+                'issue_id' => $id,
+                'driver_id' => $issue->driver_id,
+                'items_count' => $issue->items->count(),
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
+            
+            LoggerService::logDatabaseError('Failed to delete driver issue', 'driver_issues', 'delete', [
+                'issue_id' => $id,
+                'error' => $th->getMessage(),
+            ]);
         }
 
         return [$status_code, $status_message];
