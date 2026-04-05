@@ -77,46 +77,75 @@
                         </thead>
 
                         <tbody>
-                            @forelse($purchases as $key => $purchase)
+                            @forelse($purchases as $purchase)
+                                @php
+                                    $due = ($purchase->total_amount - $purchase->discount) - $purchase->paid;
+                                @endphp
+
                                 <tr>
-                                    <td>{{ $purchases->firstItem() + $key }}</td>
+                                    <!-- Serial -->
+                                    <td>{{ $loop->iteration }}</td>
+
+                                    <!-- Invoice -->
                                     <td>{{ $purchase->invoice_no }}</td>
-                                    <td>{{ $purchase->supplier->name ?? '-' }}</td>
+
+                                    <!-- Supplier -->
+                                    <td>{{ optional($purchase->supplier)->name ?? '-' }}</td>
+
+                                    <!-- Date -->
                                     <td>{{ $purchase->purchase_date }}</td>
-                                    <td class="text-end">{{ number_format($purchase->total_amount, 2) }}</td>
-                                    <td class="text-end">{{ number_format($purchase->paid, 2) }}</td>
-                                    <td class="text-end">
-                                        {{ number_format(($purchase->total_amount - $purchase->discount) - $purchase->paid, 2) }}
-                                    </td>
+
+                                    <!-- Total -->
+                                    <td class="text-end">{{ number_format($purchase->total_amount ?? 0, 2) }}</td>
+
+                                    <!-- Paid -->
+                                    <td class="text-end">{{ number_format($purchase->paid ?? 0, 2) }}</td>
+
+                                    <!-- Due -->
+                                    <td class="text-end">{{ number_format($due, 2) }}</td>
+
+                                    <!-- Status -->
                                     <td>
-                                        @if(($purchase->total_amount - $purchase->discount) - $purchase->paid == 0)
+                                        @if($due <= 0)
                                             <span class="badge bg-success">Paid</span>
                                         @else
                                             <span class="badge bg-warning text-dark">Due</span>
                                         @endif
                                     </td>
+
+                                    <!-- Actions -->
                                     <td>
+                                        <!-- View -->
                                         <a href="{{ route('purchase.invoice', $purchase->id) }}"
-                                           class="btn btn-sm btn-info" target="_blank">
+                                        class="btn btn-sm btn-info" target="_blank">
                                             <i class="fa fa-eye"></i>
                                         </a>
 
+                                        <!-- Edit -->
                                         @can('Purchase edit')
-                                        <a href="{{ route('purchase.edit', $purchase->id) }}"
-                                           class="btn btn-sm btn-warning" target="">
-                                            <i class="fa fa-edit"></i>
-                                        </a>
+                                            <a href="{{ route('purchase.edit', $purchase->id) }}"
+                                            class="btn btn-sm btn-warning">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
                                         @endcan
 
-                                         @if(auth()->user()->can('Purchase destroy'))
-                                        <form action="{{ route('purchase.destroy', $purchase->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this purchase  ?')">Delete</button>
-                                        </form>
-                                        @endif
+                                        <!-- Delete -->
+                                        @can('Purchase destroy')
+                                            <form action="{{ route('purchase.destroy', $purchase->id) }}"
+                                                method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-danger"
+                                                        onclick="return confirm('Are you sure you want to delete this purchase?')">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        @endcan
                                     </td>
                                 </tr>
+
                             @empty
                                 <tr>
                                     <td colspan="9" class="text-center text-muted">
@@ -131,7 +160,7 @@
 
                 <!-- PAGINATION -->
                 <div class="mt-3">
-                    {{ $purchases->withQueryString()->links() }}
+                    {{ method_exists($purchases, 'appends') ? $purchases->appends($search ?? [])->links() : '' }}
                 </div>
 
             </div>

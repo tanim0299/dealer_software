@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class DriverIssues extends Model
 {
     protected $guarded = [];
+    
+    protected $casts = [
+        'issue_date' => 'date',
+        'status' => 'string',
+    ];
 
     public function items()
     {

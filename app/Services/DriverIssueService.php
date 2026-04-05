@@ -92,7 +92,8 @@ class DriverIssueService {
 
     public function getDriverIssueList($search = [], $is_paginate = false, $is_relation = false)
     {
-        $status_code = $status_message = $response =  '';
+        $status_code = $status_message = '';
+        $response = $is_paginate ? null : collect();
         try {
             $query = DriverIssues::with('driver','items');
     
@@ -121,6 +122,7 @@ class DriverIssueService {
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
+            $response = $is_paginate ? null : collect();
         } finally {
             return [$status_code, $status_message, $response];
         }

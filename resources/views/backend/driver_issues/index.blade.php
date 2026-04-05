@@ -39,74 +39,84 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($issues as $key => $issue)
-                                        <tr>
-                                            <td>
-                                                {{ $issues->firstItem() + $key }}
-                                            </td>
+                                    @forelse($issues as $issue)
+    <tr>
+        <!-- Serial -->
+        <td>{{ $loop->iteration }}</td>
 
-                                            <td>
-                                                {{ \Carbon\Carbon::parse($issue->issue_date)->format('d-m-Y') }}
-                                            </td>
+        <!-- Date -->
+        <td>
+            {{ optional($issue->issue_date)->format('d-m-Y') ?? '-' }}
+        </td>
 
-                                            <td>
-                                                <strong>{{ $issue->driver->name ?? 'N/A' }}</strong><br>
-                                                <small class="text-muted">
-                                                    {{ $issue->driver->phone ?? '' }}
-                                                </small>
-                                            </td>
+        <!-- Driver -->
+        <td>
+            <strong>{{ optional($issue->driver)->name ?? 'N/A' }}</strong><br>
+            <small class="text-muted">
+                {{ optional($issue->driver)->phone ?? '' }}
+            </small>
+        </td>
 
-                                            <td>
-                                                {{ $issue->items->count() }}
-                                            </td>
+        <!-- Total Items -->
+        <td>
+            {{ $issue->items ? $issue->items->count() : 0 }}
+        </td>
 
-                                            <td>
-                                                {{ $issue->items->sum('issue_qty') }}
-                                            </td>
+        <!-- Total Qty -->
+        <td>
+            {{ $issue->items ? $issue->items->sum('issue_qty') : 0 }}
+        </td>
 
-                                            <td>
-                                                @if($issue->status === 'open')
-                                                    <span class="badge bg-warning">Open</span>
-                                                @else
-                                                    <span class="badge bg-success">Closed</span>
-                                                @endif
-                                            </td>
+        <!-- Status -->
+        <td>
+            @if($issue->status === 'open')
+                <span class="badge bg-warning">Open</span>
+            @else
+                <span class="badge bg-success">Closed</span>
+            @endif
+        </td>
 
-                                            <td>
-                                                <a href="{{ route('driver-issues.show', $issue->id) }}"
-                                                   class="btn btn-sm btn-info">
-                                                    View
-                                                </a>
+        <!-- Actions -->
+        <td>
+            <!-- View -->
+            <a href="{{ route('driver-issues.show', $issue->id) }}"
+               class="btn btn-sm btn-info">
+                View
+            </a>
 
-                                                @if($issue->status === 'open')
-                                                    <a href="{{ route('driver-issues.edit', $issue->id) }}"
-                                                       class="btn btn-sm btn-primary">
-                                                        Edit
-                                                    </a>
-                                                
-                                                    <form action="{{ route('driver-issues.destroy', $issue->id) }}"
-                                                        method="POST"
-                                                        class="d-inline"
-                                                        onsubmit="return confirm('Are you sure you want to delete this issue?');">
+            @if($issue->status === 'open')
 
-                                                        @csrf
-                                                        @method('DELETE')
+                <!-- Edit -->
+                <a href="{{ route('driver-issues.edit', $issue->id) }}"
+                   class="btn btn-sm btn-primary">
+                    Edit
+                </a>
 
-                                                        <button type="submit" class="btn btn-danger btn-sm">
-                                                            ðŸ—‘ Delete
-                                                        </button>
-                                                    </form>
-                                                    @endif
+                <!-- Delete -->
+                <form action="{{ route('driver-issues.destroy', $issue->id) }}"
+                      method="POST"
+                      class="d-inline"
+                      onsubmit="return confirm('Are you sure you want to delete this issue?');">
 
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="7" class="text-center text-muted">
-                                                No driver issue found
-                                            </td>
-                                        </tr>
-                                    @endforelse
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        Delete
+                    </button>
+                </form>
+
+            @endif
+        </td>
+    </tr>
+
+@empty
+    <tr>
+        <td colspan="7" class="text-center text-muted">
+            No driver issue found
+        </td>
+    </tr>
+@endforelse
                                 </tbody>
                             </table>
                         </div>
