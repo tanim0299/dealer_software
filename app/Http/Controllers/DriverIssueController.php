@@ -25,7 +25,7 @@ class DriverIssueController extends Controller
         {
             $data['search']['driver_id'] = Auth::user()->driver_id ?? null;
         }
-        $data['search']['free_text'] = $request->get('free_text', '');
+        $data['search']['free_text'] = $request->free_text ?? '';
         $data['issues'] =  (new DriverIssueService())->getDriverIssueList($data['search'], true, false)[2];
         if(Auth::user()->hasRole('Driver'))
         {

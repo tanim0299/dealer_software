@@ -25,8 +25,8 @@ class MenuController extends Controller
      */
     public function index(Request $request)
     {
-        $data['search']['free_text'] = $request->input('free_text', '');       
-        $data['search']['status'] = $request->input('status', '');
+        $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['status'] = $request->status ?? '';
         $data['menus'] = (new MenuService())->getMenuList($data['search'], true, true)[2];
         return view($this->PATH.'index',$data);
     }

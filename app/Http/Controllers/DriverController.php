@@ -15,8 +15,8 @@ class DriverController extends Controller
      */
     public function index(Request $request)
     {
-        $data['search']['free_text'] = $request->input('free_text', '');
-        $data['search']['status'] = $request->input('status', '');
+        $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['status'] = $request->status ?? '';
         $data['drivers'] = (new DriverService())->getDriverList($data['search'], true, true)[2];
         return view($this->path . '.index', $data);
     }
