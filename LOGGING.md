@@ -49,39 +49,43 @@ php artisan logs:view daily
 ### Manual Access
 SSH/FTP into your server and navigate to `storage/logs/` directory to view log files directly.
 
-## Using the Logger Service
+## Using Laravel Log Facade
 
 ### Basic Usage
 ```php
-use App\Services\LoggerService;
+use Illuminate\Support\Facades\Log;
 
 // Log driver issue operations
-LoggerService::logDriverIssue('created', [
+Log::channel('driver-issues')->info('Driver issue created', [
     'driver_id' => $drivers->id,
     'issue_id' => $issue->id,
     'items_count' => count($items),
 ]);
 
 // Log database errors
-LoggerService::logDatabaseError('Failed to fetch issues', 'driver_issues', 'read', [
+Log::channel('database')->error('Failed to fetch issues', [
+    'table' => 'driver_issues',
+    'operation' => 'read',
     'error' => $exception->getMessage(),
     'search_criteria' => $search,
 ]);
 
 // Log API errors
-LoggerService::logApiError('Payment processing failed', 500, auth()->id(), [
+Log::channel('api')->error('Payment processing failed', [
+    'status_code' => 500,
+    'user_id' => auth()->id(),
     'payment_id' => $paymentId,
     'amount' => $amount,
 ]);
 
 // Custom logging with context
-LoggerService::logWithContext('driver-issues', 'info', 'Issue accepted', [
+Log::channel('driver-issues')->info('Issue accepted', [
     'issue_id' => $issue->id,
     'accepted_by' => auth()->user()->name,
 ]);
 
 // Direct channel access
-LoggerService::driver('stock')->warning('Low stock alert', [
+Log::channel('stock')->warning('Low stock alert', [
     'product_id' => $product->id,
     'current_qty' => $stock,
     'threshold' => 10,
