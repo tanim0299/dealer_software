@@ -138,10 +138,10 @@ button{
 <div class="container">
     @php
         $closingDate = data_get($search ?? [], 'date', date('Y-m-d'));
-        $issueCashFromManager = (float) ($issue->cash_from_manager ?? 0);
         $givenAmountTotal = (float) (($givenAmounts ?? collect())->sum('amount'));
         $savedCashGivenToOthers = (float) ($closingStatus->cash_given_to_others ?? $givenAmountTotal);
-        $savedDriverCashTake = (float) ($closingStatus->driver_cash_take ?? ($issueCashFromManager - $savedCashGivenToOthers));
+        $savedCashInHand = (float) ($closingStatus->cash_in_hand ?? $cashInHand);
+        $savedDriverCashTake = (float) ($closingStatus->driver_cash_take ?? ($savedCashInHand - $savedCashGivenToOthers));
     @endphp
     <form method="post" action="{{ route('driver_closing.store') }}">
         @csrf
@@ -285,12 +285,12 @@ button{
         = {{ number_format($cashInHand,2) }}
     </div>
 
-    <div class="section-title">5. Manager Cash Distribution</div>
+    <div class="section-title">5. Sales Cash Distribution</div>
     <table>
         <tr>
-            <th>Cash Taken From Manager</th>
+            <th>Cash Available From Sales</th>
             <td>
-                {{ number_format($closingStatus->cash_from_manager ?? $issueCashFromManager, 2) }}
+                {{ number_format($savedCashInHand, 2) }}
             </td>
         </tr>
         <tr>
@@ -299,7 +299,7 @@ button{
         </tr>
         <tr>
             <th>Driver Own Cash Take</th>
-            <td id="driverCashTakeCell">{{ number_format($savedDriverCashTake ?: ($issueCashFromManager - $savedCashGivenToOthers), 2) }}</td>
+            <td id="driverCashTakeCell">{{ number_format($savedDriverCashTake, 2) }}</td>
         </tr>
     </table>
 

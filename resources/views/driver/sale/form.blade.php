@@ -139,7 +139,7 @@
                 class="btn btn-success btn-lg rounded-3"
                 data-bs-toggle="modal"
                 data-bs-target="#productModal">
-            âž• Add Product
+            <i class="bi bi-plus-circle me-1"></i> Add Product
         </button>
 
     </div>
@@ -277,7 +277,7 @@
                             )'>
                             {{ $product->product->name }}
                             <span class="float-end text-muted fw-semibold">
-                                {{ $product->available_qty }} | à§³ {{ $product->product->sale_price }}
+                                {{ $product->available_qty }} | Tk {{ $product->product->sale_price }}
                             </span>
                         </button>
                         @endforeach
@@ -352,7 +352,7 @@ function addToCart() {
         p => p.product_id === selectedProduct.id
     );
 
-    // ðŸ”¥ IF PRODUCT ALREADY EXISTS
+    // If product already exists
     if (existingIndex !== -1) {
 
         let newQty = cart[existingIndex].qty + qty;
@@ -375,7 +375,7 @@ function addToCart() {
         return;
     }
 
-    // ðŸ”¥ NEW PRODUCT ADD
+    // New product add
     if (qty > selectedProduct.availableQty)
         return alert('Stock limit exceeded');
 
@@ -430,7 +430,7 @@ function renderCart() {
                 <div class="d-flex justify-content-between">
                     <strong>${item.name}</strong>
                     <button class="btn btn-sm btn-danger"
-                            onclick="removeItem(${index})">âœ•</button>
+                            onclick="removeItem(${index})">&times;</button>
                 </div>
 
                 <div class="row g-2 mt-2">
@@ -474,7 +474,7 @@ function renderCart() {
                         Base Qty: ${item.final_quantity.toFixed(4)}
                     </small>
                     <strong class="cart-line-total">
-                        à§³ ${item.line_total.toFixed(2)}
+                        Tk ${item.line_total.toFixed(2)}
                     </strong>
                 </div>
 
@@ -491,7 +491,7 @@ function recalculateItem(index) {
 
     item.final_quantity = item.qty * (1 / item.unit_data);
 
-    // ðŸ”¥ STOCK CHECK (BASE UNIT)
+    // Stock check (base unit)
     if (item.final_quantity > item.availableQty) {
         alert('Stock exceeded!');
         item.qty = 1;

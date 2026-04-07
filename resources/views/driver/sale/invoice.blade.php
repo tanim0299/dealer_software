@@ -157,9 +157,9 @@
             <div class="contact">
                 <strong>{{ $settings->name }}</strong><br>
                 {{ $settings->designation }}<br>
-                ðŸ“ž {{ $settings->phone }}<br>
+                Phone: {{ $settings->phone }}<br>
                 {!! $settings->address !!}<br>
-                âœ‰ {{ $settings->email }}
+                Email: {{ $settings->email }}
             </div>
 
         </div>
@@ -247,7 +247,7 @@
 
         <!-- FOOTER -->
         <div class="footer">
-            Thank you for your business â€¢ This is a computer generated invoice
+            Thank you for your business - This is a computer generated invoice
         </div>
 
     </div>

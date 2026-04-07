@@ -63,7 +63,7 @@
                 @endif
             </div>
             <div class="text-end">
-                <div class="fw-bold text-danger">à§³ {{ number_format($expense->amount, 2) }}</div>
+                <div class="fw-bold text-danger">Tk {{ number_format($expense->amount, 2) }}</div>
             </div>
         </div>
 

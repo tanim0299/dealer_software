@@ -33,6 +33,7 @@
     <link rel="stylesheet" href="{{ asset('build/backend') }}/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{{ asset('build/backend') }}/css/plugins.min.css" />
     <link rel="stylesheet" href="{{ asset('build/backend') }}/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('build/backend') }}/css/demo.css" />

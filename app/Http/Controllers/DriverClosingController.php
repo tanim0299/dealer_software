@@ -106,16 +106,29 @@ class DriverClosingController extends Controller
                 }
             }
 
-            $cashFromManager = (float) ($issue->cash_from_manager ?? 0);
+            $driverUser = User::where('driver_id', $request->driver_id)->first();
+
+            $salesPaid = (float) SalesLedger::where('driver_id', $request->driver_id)
+                ->whereDate('date', $closingDate)
+                ->sum('paid');
+
+            $dueCollection = (float) SalesPayment::where('type', 1)
+                ->whereDate('date', $closingDate)
+                ->when($driverUser, function ($query) use ($driverUser) {
+                    $query->where('create_by', $driverUser->id);
+                })
+                ->sum('amount');
+
+            $cashFromSales = $salesPaid + $dueCollection;
             $cashGivenToOthers = (float) $distributionRows->sum(function ($row) {
                 return (float) ($row['amount'] ?? 0);
             });
 
-            if ($cashGivenToOthers > $cashFromManager) {
-                throw new \Exception('Distributed cash can not be greater than manager cash.');
+            if ($cashGivenToOthers > $cashFromSales) {
+                throw new \Exception('Distributed cash can not be greater than available sales balance.');
             }
 
-            $driverCashTake = $cashFromManager - $cashGivenToOthers;
+            $driverCashTake = $cashFromSales - $cashGivenToOthers;
 
             $closingData = [
                 'driver_id' => $request->driver_id,
@@ -124,8 +137,8 @@ class DriverClosingController extends Controller
                 'total_collection' => $request->total_collection ?? '0',
                 'total_return' => $request->total_return ?? '0',
                 'total_expense' => $request->total_expense ?? '0',
-                'cash_in_hand'=> $request->cash_in_hand ?? '0',
-                'cash_from_manager' => $cashFromManager,
+                'cash_in_hand'=> $cashFromSales,
+                'cash_from_manager' => 0,
                 'cash_given_to_others' => $cashGivenToOthers,
                 'driver_cash_take' => $driverCashTake,
             ];

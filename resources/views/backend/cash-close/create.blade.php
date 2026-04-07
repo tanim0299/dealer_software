@@ -38,7 +38,7 @@
             <div class="card border-info">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Previous Cash</h6>
-                    <h3 class="text-info mb-0" id="card_opening">{{ number_format($cashCloseData['opening_balance'], 2) }} à§³</h3>
+                    <h3 class="text-info mb-0" id="card_opening">{{ number_format($cashCloseData['opening_balance'], 2) }} Tk</h3>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
             <div class="card border-success">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Cash In</h6>
-                    <h3 class="text-success mb-0" id="card_income">{{ number_format($totalIncome, 2) }} à§³</h3>
+                    <h3 class="text-success mb-0" id="card_income">{{ number_format($totalIncome, 2) }} Tk</h3>
                 </div>
             </div>
         </div>
@@ -58,7 +58,7 @@
             <div class="card border-danger">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Cash Out</h6>
-                    <h3 class="text-danger mb-0" id="card_expense">{{ number_format($totalExpense, 2) }} à§³</h3>
+                    <h3 class="text-danger mb-0" id="card_expense">{{ number_format($totalExpense, 2) }} Tk</h3>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
             <div class="card border-primary">
                 <div class="card-body text-center">
                     <h6 class="text-muted mb-2">Closing Balance</h6>
-                    <h3 class="text-primary mb-0" id="card_closing">{{ number_format($cashCloseData['opening_balance'] + $totalIncome - $totalExpense, 2) }} à§³</h3>
+                    <h3 class="text-primary mb-0" id="card_closing">{{ number_format($cashCloseData['opening_balance'] + $totalIncome - $totalExpense, 2) }} Tk</h3>
                 </div>
             </div>
         </div>
@@ -104,14 +104,14 @@
                                                         @endif
                                                     </td>
                                                     <td class="align-middle text-end text-success fw-bold">
-                                                        {{ number_format($entry->amount, 2) }} à§³
+                                                        {{ number_format($entry->amount, 2) }} Tk
                                                     </td>
                                                 </tr>
                                             @endforeach
                                             <tr class="table-light">
                                                 <td><strong>Total Income Entries</strong></td>
                                                 <td class="text-end text-success fw-bold">
-                                                    <h6 class="mb-0">{{ number_format($totalIncome, 2) }} à§³</h6>
+                                                    <h6 class="mb-0">{{ number_format($totalIncome, 2) }} Tk</h6>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -142,14 +142,14 @@
                                                         @endif
                                                     </td>
                                                     <td class="align-middle text-end text-danger fw-bold">
-                                                        {{ number_format($entry->amount, 2) }} à§³
+                                                        {{ number_format($entry->amount, 2) }} Tk
                                                     </td>
                                                 </tr>
                                             @endforeach
                                             <tr class="table-light">
                                                 <td><strong>Total Expense Entries</strong></td>
                                                 <td class="text-end text-danger fw-bold">
-                                                    <h6 class="mb-0">{{ number_format($totalExpense, 2) }} à§³</h6>
+                                                    <h6 class="mb-0">{{ number_format($totalExpense, 2) }} Tk</h6>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -186,19 +186,19 @@
                                 <table class="table table-borderless mb-0">
                                     <tr>
                                         <td class="fw-bold">Opening Balance</td>
-                                        <td class="text-end fw-bold">{{ number_format($cashCloseData['opening_balance'], 2) }} à§³</td>
+                                        <td class="text-end fw-bold">{{ number_format($cashCloseData['opening_balance'], 2) }} Tk</td>
                                     </tr>
                                     <tr>
                                         <td class="text-success fw-bold">+ Total Cash In</td>
-                                        <td class="text-end text-success fw-bold">{{ number_format($totalIncome, 2) }} à§³</td>
+                                        <td class="text-end text-success fw-bold">{{ number_format($totalIncome, 2) }} Tk</td>
                                     </tr>
                                     <tr class="border-bottom">
                                         <td class="text-danger fw-bold">- Total Cash Out</td>
-                                        <td class="text-end text-danger fw-bold">{{ number_format($totalExpense, 2) }} à§³</td>
+                                        <td class="text-end text-danger fw-bold">{{ number_format($totalExpense, 2) }} Tk</td>
                                     </tr>
                                     <tr class="border-top">
                                         <td class="h5 mb-0"><strong>Closing Balance</strong></td>
-                                        <td class="text-end h4 mb-0 text-primary fw-bold">{{ number_format($cashCloseData['opening_balance'] + $totalIncome - $totalExpense, 2) }} à§³</td>
+                                        <td class="text-end h4 mb-0 text-primary fw-bold">{{ number_format($cashCloseData['opening_balance'] + $totalIncome - $totalExpense, 2) }} Tk</td>
                                     </tr>
                                     <tr>
                                         <td colspan="2" class="small text-muted">
@@ -290,4 +290,5 @@
     }
 </style>
 @endpush
+
 

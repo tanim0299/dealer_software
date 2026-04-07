@@ -8,7 +8,7 @@
 
     <h5 class="mb-3 text-center">Customer Payments</h5>
 
-    {{-- ðŸ”¹ Filter Card --}}
+    {{-- Filter Card --}}
     <div class="card mb-3">
         <div class="card-body">
 
@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    {{-- ðŸ”¹ Payment List --}}
+    {{-- Payment List --}}
     @foreach($payments as $payment)
 
         <div class="card mb-2 shadow-sm">

@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\DriverCashDistribution;
 use App\Models\DriverClosing;
-use App\Models\DriverIssues;
 use App\Models\Employee;
 use App\Models\EmployeeSalaryWithdraw;
+use App\Models\SalesLedger;
+use App\Models\SalesPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -69,7 +70,9 @@ class DriverCashDistributionController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('driver.cash_distribution.create', compact('employees'));
+        [$totalCollectedCash, $alreadyGiven, $availableBalance] = $this->getAvailableCollectionCash($driverId, now()->toDateString());
+
+        return view('driver.cash_distribution.create', compact('employees', 'totalCollectedCash', 'alreadyGiven', 'availableBalance'));
     }
 
     public function store(Request $request)
@@ -100,17 +103,10 @@ class DriverCashDistributionController extends Controller
             return back()->withInput()->with('error', 'Closing already submitted for this date.');
         }
 
-        $managerCash = (float) DriverIssues::where('driver_id', $driverId)
-            ->whereDate('issue_date', $date)
-            ->where('status', '!=', 'rejected')
-            ->sum('cash_from_manager');
+        [, , $availableBalance] = $this->getAvailableCollectionCash($driverId, $date);
 
-        $alreadyGiven = (float) DriverCashDistribution::where('driver_id', $driverId)
-            ->whereDate('date', $date)
-            ->sum('amount');
-
-        if (($alreadyGiven + (float) $request->amount) > $managerCash) {
-            return back()->withInput()->with('error', 'Given amount can not exceed manager cash amount for this date.');
+        if ((float) $request->amount > $availableBalance) {
+            return back()->withInput()->with('error', 'Given amount can not exceed your available sales balance for this date.');
         }
 
         DB::beginTransaction();
@@ -176,5 +172,26 @@ class DriverCashDistributionController extends Controller
         }
 
         return back()->with('success', 'Given amount entry deleted successfully.');
+    }
+
+    private function getAvailableCollectionCash(int $driverId, string $date): array
+    {
+        $todayPaid = (float) SalesLedger::where('driver_id', $driverId)
+            ->whereDate('date', $date)
+            ->sum('paid');
+
+        $todayDueCollection = (float) SalesPayment::where('type', 1)
+            ->where('create_by', Auth::id())
+            ->whereDate('date', $date)
+            ->sum('amount');
+
+        $alreadyGiven = (float) DriverCashDistribution::where('driver_id', $driverId)
+            ->whereDate('date', $date)
+            ->sum('amount');
+
+        $totalCollectedCash = $todayPaid + $todayDueCollection;
+        $availableBalance = $totalCollectedCash - $alreadyGiven;
+
+        return [$totalCollectedCash, $alreadyGiven, $availableBalance];
     }
 }

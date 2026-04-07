@@ -4,6 +4,12 @@
 
 @section('body')
 <div class="page-card p-3">
+    <div class="alert alert-info mb-3">
+        <div><strong>Total Collected Cash (Today):</strong> Tk {{ number_format((float) ($totalCollectedCash ?? 0), 2) }}</div>
+        <div><strong>Already Given:</strong> Tk {{ number_format((float) ($alreadyGiven ?? 0), 2) }}</div>
+        <div><strong>Available Cash:</strong> Tk {{ number_format(max(0, (float) ($availableBalance ?? 0)), 2) }}</div>
+    </div>
+
     <form action="{{ route('driver_cash_distribution.store') }}" method="POST">
         @csrf
 
@@ -27,6 +33,7 @@
         <div class="mb-2">
             <label class="form-label">Amount (BDT) <span class="text-danger">*</span></label>
             <input type="number" step="0.01" min="0.01" name="amount" class="form-control" value="{{ old('amount') }}" required>
+            <small class="text-muted">You can not give more than available cash.</small>
         </div>
 
         <div class="mb-3">

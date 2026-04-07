@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\DriverCashDistribution;
 use App\Models\DriverClosing;
 use App\Models\DriverIssueItem;
-use App\Models\DriverIssues;
 use App\Models\Drivers;
 use App\Models\ExpenseEntry;
 use App\Models\SalesLedger;
@@ -82,10 +81,7 @@ class DriverDailyReportController extends Controller
             ->select('driver_issue_items.*')
             ->get();
 
-        $cashFromManager = (float) DriverIssues::where('driver_id', $driverId)
-            ->whereDate('issue_date', $date)
-            ->where('status', '!=', 'rejected')
-            ->sum('cash_from_manager');
+        $cashFromManager = 0;
 
         $givenAmounts = DriverCashDistribution::with('employee')
             ->where('driver_id', $driverId)
@@ -98,7 +94,6 @@ class DriverDailyReportController extends Controller
             + (float) $collections->sum('amount')
             - (float) $expenses->sum('amount')
             - $returnCashPaid
-            + $cashFromManager
             - $givenAmountTotal;
 
         $closingStatus = DriverClosing::where('driver_id', $driverId)

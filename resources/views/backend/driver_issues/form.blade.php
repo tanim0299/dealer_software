@@ -46,22 +46,6 @@
             </div>
         </div>
 
-        <div class="col-md-4 col-lg-4 col-12">
-            <div class="mb-3">
-                <label class="form-label">Cash Given To Driver (BDT)</label>
-                <input type="number"
-                       step="0.01"
-                       min="0"
-                       name="cash_from_manager"
-                       value="{{ old('cash_from_manager', $issue->cash_from_manager ?? 0) }}"
-                       class="form-control @error('cash_from_manager') is-invalid @enderror"
-                       placeholder="e.g. 500">
-                @error('cash_from_manager')
-                <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
-
     </div>
 
     <hr>
