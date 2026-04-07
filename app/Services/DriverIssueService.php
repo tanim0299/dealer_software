@@ -164,14 +164,9 @@ class DriverIssueService {
                     $issue = DriverIssues::create([
                         'driver_id' => $request->driver_id,
                         'issue_date' => $issueDate,
-                        'cash_from_manager' => (float) ($request->cash_from_manager ?? 0),
+                        'cash_from_manager' => 0,
                         'status' => 'open',
                     ]);
-                } else {
-                    $extraCash = (float) ($request->cash_from_manager ?? 0);
-                    if ($extraCash > 0) {
-                        $issue->increment('cash_from_manager', $extraCash);
-                    }
                 }
 
                 if ($issue->status == 'rejected') {
@@ -289,7 +284,7 @@ class DriverIssueService {
                 $incomingItems = collect($request->items)->keyBy('product_id');
 
                 $issue->update([
-                    'cash_from_manager' => (float) ($request->cash_from_manager ?? 0),
+                    'cash_from_manager' => 0,
                 ]);
 
                 foreach ($incomingItems as $productId => $item) {

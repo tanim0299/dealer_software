@@ -9,7 +9,6 @@ class RequestRules{
     {
         $rules = [
             'driver_id'              => 'required|exists:drivers,id',
-            'cash_from_manager'      => 'nullable|numeric|min:0',
             'items'                  => 'required|array',
             'items.*.product_id'     => 'required|exists:products,id',
             'items.*.issue_qty'      => 'required|numeric|min:1',
@@ -18,8 +17,6 @@ class RequestRules{
         $messages = [
             'driver_id.required'         => 'Driver is required.',
             'driver_id.exists'           => 'Selected driver does not exist.',
-            'cash_from_manager.numeric'  => 'Cash amount must be numeric.',
-            'cash_from_manager.min'      => 'Cash amount can not be negative.',
             'items.required'             => 'At least one item is required.',
             'items.array'                => 'Items must be an array.',
             'items.*.product_id.required'=> 'Product is required for each item.',

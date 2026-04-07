@@ -49,7 +49,7 @@
                         <div class="alert alert-danger" role="alert">
                             <h6 class="mb-2">Total Outstanding Due</h6>
                             <h3 class="mb-0">
-                                <strong>à§³ {{ number_format($due, 2) }}</strong>
+                                <strong>Tk {{ number_format($due, 2) }}</strong>
                             </h3>
                         </div>
                     </div>
@@ -101,7 +101,7 @@
                                 <label class="form-label">Current Due Amount</label>
                                 <input type="text" 
                                        class="form-control fw-bold" 
-                                       value="à§³ {{ number_format($due, 2) }}"
+                                       value="Tk {{ number_format($due, 2) }}"
                                        readonly
                                        style="font-size: 1.1rem; background-color: #fff3cd;">
                             </div>
@@ -110,7 +110,7 @@
                             <div class="mb-3">
                                 <label class="form-label">Payment Amount <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text">à§³</span>
+                                    <span class="input-group-text">Tk</span>
                                     <input type="number"
                                            name="amount"
                                            id="amount"
@@ -129,7 +129,7 @@
                             {{-- Validate Amount --}}
                             <div class="mb-3">
                                 <small class="text-muted d-block">
-                                    Payment cannot exceed due amount of à§³ {{ number_format($due, 2) }}
+                                    Payment cannot exceed due amount of Tk {{ number_format($due, 2) }}
                                 </small>
                             </div>
 
@@ -174,7 +174,7 @@ $(document).ready(function() {
 
         if(amount > due) {
             e.preventDefault();
-            alert('Payment amount cannot exceed the due amount of à§³ ' + due.toFixed(2));
+            alert('Payment amount cannot exceed the due amount of Tk ' + due.toFixed(2));
             return false;
         }
 
@@ -189,4 +189,5 @@ $(document).ready(function() {
 @endpush
 
 @endsection
+
 

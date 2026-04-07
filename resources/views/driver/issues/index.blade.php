@@ -37,11 +37,11 @@
 
                             @if($issue->status === 'open')
                                 <a class="btn btn-success btn-sm" href="{{ route('driver-issues.accept', $issue->id) }}">
-                                    âœ” Accept
+                                    <i class="bi bi-check-circle me-1"></i>Accept
                                 </a>
                                 
                                 <a class="btn btn-danger btn-sm" href="{{ route('driver-issues.reject', $issue->id) }}">
-                                    âœ– Reject
+                                    <i class="bi bi-x-circle me-1"></i>Reject
                                 </a>
                             @elseif($issue->status == 'rejected')
                                 <span class="badge bg-danger w-100 text-center">

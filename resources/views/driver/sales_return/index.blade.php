@@ -8,7 +8,7 @@
 
     <h4 class="mb-3">Sales Return List</h4>
 
-    {{-- ðŸ”¹ Date Filter --}}
+    {{-- Date Filter --}}
     <form method="GET" action="{{ route('sales_return.index') }}">
         <div class="row mb-3">
 
@@ -40,7 +40,7 @@
         </div>
     </form>
 
-    {{-- ðŸ”¹ Return Table --}}
+    {{-- Return Table --}}
     <table class="table table-bordered">
         <thead>
             <tr>

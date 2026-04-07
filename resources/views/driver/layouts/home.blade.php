@@ -48,13 +48,6 @@
                     ->where('driver_issues.status', 'accepted')
                     ->sum(DB::raw('driver_issue_items.issue_qty - driver_issue_items.sold_qty - driver_issue_items.return_qty'));
 
-                // Manager cash issued today
-                $cashFromManager = DB::table('driver_issues')
-                    ->where('driver_id', $driverId)
-                    ->whereDate('issue_date', Carbon::today())
-                    ->where('status', '!=', 'rejected')
-                    ->sum('cash_from_manager');
-
                 // Due collected today
                 $todayDueCollection = DB::table('sales_payments')
                     ->where('type', 1)
@@ -62,29 +55,17 @@
                     ->whereDate('date', Carbon::today())
                     ->sum('amount');
 
-                // Sales return cash paid today (only cash paid, not due adjustment)
-                $todayReturnPaid = abs((float) DB::table('sales_payments as sp')
-                    ->join('sales_return_ledgers as srl', 'srl.id', '=', 'sp.reference_id')
-                    ->where('sp.type', 2)
-                    ->where('sp.reference_type', 'return')
-                    ->where('sp.amount', '<', 0)
-                    ->where('srl.create_by', auth()->id())
-                    ->whereDate('sp.date', Carbon::today())
-                    ->sum('sp.amount'));
-
                 // Given amount to other employees today
                 $todayGivenAmount = DB::table('driver_cash_distributions')
                     ->where('driver_id', $driverId)
                     ->whereDate('date', Carbon::today())
                     ->sum('amount');
 
-                // Live carrying cash
-                $currentCarryingCash = $cashFromManager
-                    + $todayPaid
-                    + $todayDueCollection
-                    - $todayReturnPaid
-                    - $todayExpensesAmount
-                    - $todayGivenAmount;
+                // Cash from sales + due collection
+                $totalCollectedCash = $todayPaid + $todayDueCollection;
+
+                // Current available cash for distribution
+                $currentCarryingCash = $totalCollectedCash - $todayGivenAmount;
 
                 $todayClosingExists = DB::table('driver_closings')
                     ->where('driver_id', $driverId)
@@ -102,7 +83,7 @@
                         <div class="card-body p-3">
                             <small class="text-muted">Today Sales</small>
                             <h5 class="fw-bold mt-1">
-                                à§³ {{ number_format($todaySalesAmount ?? 0, 2) }}
+                                Tk {{ number_format($todaySalesAmount ?? 0, 2) }}
                             </h5>
                         </div>
                     </a>
@@ -114,7 +95,7 @@
                     <div class="card-body p-3">
                         <small class="text-muted">Dues</small>
                         <h5 class="fw-bold mt-1">
-                            à§³ {{ number_format($todayDuesAmount ?? 0, 2) }}
+                            Tk {{ number_format($todayDuesAmount ?? 0, 2) }}
                         </h5>
                     </div>
                 </div>
@@ -126,7 +107,7 @@
                         <div class="card-body p-3">
                             <small class="text-muted">Expenses</small>
                             <h5 class="fw-bold mt-1">
-                                à§³ {{ number_format($todayExpensesAmount ?? 0, 2) }}
+                                Tk {{ number_format($todayExpensesAmount ?? 0, 2) }}
                             </h5>
                         </div>
                     </a>
@@ -147,9 +128,9 @@
             <div class="col-12">
                 <div class="card shadow-sm text-center border-success">
                     <div class="card-body p-3">
-                        <small class="text-muted">Current Carrying Cash</small>
+                        <small class="text-muted">Available Cash (Sales + Due Collection)</small>
                         <h4 class="fw-bold mt-1 text-success">
-                            à§³ {{ number_format($currentCarryingCash, 2) }}
+                            Tk {{ number_format($currentCarryingCash, 2) }}
                         </h4>
                     </div>
                 </div>
@@ -161,54 +142,54 @@
         <div class="mt-4">
 
             <a href="{{ route('sales.create') }}" class="btn btn-primary w-100 py-3 mb-2">
-                âž• New Sale
+                <i class="bi bi-plus-circle me-1"></i> New Sale
             </a>
 
             <div class="row g-2">
                 <div class="col-6">
                     <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.create') }}">
-                        ðŸ’° Collect Due
+                        <i class="bi bi-cash-coin me-1"></i> Collect Due
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-success w-100 py-2" href="{{ route('customer_payment.index') }}">
-                        ðŸ’° Collection List
+                        <i class="bi bi-list-ul me-1"></i> Collection List
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.create') }}">
-                        ðŸ’¸ Give Amount
+                        <i class="bi bi-wallet2 me-1"></i> Give Amount
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-warning w-100 py-2" href="{{ route('driver_cash_distribution.index') }}">
-                        ðŸ’¸ Given Amount List
+                        <i class="bi bi-journal-text me-1"></i> Given Amount List
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('expense_entry.create') }}">
-                        ðŸ§¾ Add Expense
+                        <i class="bi bi-receipt-cutoff me-1"></i> Add Expense
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-primary w-100 py-2" href="{{ route('driver_stock.index') }}">
-                        ðŸ“¦ Current Stock
+                        <i class="bi bi-box-seam me-1"></i> Current Stock
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.create') }}">
-                        ðŸ§¾ Sales Return
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Sales Return
                     </a>
                 </div>
                 <div class="col-6">
                     <a class="btn btn-outline-danger w-100 py-2" href="{{ route('sales_return.index') }}">
-                        ðŸ§¾ Sales Return List
+                        <i class="bi bi-card-list me-1"></i> Sales Return List
                     </a>
                 </div>
             </div>
             <div class="col-6">
                 <a class="btn btn-outline-danger w-100 py-2" href="{{ route('driver-issues.index') }}">
-                    ðŸ§¾ Issue List
+                    <i class="bi bi-list-check me-1"></i> Issue List
                 </a>
             </div>
         </div>
@@ -221,15 +202,15 @@
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Sale</span>
-                    <span class="fw-bold text-success">â‚¹500</span>
+                    <span class="fw-bold text-success">Tk 500</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Expense</span>
-                    <span class="fw-bold text-danger">â‚¹120</span>
+                    <span class="fw-bold text-danger">Tk 120</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between">
                     <span>Due Collected</span>
-                    <span class="fw-bold text-primary">â‚¹300</span>
+                    <span class="fw-bold text-primary">Tk 300</span>
                 </li>
             </ul>
 
