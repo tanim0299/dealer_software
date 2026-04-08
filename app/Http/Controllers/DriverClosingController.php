@@ -335,14 +335,18 @@ class DriverClosingController extends Controller
             ->where('driver_id', $request->driver_id)
             ->whereDate('date', $closingDate)
             ->get();
-            $data['salesReturns'] = SalesReturnLedger::with(['customer', 'entries.product', 'payments', 'salesLedger'])
-                ->whereDate('date', $closingDate)
-                ->whereHas('salesLedger', function ($query) use ($request) {
-                    $query->where('driver_id', $request->driver_id);
-                })
-                ->get();
+        $data['salesReturns'] = SalesReturnLedger::with(['customer', 'entries.product', 'payments', 'salesLedger'])
+            ->whereDate('date', $closingDate)
+            ->whereHas('salesLedger', function ($query) use ($request) {
+                $query->where('driver_id', $request->driver_id);
+            })
+            ->get();
         $data['returnpaids'] = (new SalesPayment())->where('type',2)->where('amount','<','0')->where('date',$closingDate)->get(); 
         $data['closingStatus'] = (new DriverClosing())->where('date',$closingDate)->where('driver_id',$request->driver_id)->first();
+        $data['cashInHand'] = (float) $data['sales']->sum('paid')
+            + (float) $data['collections']->sum('amount')
+            - (float) $data['expenses']->sum('amount')
+            - abs((float) $data['returnpaids']->sum('amount'));
         return view($this->path.'.show_closing',$data);
     }
 }
