@@ -2,15 +2,22 @@
 
 namespace App\Services;
 
+use App\Traits\FileUploader;
 use Illuminate\Support\Facades\DB;
 use App\Models\Drivers;
 use App\Models\Employee;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 class DriverService
 {
+    /** Plain password assigned when a DSR login user is created (not stored reversibly in DB). */
+    public const DEFAULT_DSR_PLAIN_PASSWORD = '123456789';
+
+    public static function defaultDsrPlainPassword(): string
+    {
+        return self::DEFAULT_DSR_PLAIN_PASSWORD;
+    }
 
     public function getDriverList($search = [], $is_paginate = true, $is_relation = false)
     {
@@ -18,7 +25,7 @@ class DriverService
         try {
             $response = (new Drivers())->getrDriverList($search, $is_paginate, $is_relation);
             $status_code = ApiService::API_SUCCESS;
-            $status_message = 'Driver List Fetched';
+            $status_message = 'DSR list fetched';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
@@ -51,16 +58,21 @@ class DriverService
 
             $driver->areas()->sync($request->area_ids);
 
-            // Create User
-            $role = Role::where('name','Driver')->first();
+            // Create login user for this DSR (Spatie role name remains "Driver" in DB/seeders)
+            $role = Role::where('name', 'Driver')->where('guard_name', 'web')->first();
+            if (! $role) {
+                throw new \RuntimeException('Spatie role "Driver" is missing. Run database seeders.');
+            }
+
+            $placeholderEmail = 'dsr' . $driver->id . '@example.com';
             $user = User::create([
-                'role_id' => $role->id ?? 2,
-                'name'      => $request->name,
-                'phone'     => $request->phone ?? null,
-                'email'     => 'driver' . $driver->id . '@example.com',
-                'type'      => 1,
+                'role_id' => $role->id,
+                'name' => $request->name,
+                'phone' => $request->phone ?? null,
+                'email' => $placeholderEmail,
+                'type' => 1,
                 'driver_id' => $driver->id,
-                'password'  => Hash::make('123456789'),
+                'password' => self::DEFAULT_DSR_PLAIN_PASSWORD,
             ]);
 
             $user->assignRole('Driver');
@@ -69,7 +81,7 @@ class DriverService
                 ['driver_id' => $driver->id],
                 [
                     'name' => $request->name,
-                    'email' => 'driver' . $driver->id . '@example.com',
+                    'email' => $placeholderEmail,
                     'phone' => $request->phone ?? null,
                     'designation' => 'DSR',
                     'salary' => 0,
@@ -81,7 +93,7 @@ class DriverService
 
             return [
                 ApiService::API_SUCCESS,
-                'Driver Created Successfully',
+                'DSR created successfully',
                 null
             ];
         } catch (\Throwable $th) {
@@ -136,12 +148,14 @@ class DriverService
                 $driver->areas()->sync($request->area_ids);
             }
 
+            $placeholderEmail = 'dsr' . $driver->id . '@example.com';
+
             $user = User::where('driver_id', $id)->first();
             if ($user) {
                 $user->update([
                     'name'  => $request->name,
                     'phone' => $request->phone ?? null,
-                    'email' => 'driver' . $driver->id . '@example.com',
+                    'email' => $placeholderEmail,
                 ]);
             }
 
@@ -149,7 +163,7 @@ class DriverService
                 ['driver_id' => $driver->id],
                 [
                     'name' => $request->name,
-                    'email' => 'driver' . $driver->id . '@example.com',
+                    'email' => $placeholderEmail,
                     'phone' => $request->phone ?? null,
                     'designation' => 'DSR',
                     'salary' => Employee::where('driver_id', $driver->id)->value('salary') ?? 0,
@@ -161,7 +175,7 @@ class DriverService
 
             return [
                 ApiService::API_SUCCESS,
-                "Driver updated successfully.",
+                'DSR updated successfully.',
                 null
             ];
         } catch (\Throwable $th) {
@@ -181,13 +195,36 @@ class DriverService
         $status_code = $status_message = null;
 
         try {
-            [$status_code, $status_message] = self::getDriverById($id);
+            DB::beginTransaction();
+
+            [$status_code, $status_message, $driver] = self::getDriverById($id);
+            if ($status_code !== ApiService::API_SUCCESS || empty($driver)) {
+                DB::rollBack();
+
+                return [
+                    ApiService::API_SERVER_ERROR,
+                    $status_message ?: 'DSR not found.',
+                ];
+            }
+
+            $user = User::where('driver_id', $id)->first();
+            if ($user) {
+                $user->syncRoles([]);
+                if (! empty($user->image)) {
+                    FileUploader::unlinkfile($user->image);
+                }
+                $user->delete();
+            }
+
             Employee::where('driver_id', $id)->delete();
             Drivers::where('id', $id)->delete();
 
+            DB::commit();
+
             $status_code = ApiService::API_SUCCESS;
-            $status_message = __('Driver deleted successfully.');
+            $status_message = __('DSR deleted successfully.');
         } catch (\Throwable $th) {
+            DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();
         }
@@ -201,7 +238,7 @@ class DriverService
         try {
             (new Drivers())->updateStatus($request);
             $status_code = ApiService::API_SUCCESS;
-            $status_message = "Driver status changed successfully.";
+            $status_message = 'DSR status changed successfully.';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = $th->getMessage();

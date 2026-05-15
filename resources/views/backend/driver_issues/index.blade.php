@@ -25,6 +25,47 @@
                 <div class="card">
 
                     <div class="card-body">
+                        <form method="GET" action="{{ route('driver-issues.index') }}" class="mb-3">
+                            <div class="row g-2 align-items-end">
+                                @unless(auth()->user()->hasRole('Driver'))
+                                <div class="col-lg-3 col-md-6">
+                                    <label class="form-label small mb-0">DSR</label>
+                                    <select name="driver_id" class="form-select js-example-basic-single">
+                                        <option value="">All DSRs</option>
+                                        @foreach($drivers ?? [] as $d)
+                                            <option value="{{ $d->id }}" {{ ($search['driver_id'] ?? '') == $d->id ? 'selected' : '' }}>{{ $d->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endunless
+                                <div class="col-lg-2 col-md-4">
+                                    <label class="form-label small mb-0">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="open" {{ ($search['status'] ?? '') === 'open' ? 'selected' : '' }}>Open</option>
+                                        <option value="accepted" {{ ($search['status'] ?? '') === 'accepted' ? 'selected' : '' }}>Accepted</option>
+                                        <option value="rejected" {{ ($search['status'] ?? '') === 'rejected' ? 'selected' : '' }}>Rejected</option>
+                                        <option value="closed" {{ ($search['status'] ?? '') === 'closed' ? 'selected' : '' }}>Closed</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-2 col-md-4">
+                                    <label class="form-label small mb-0">From</label>
+                                    <input type="date" name="from_date" class="form-control" value="{{ $search['from_date'] ?? '' }}">
+                                </div>
+                                <div class="col-lg-2 col-md-4">
+                                    <label class="form-label small mb-0">To</label>
+                                    <input type="date" name="to_date" class="form-control" value="{{ $search['to_date'] ?? '' }}">
+                                </div>
+                                <div class="col-lg-2 col-md-4">
+                                    <label class="form-label small mb-0">Search</label>
+                                    <input type="text" name="free_text" class="form-control" placeholder="DSR name / phone" value="{{ $search['free_text'] ?? '' }}">
+                                </div>
+                                <div class="col-lg-auto col-md-6 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Filter</button>
+                                    <a href="{{ route('driver-issues.index') }}" class="btn btn-outline-secondary">Reset</a>
+                                </div>
+                            </div>
+                        </form>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover align-middle">
                                 <thead class="table-light">
@@ -70,9 +111,15 @@
         <!-- Status -->
         <td>
             @if($issue->status === 'open')
-                <span class="badge bg-warning">Open</span>
+                <span class="badge bg-warning text-dark">Open</span>
+            @elseif($issue->status === 'accepted')
+                <span class="badge bg-success">Accepted</span>
+            @elseif($issue->status === 'rejected')
+                <span class="badge bg-danger">Rejected</span>
+            @elseif($issue->status === 'closed')
+                <span class="badge bg-secondary">Closed</span>
             @else
-                <span class="badge bg-success">Closed</span>
+                <span class="badge bg-light text-dark">{{ $issue->status }}</span>
             @endif
         </td>
 
@@ -123,7 +170,7 @@
 
                         {{-- Pagination --}}
                         <div class="mt-3">
-                            {{ $issues->links() }}
+                            {{ $issues->links('pagination::bootstrap-5') }}
                         </div>
 
                     </div>

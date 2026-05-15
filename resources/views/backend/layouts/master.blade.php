@@ -37,16 +37,11 @@
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="{{ asset('build/backend') }}/css/demo.css" />
+    <link rel="stylesheet" href="{{ asset('css/fresh-theme.css') }}?v=4" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
-        .form-control,
-        .form-select {
-            border-radius: 0px;
-
-        }
-
         .form-select {
             line-height: 2;
         }
@@ -54,10 +49,20 @@
         .select2-container--default .select2-selection--single {
             height: 38px;
         }
+
+        .select2-container--default .select2-selection--multiple {
+            min-height: 38px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+
+        .select2-container {
+            max-width: 100%;
+        }
     </style>
 </head>
 
-<body>
+<body class="fresh-ui">
     <div class="wrapper">
         <!-- Sidebar -->
         @include('backend.layouts.sidebar')
@@ -68,7 +73,7 @@
                 <div class="main-header-logo">
                     <!-- Logo Header -->
                     <div class="logo-header" data-background-color="dark">
-                        <a href="index.html" class="logo">
+                        <a href="{{ route('dashboard.index') }}" class="logo">
                             <img src="{{ asset('build/backend') }}/img/kaiadmin/logo_light.svg" alt="navbar brand"
                                 class="navbar-brand" height="20" />
                         </a>
@@ -371,28 +376,21 @@
                 <!-- End Navbar -->
             </div>
 
+            <div class="fresh-view">
             @yield('content')
+            </div>
 
             <footer class="footer">
-                <div class="container-fluid d-flex justify-content-between">
+                <div class="container-fluid d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <nav class="pull-left">
                         <ul class="nav">
                             <li class="nav-item">
-                                <a class="nav-link" href="">
-                                    ThemeKita
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"> Help </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"> Licenses </a>
+                                <a class="nav-link" href="{{ route('dashboard.index') }}">Dashboard</a>
                             </li>
                         </ul>
                     </nav>
-                    <div class="copyright">
-                        2026, made with <i class="fa fa-heart heart text-danger"></i> by
-                        <a href="">ThemeKita</a>
+                    <div class="copyright text-end">
+                        &copy; {{ date('Y') }} {{ optional($settings)->title ?? config('app.name') }}
                     </div>
                 </div>
             </footer>
@@ -545,11 +543,6 @@
         });
     </script>
     <script>
-        $(document).ready(function() {
-            $('.js-example-basic-single').select2();
-        });
-    </script>
-    <script>
         document.getElementById('menuSearch').addEventListener('keyup', function () {
             let filter = this.value.toLowerCase();
             let navItems = document.querySelectorAll('.nav-item');
@@ -583,6 +576,7 @@
         });
         </script>
     @stack('scripts')
+    @include('components.fresh-select2-script')
 </body>
 
 </html>

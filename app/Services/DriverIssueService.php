@@ -10,66 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class DriverIssueService {
 
-    private function allocateAcceptedStock($productId, $requiredQty)
-    {
-        $stocks = WareHouseStocks::where('product_id', $productId)
-            ->lockForUpdate()
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        $totalAvailable = $stocks->sum(function ($stock) {
-            return $stock->purchase_qty
-                + $stock->sales_return_qty
-                - $stock->sales_qty
-                - $stock->return_qty
-                - $stock->sr_issue_qty;
-        });
-
-        if ($totalAvailable < $requiredQty) {
-            throw new \Exception('Stock not sufficient');
-        }
-
-        $remainingQty = $requiredQty;
-        $totalCost = 0;
-        $totalSale = 0;
-        $totalIssued = 0;
-
-        foreach ($stocks as $stock) {
-            if ($remainingQty <= 0) {
-                break;
-            }
-
-            $availableQty = $stock->purchase_qty
-                + $stock->sales_return_qty
-                - $stock->sales_qty
-                - $stock->return_qty
-                - $stock->sr_issue_qty;
-
-            if ($availableQty <= 0) {
-                continue;
-            }
-
-            $issueFromThisStock = min($availableQty, $remainingQty);
-
-            $stock->increment('sr_issue_qty', $issueFromThisStock);
-
-            $totalCost += $issueFromThisStock * $stock->purchase_price;
-            $totalSale += $issueFromThisStock * ($stock->sale_price ?? 0);
-            $totalIssued += $issueFromThisStock;
-
-            $remainingQty -= $issueFromThisStock;
-        }
-
-        if ($totalIssued <= 0) {
-            throw new \Exception('Stock not sufficient');
-        }
-
-        return [
-            'purchase_price' => $totalCost / $totalIssued,
-            'sale_price' => $totalSale / $totalIssued,
-        ];
-    }
-
     public function getIssueDataById($id)
     {
         $status_code = $status_message = $response = '';
@@ -97,20 +37,34 @@ class DriverIssueService {
             $query = DriverIssues::with('driver','items');
     
             if (!empty($search['free_text'])) {
-                $query->where(function ($q) use ($search) {
-                    $q->whereHas('driver', function ($driverQuery) use ($search) {
-                        $driverQuery->where('name', 'like', '%' . $search['free_text'] . '%');
+                $ft = '%' . $search['free_text'] . '%';
+                $query->where(function ($q) use ($ft) {
+                    $q->whereHas('driver', function ($driverQuery) use ($ft) {
+                        $driverQuery->where('name', 'like', $ft)
+                            ->orWhere('phone', 'like', $ft)
+                            ->orWhere('vehicle_no', 'like', $ft);
                     });
                 });
             }
 
-            if(!empty($search['driver_id']))
-            {
-                $query->where('driver_id',$search['driver_id']);   
+            if (!empty($search['status'])) {
+                $query->where('status', $search['status']);
             }
-    
+
+            if (!empty($search['from_date'])) {
+                $query->whereDate('issue_date', '>=', $search['from_date']);
+            }
+
+            if (!empty($search['to_date'])) {
+                $query->whereDate('issue_date', '<=', $search['to_date']);
+            }
+
+            if (!empty($search['driver_id'])) {
+                $query->where('driver_id', $search['driver_id']);
+            }
+
             if ($is_paginate) {
-                $issues = $query->orderBy('id', 'desc')->paginate(10);
+                $issues = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
             } else {
                 $issues = $query->orderBy('id', 'desc')->get();
             }
@@ -169,9 +123,24 @@ class DriverIssueService {
                     ]);
                 }
 
-                if ($issue->status == 'rejected') {
-                    $issue->update(['status' => 'open']);
+                if ($issue->status === 'rejected') {
+                    DriverIssueItem::where('driver_issue_id', $issue->id)->delete();
+                    $issue->update([
+                        'status' => 'open',
+                        'cash_from_manager' => 0,
+                    ]);
+                    $issue->refresh();
                 }
+
+                // One warehouse submission per DSR per calendar day: first POST creates lines;
+                // further changes must use Edit (update), not a second Create POST — unless issue is already accepted (append below).
+                if ($issue->status === 'open' && $issue->items()->count() > 0) {
+                    throw new \Exception(
+                        'Stock has already been issued to this DSR for this date. Use Edit on the issue list to change lines before the DSR accepts, or delete the open issue first.'
+                    );
+                }
+
+                $appendToAccepted = $issue->status === 'accepted';
 
                 $groupedItems = collect($request->items)
                     ->groupBy('product_id')
@@ -183,66 +152,65 @@ class DriverIssueService {
                     })->values();
 
                 foreach ($groupedItems as $item) {
-                    $productId = $item['product_id'];
+                    $productId = (int) $item['product_id'];
                     $addQty = (float) $item['issue_qty'];
 
                     if ($addQty <= 0) {
                         continue;
                     }
 
-                    $issueItem = DriverIssueItem::where('driver_issue_id', $issue->id)
-                        ->where('product_id', $productId)
-                        ->lockForUpdate()
-                        ->first();
+                    $slices = WareHouseStocks::planFifoSlicesForProduct($productId, $addQty);
 
-                    if ($issue->status == 'accepted') {
-                        $allocated = $this->allocateAcceptedStock($productId, $addQty);
+                    foreach ($slices as $slice) {
+                        $sliceQty = (float) $slice['qty'];
+                        $sliceWhId = (int) $slice['warehouse_stock_id'];
+                        $normPrice = WareHouseStocks::normalizePurchasePrice($slice['purchase_price']);
 
-                        if ($issueItem) {
-                            $oldQty = (float) $issueItem->issue_qty;
-                            $newQty = $oldQty + $addQty;
+                        if ($appendToAccepted) {
+                            $existing = DriverIssueItem::query()
+                                ->where('driver_issue_id', $issue->id)
+                                ->where('product_id', $productId)
+                                ->whereRaw('ROUND(purchase_price, 4) = ?', [$normPrice])
+                                ->lockForUpdate()
+                                ->first();
 
-                            $newPurchasePrice = $newQty > 0
-                                ? (($oldQty * (float) $issueItem->purchase_price) + ($addQty * (float) $allocated['purchase_price'])) / $newQty
-                                : 0;
+                            if ($existing) {
+                                $existing->increment('issue_qty', $sliceQty);
+                                WareHouseStocks::applyDriverIssueDeductionOnWarehouseRow(
+                                    $sliceWhId,
+                                    $productId,
+                                    $sliceQty
+                                );
 
-                            $newSalePrice = $newQty > 0
-                                ? (($oldQty * (float) $issueItem->sale_price) + ($addQty * (float) $allocated['sale_price'])) / $newQty
-                                : 0;
-
-                            $issueItem->update([
-                                'issue_qty' => $newQty,
-                                'purchase_price' => $newPurchasePrice,
-                                'sale_price' => $newSalePrice,
-                            ]);
-                        } else {
-                            DriverIssueItem::create([
-                                'driver_issue_id' => $issue->id,
-                                'product_id'      => $productId,
-                                'issue_qty'       => $addQty,
-                                'sold_qty'        => 0,
-                                'return_qty'      => 0,
-                                'purchase_price'  => $allocated['purchase_price'],
-                                'sale_price'      => $allocated['sale_price'],
-                            ]);
+                                continue;
+                            }
                         }
-                    } else {
-                        if ($issueItem) {
-                            $issueItem->increment('issue_qty', $addQty);
-                        } else {
-                            DriverIssueItem::create([
-                                'driver_issue_id' => $issue->id,
-                                'product_id'      => $productId,
-                                'issue_qty'       => $addQty,
-                                'purchase_price'  => 0,
-                                'sale_price'      => 0,
-                            ]);
+
+                        DriverIssueItem::create([
+                            'driver_issue_id' => $issue->id,
+                            'product_id' => $productId,
+                            'warehouse_stock_id' => $sliceWhId,
+                            'issue_qty' => $sliceQty,
+                            'sold_qty' => 0,
+                            'return_qty' => 0,
+                            'purchase_price' => $slice['purchase_price'],
+                            'sale_price' => $slice['sale_price'],
+                        ]);
+
+                        if ($appendToAccepted) {
+                            WareHouseStocks::applyDriverIssueDeductionOnWarehouseRow(
+                                $sliceWhId,
+                                $productId,
+                                $sliceQty
+                            );
                         }
                     }
                 }
 
                 $status_code = ApiService::API_SUCCESS;
-                $status_message = 'Driver Issue Updated';
+                $status_message = $appendToAccepted
+                    ? 'Additional stock was added under the same accepted issue for this date. Warehouse stock was updated automatically; no DSR accept is required.'
+                    : 'DSR stock issue sent. The DSR will see it in their app for acceptance.';
 
                 DB::commit();
             } catch (\Throwable $th) {
@@ -287,44 +255,28 @@ class DriverIssueService {
                     'cash_from_manager' => 0,
                 ]);
 
+                DriverIssueItem::where('driver_issue_id', $issue->id)->delete();
+
                 foreach ($incomingItems as $productId => $item) {
                     $newQty = (float) ($item['issue_qty'] ?? 0);
                     if ($newQty <= 0) {
                         throw new \Exception('Issue quantity must be greater than zero.');
                     }
 
-                    $stock = WareHouseStocks::where('product_id', $productId)
-                        ->lockForUpdate()
-                        ->get();
+                    $slices = WareHouseStocks::planFifoSlicesForProduct((int) $productId, $newQty);
 
-                    $availableStock = $stock->sum(function ($row) {
-                        return $row->purchase_qty + $row->sales_return_qty - $row->sales_qty - $row->return_qty - $row->sr_issue_qty;
-                    });
-
-                    if ($availableStock < $newQty) {
-                        throw new \Exception('Insufficient stock for product.');
-                    }
-
-                    DriverIssueItem::updateOrCreate(
-                        [
+                    foreach ($slices as $slice) {
+                        DriverIssueItem::create([
                             'driver_issue_id' => $issue->id,
-                            'product_id'      => $productId,
-                        ],
-                        [
-                            'issue_qty' => $newQty,
+                            'product_id' => (int) $productId,
+                            'warehouse_stock_id' => $slice['warehouse_stock_id'],
+                            'issue_qty' => $slice['qty'],
                             'sold_qty' => 0,
                             'return_qty' => 0,
-                        ]
-                    );
-                }
-
-                $existingProductIds = $issue->items->pluck('product_id');
-                $incomingProductIds = $incomingItems->keys();
-                $toDelete = $existingProductIds->diff($incomingProductIds);
-                if ($toDelete->isNotEmpty()) {
-                    DriverIssueItem::where('driver_issue_id', $issue->id)
-                        ->whereIn('product_id', $toDelete->values())
-                        ->delete();
+                            'purchase_price' => $slice['purchase_price'],
+                            'sale_price' => $slice['sale_price'],
+                        ]);
+                    }
                 }
 
 

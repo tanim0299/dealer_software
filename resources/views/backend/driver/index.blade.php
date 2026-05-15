@@ -1,14 +1,14 @@
 ﻿@extends('backend.layouts.master')
-@section('title','List Of Driver')
+@section('title','List of DSR')
 @section('content')
  <div class="container">
     <div class="page-inner">
         <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-            @include('backend.layouts.partials.breadcrumb',['page_title'=>'List Of Driver'])
+            @include('backend.layouts.partials.breadcrumb',['page_title'=>'List of DSR'])
             <div class="ms-md-auto py-2 py-md-0">
                 @if(auth()->user()->can('Driver create'))
-                <a href="{{route('driver.create')}}" class="btn btn-primary  btn-round"><i class="fa fa-plus"></i> Create driver</a>
+                <a href="{{route('driver.create')}}" class="btn btn-primary  btn-round"><i class="fa fa-plus"></i> Create DSR</a>
                 @endif
             </div>
         </div>
@@ -59,6 +59,9 @@
                                             </span>
                                         </td>
                                         <td>
+                                            @if(auth()->user()->can('Driver show') || auth()->user()->can('Driver edit'))
+                                            <a href="{{ route('driver.show', $driver->id) }}" class="btn btn-sm btn-info">View</a>
+                                            @endif
                                             @if(auth()->user()->can('Driver edit'))
                                             <a href="{{ route('driver.edit', $driver->id) }}" class="btn btn-sm btn-primary">Edit</a>
                                             @endif
@@ -66,14 +69,14 @@
                                             <form action="{{ route('driver.destroy', $driver->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this driver?')">Delete</button>
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this DSR?')">Delete</button>
                                             </form>
                                             @endif
                                         </td>
                                     </tr>
                                  @empty
                                     <tr>
-                                        <td colspan="8" class="text-center">No Driver Found</td>
+                                        <td colspan="8" class="text-center">No DSR found</td>
                                     </tr>
                                  @endforelse
                             </tbody>

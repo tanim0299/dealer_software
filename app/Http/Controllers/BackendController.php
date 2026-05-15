@@ -21,7 +21,14 @@ class BackendController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Dashboard view'])->only(['index']);
+        $this->middleware(function ($request, $next) {
+            if ($request->user()?->hasRole('Driver')) {
+                return $next($request);
+            }
+            abort_unless($request->user()->can('Dashboard view'), 403);
+
+            return $next($request);
+        })->only(['index']);
     }
     
     public function index()

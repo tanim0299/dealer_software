@@ -31,10 +31,12 @@
                         <div class="card-header">Products</div>
                         <div class="card-body">
                             <div class="row">
-                                <input type="text" class="form-control mb-3" id="searchProduct" placeholder="Search product...">
+                                <input type="text" class="form-control mb-3" id="searchProduct" placeholder="Search product... (only first 20 until you search)">
                                 <div class="col-8">
-                                    <div class="row" id="productList">
-                                        <!-- Products will load here -->
+                                    <div class="purchase-product-grid-wrapper" id="productListScroll">
+                                        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-2" id="productList">
+                                            <!-- Products will load here -->
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-4">
@@ -81,7 +83,7 @@
                                         <div class="row mt-3">
                                             <div class="col-md-12">
                                                 <button type="button" class="btn btn-success w-100" onclick="addToCart()" disabled id="addToCartBtn">
-                                                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                                    <i class="fa fa-cart-plus me-2" aria-hidden="true"></i>Add to Cart
                                                 </button>
                                             </div>
                                         </div>
@@ -183,10 +185,10 @@
 
             <div class="mt-4 text-end">
                 <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                    <i class="fas fa-redo me-2"></i>Reset
+                    <i class="fa fa-undo me-2" aria-hidden="true"></i>Reset
                 </button>
                 <button type="button" class="btn btn-primary" onclick="submitPurchase()">
-                    <i class="fas fa-check me-2"></i>Submit Purchase
+                    <i class="fa fa-check me-2" aria-hidden="true"></i>Submit Purchase
                 </button>
             </div>
 
@@ -218,6 +220,26 @@
         background-color: #e7f1ff;
     }
 
+    .purchase-product-grid-wrapper {
+        max-height: 340px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 6px;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    .purchase-product-grid-wrapper .product-card {
+        padding: 0.35rem !important;
+    }
+
+    .purchase-product-grid-wrapper .product-card .product-thumb {
+        height: 42px;
+        width: 42px;
+        object-fit: contain;
+    }
+
     #cartBody tr:last-child td {
         border-bottom: none;
     }
@@ -239,9 +261,27 @@
     let totalPages = 1;
     let isLoading = false;
     let hasMoreProducts = true;
+    const PURCHASE_PRODUCTS_PER_PAGE = 20;
+    let productsFetchController = null;
 
     document.addEventListener('DOMContentLoaded', function () {
         loadProducts();
+
+        const productListScroll = document.getElementById('productListScroll');
+        if (productListScroll) {
+            let scrollTick = false;
+            productListScroll.addEventListener('scroll', function () {
+                if (scrollTick) return;
+                scrollTick = true;
+                requestAnimationFrame(() => {
+                    scrollTick = false;
+                    const el = productListScroll;
+                    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 64) {
+                        loadMoreProducts();
+                    }
+                });
+            });
+        }
 
         console.log('Edit entries:', window.editEntries);
 
@@ -275,88 +315,104 @@
     }
 
 
-    // Load products with search functionality
+    // Load products: first 20 only with no search; further pages only when search is non-empty
     function loadProducts(search = '', reset = true) {
+        const trimmedSearch = (search || '').trim();
+
         if (reset) {
+            if (productsFetchController) {
+                productsFetchController.abort();
+            }
+            productsFetchController = new AbortController();
             currentPage = 1;
             hasMoreProducts = true;
-            document.getElementById('productList').innerHTML = '<div class="col-12 text-center"><div class="spinner-border spinner-border-sm text-primary"></div> Loading products...</div>';
+            document.getElementById('productList').innerHTML = '<div class="col-12 text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading products...</div>';
         }
-        
-        if (isLoading) return;
+
+        if (!reset && isLoading) return;
+        if (!reset && !trimmedSearch) return;
+
         isLoading = true;
-        
-        fetch(`/api/products?search=${search}&page=${currentPage}`)
+
+        const q = encodeURIComponent(trimmedSearch);
+        const signal = reset && productsFetchController ? productsFetchController.signal : undefined;
+
+        fetch(`/api/products?search=${q}&page=${currentPage}&per_page=${PURCHASE_PRODUCTS_PER_PAGE}`, { signal })
             .then(res => res.json())
             .then(response => {
-               
-                
                 if (!response || !response.data) {
                     console.error('Invalid response structure:', response);
                     document.getElementById('productList').innerHTML = '<div class="col-12 text-center text-danger">Error loading products</div>';
                     isLoading = false;
                     return;
                 }
-                
+
                 totalPages = response.last_page || 1;
-                hasMoreProducts = currentPage < totalPages;
-                
+                if (trimmedSearch) {
+                    hasMoreProducts = currentPage < totalPages;
+                } else {
+                    hasMoreProducts = false;
+                }
+
                 let html = '';
-                
+
                 if (response.data.length === 0) {
                     if (reset) {
-                        html = '<div class="col-12 text-center text-muted">No products found</div>';
+                        html = '<div class="col-12 text-center text-muted py-3">' +
+                            (trimmedSearch ? 'No products found' : 'No products') +
+                            '</div>';
                     }
                 } else {
                     response.data.forEach(p => {
-                       
                         const imageUrl = p.image ? `/storage/${p.image}` : '/images/default-product.png';
                         const hasSubUnits = p.sub_units && p.sub_units.length > 0;
                         const purchasePrice = parseFloat(p.purchase_price) || 0;
-                        
+
                         html += `
-                        <div class="col-md-3 mb-3">
-                            <div class="card h-100 text-center p-2 product-card" 
+                        <div class="col mb-1">
+                            <div class="card h-100 text-center p-1 product-card"
                                 onclick="selectProduct(${JSON.stringify(p).replace(/"/g, '&quot;')})"
                                 id="product-${p.id}">
                                 <img src="${imageUrl}"
-                                    class="mx-auto mb-1"
-                                    style="height:60px;width:60px;object-fit:contain;"
+                                    class="mx-auto mb-1 product-thumb"
+                                    alt=""
                                     onerror="this.src='/images/default-product.png'">
-                                <div class="fw-semibold text-truncate small">${p.name}</div>
-                                <div class="text-muted small mt-1">
-                                    Price: ${purchasePrice.toFixed(2)}
+                                <div class="fw-semibold text-truncate" style="font-size: 0.7rem;">${p.name}</div>
+                                <div class="text-muted mt-1" style="font-size: 0.65rem;">
+                                    ${purchasePrice.toFixed(2)}
                                 </div>
-                                <div class="text-muted small">
-                                    ${hasSubUnits ? `<span class="badge bg-info">${p.sub_units.length} units</span>` : 'Single unit'}
+                                <div class="text-muted" style="font-size: 0.6rem;">
+                                    ${hasSubUnits ? `<span class="badge bg-info" style="font-size: 0.55rem;">${p.sub_units.length} u</span>` : '<span class="badge bg-secondary" style="font-size: 0.55rem;">1</span>'}
                                 </div>
                             </div>
                         </div>`;
                     });
                 }
-                
+
                 if (reset) {
                     document.getElementById('productList').innerHTML = html;
                 } else {
                     document.getElementById('productList').innerHTML += html;
                 }
-                
+
                 currentPage++;
                 isLoading = false;
             })
             .catch(error => {
+                if (error.name === 'AbortError') {
+                    return;
+                }
                 console.error('Error loading products:', error);
                 document.getElementById('productList').innerHTML = '<div class="col-12 text-center text-danger">Error loading products. Please try again.</div>';
                 isLoading = false;
             });
     }
 
-    // Load more products for infinite scroll
     function loadMoreProducts() {
-        if (isLoading || !hasMoreProducts) return;
-        
-        const search = document.getElementById('searchProduct').value;
-        loadProducts(search, false);
+        const trimmedSearch = (document.getElementById('searchProduct').value || '').trim();
+        if (isLoading || !hasMoreProducts || !trimmedSearch) return;
+
+        loadProducts(trimmedSearch, false);
     }
 
     // Select product function
@@ -531,7 +587,7 @@
             quantity: qty,
             unit_price: price,
 
-            sale_price: price, // âœ… DEFAULT (editable later)
+            sale_price: price, // default (editable later)
 
             discount: 0,
             total_price: total,
@@ -674,8 +730,8 @@
                     </td>
 
                     <td>
-                        <button class="btn btn-sm btn-danger"
-                            onclick="removeFromCart(${index})">âœ•</button>
+                        <button type="button" class="btn btn-sm btn-danger"
+                            onclick="removeFromCart(${index})" title="Remove"><i class="fa fa-times" aria-hidden="true"></i></button>
                     </td>
                 </tr>
                 `;
@@ -808,7 +864,7 @@
         // Total price
         item.total_price = Math.max(0, gross - discount);
 
-        // âœ… Final Quantity (BASE UNIT)
+        // Final quantity (base unit)
         item.final_quantity = calculateFinalQuantity(item);
 
         updateCart();
@@ -822,10 +878,10 @@
         cart[index].sub_unit_id = option.value;
         cart[index].sub_unit_name = option.text;
 
-        // ðŸ”´ IMPORTANT: get sub_unit_data
+        // Sub-unit conversion from option dataset
         cart[index].unit_data = parseFloat(option.dataset.conversion || 1);
 
-        recalculateCartItem(index); // âœ… recalculates final_quantity
+        recalculateCartItem(index);
     }
 
 

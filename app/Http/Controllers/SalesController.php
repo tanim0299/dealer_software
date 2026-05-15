@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\SalesLedger;
 use App\Models\SalesPayment;
-use App\Models\SalesReturnLedger;
 use App\Models\Customer;
 use App\Models\Drivers;
 use App\Services\ApiService;
 use App\Services\CustomerService;
+use App\Services\DriverPeriodService;
 use App\Services\SalesService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
@@ -25,8 +24,33 @@ class SalesController extends Controller
     {
         $data['search']['driver_id'] = Auth::user()->driver_id ?? null;
         $data['search']['free_text'] = $request->free_text ?? null;
-        $data['search']['from_date'] = $request->from_date;
-        $data['search']['to_date'] = $request->to_date;
+        if (Auth::user()->hasRole('Driver') && Auth::user()->driver_id) {
+            $today = now()->toDateString();
+
+            if (!$request->filled('from_date') && !$request->filled('to_date')) {
+                $data['search']['from_date'] = $today;
+                $data['search']['to_date'] = $today;
+            } else {
+                $from = $request->input('from_date');
+                $to = $request->input('to_date');
+                if (filled($from) && filled($to)) {
+                    $data['search']['from_date'] = $from;
+                    $data['search']['to_date'] = $to;
+                } elseif (filled($from)) {
+                    $data['search']['from_date'] = $from;
+                    $data['search']['to_date'] = $from;
+                } elseif (filled($to)) {
+                    $data['search']['from_date'] = $to;
+                    $data['search']['to_date'] = $to;
+                } else {
+                    $data['search']['from_date'] = $today;
+                    $data['search']['to_date'] = $today;
+                }
+            }
+        } else {
+            $data['search']['from_date'] = $request->from_date;
+            $data['search']['to_date'] = $request->to_date;
+        }
         $data['sales'] = (new SalesService())->getSalesList($data['search'],true,true)[2];
         if(Auth::user()->hasRole('Driver'))
         {
@@ -52,7 +76,7 @@ class SalesController extends Controller
             $cashCustomer = (new CustomerService())->getGlobalCashCustomer();
 
             $data['customers'] = (new CustomerService())->getrDriverCustomer($driverId)[2];
-            $data['products'] = (new StockService())->getDriverStock($driverId, date('Y-m-d'))[2];
+            $data['products'] = (new StockService())->getDriverStock($driverId)[2];
             $data['driverAreas'] = $driver->areas;
             $data['cashCustomerId'] = $cashCustomer?->id;
 
@@ -126,18 +150,21 @@ class SalesController extends Controller
 
     public function getCustomerDue($id)
     {
-        $totalSales   = SalesLedger::where('customer_id', $id)->sum(DB::raw('subtotal - discount'));
-        $totalReturn  = SalesReturnLedger::where('customer_id', $id)->sum('subtotal');
-        $totalPaid    = SalesPayment::where('customer_id', $id)->whereIn('type', [0, 1])->sum('amount');
-        $totalReturnPaid = SalesPayment::where('customer_id', $id)->where('type', 2)->sum('amount') * -1;
-        $openingDue = SalesPayment::where('customer_id', $id)
-            ->where('type', SalesPayment::TYPE_PREVIOUS_DUE)
-            ->sum('amount');
+        $customerId = (int) $id;
 
-        $due = $openingDue + ($totalSales - $totalReturn) - $totalPaid + $totalReturnPaid;
+        if (Auth::user()?->hasRole('Driver') && Auth::user()->driver_id) {
+            if (!(new CustomerService())->driverCanCollectFromCustomer((int) Auth::user()->driver_id, $customerId)) {
+                return response()->json([
+                    'message' => 'This customer is not assigned to you.',
+                ], 403);
+            }
+        }
+
+        $due = (new CustomerService())->getCustomerDueById($customerId);
 
         return response()->json([
-            'due' => $due
+            'due'       => $due,
+            'formatted' => number_format($due, 2, '.', ''),
         ]);
     }
 
@@ -179,6 +206,11 @@ class SalesController extends Controller
 
         try {
             DB::beginTransaction();
+
+            DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                (int) Auth::user()->driver_id,
+                now()->toDateString()
+            );
 
             $customer = (new Customer())->createCustomer($request);
 

@@ -15,6 +15,7 @@ class SupplierController extends Controller
     public function index(Request $request)
     {
         $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['status'] = $request->input('status', '');
         $data['suppliers'] = (new SupplierService())->getSupplierList($data['search'], true, false)[2];
         return view($this->PATH.'.index',$data);
     }

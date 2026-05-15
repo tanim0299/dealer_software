@@ -403,11 +403,17 @@ class InventoryReportController extends Controller
 
         $rows = $query->orderBy('date')->orderBy('id')->get();
 
+        $grandCol = static function ($row) {
+            $g = (float) ($row->grand_total ?? 0);
+
+            return $g > 0 ? $g : (float) $row->subtotal;
+        };
+
         $summary = [
             'return_count' => $rows->count(),
-            'subtotal' => (float) $rows->sum('subtotal'),
-            'cash_return' => (float) $rows->where('return_type', 1)->sum('subtotal'),
-            'due_adjusted' => (float) $rows->where('return_type', 2)->sum('subtotal'),
+            'subtotal' => (float) $rows->sum(fn ($r) => $grandCol($r)),
+            'cash_return' => (float) $rows->where('return_type', 1)->sum(fn ($r) => $grandCol($r)),
+            'due_adjusted' => (float) $rows->where('return_type', 2)->sum('due_adjustment'),
         ];
 
         return view('backend.reports.purchase_return_print', compact('rows', 'summary', 'period'));

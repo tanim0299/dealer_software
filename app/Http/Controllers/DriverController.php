@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Drivers;
 use App\Services\ApiService;
 use App\Services\DriverService;
 use App\Services\AreaService;
@@ -52,7 +53,17 @@ class DriverController extends Controller
      */
     public function show(string $id)
     {
-        //
+        abort_unless(
+            auth()->user()->can('Driver show') || auth()->user()->can('Driver edit'),
+            403
+        );
+
+        $driver = Drivers::with(['areas', 'loginUser'])->findOrFail($id);
+
+        return view($this->path . '.show', [
+            'driver' => $driver,
+            'defaultDsrPassword' => DriverService::defaultDsrPlainPassword(),
+        ]);
     }
 
     /**

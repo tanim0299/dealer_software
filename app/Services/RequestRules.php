@@ -15,8 +15,8 @@ class RequestRules{
         ];
 
         $messages = [
-            'driver_id.required'         => 'Driver is required.',
-            'driver_id.exists'           => 'Selected driver does not exist.',
+            'driver_id.required'         => 'DSR is required.',
+            'driver_id.exists'           => 'Selected DSR does not exist.',
             'items.required'             => 'At least one item is required.',
             'items.array'                => 'Items must be an array.',
             'items.*.product_id.required'=> 'Product is required for each item.',
@@ -72,16 +72,16 @@ class RequestRules{
         ];
 
         $messages = [
-            'name.required'      => 'Driver name is required.',
+            'name.required'      => 'DSR name is required.',
 
             'phone.required'     => 'Phone number is required.',
-            'phone.unique'       => 'This phone number is already associated with another driver.',
+            'phone.unique'       => 'This phone number is already associated with another DSR.',
 
             'vehicle_no.required'=> 'Vehicle number is required.',
-            'vehicle_no.unique'  => 'This vehicle number is already assigned to another driver.',
+            'vehicle_no.unique'  => 'This vehicle number is already assigned to another DSR.',
 
-            'status.required'    => 'Driver status is required.',
-            'status.in'          => 'Invalid driver status selected.',
+            'status.required'    => 'DSR status is required.',
+            'status.in'          => 'Invalid DSR status selected.',
         ];
 
         return [$rules, $messages];

@@ -1,11 +1,11 @@
 ﻿@extends('backend.layouts.master')
-@section('title','Create Driver')
+@section('title','Create DSR')
 @section('content')
  <div class="container">
     <div class="page-inner">
         <div
             class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
-            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Create Driver'])
+            @include('backend.layouts.partials.breadcrumb',['page_title'=>'Create DSR'])
             <div class="ms-md-auto py-2 py-md-0">
                 <a href="{{route('driver.index')}}" class="btn btn-label-info btn-round me-2">View</a>
             </div>
@@ -15,7 +15,7 @@
                 <div class="card-body">
                     @include('backend.driver.form',[
                         'route'=>route('driver.store'),
-                        'buttonText'=>'Create Driver'
+                        'buttonText'=>'Create DSR'
                     ])
                 </div>
             </div>

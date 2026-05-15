@@ -33,9 +33,9 @@ class PurchaseService {
              $purchase = (new PurchaseLedger())->create([
                 'supplier_id'   => $request->supplier_id,
                 'purchase_date' => $request->purchase_date,
-                'total_amount'  => $request->total_amount,
-                'discount'      => $request->discount ?? 0,
-                'paid_amount'   => $request->paid ?? 0,
+                'total_amount'  => (float) ($request->total_amount ?? 0),
+                'discount'      => (float) ($request->discount ?? 0),
+                'paid_amount'   => (float) ($request->paid ?? 0),
                 'note'          => $request->note,
                 'created_by'    => Auth::user()->id,
             ]);
@@ -54,19 +54,15 @@ class PurchaseService {
                     'sale_price'     => $item['sale_price'],
                 ]);
 
-                $stock = WareHouseStocks::where('product_id', $item['product_id'])
-                    ->where('purchase_price', $item['unit_price'])
-                    ->first();
-
+                $unitPrice = WareHouseStocks::normalizePurchasePrice($item['unit_price'] ?? 0);
+                $stock = WareHouseStocks::findMatchingStockRow((int) $item['product_id'], $unitPrice);
 
                 if ($stock) {
-                    
                     $stock->increment('purchase_qty', $item['final_quantity']);
                 } else {
-                  
                     WareHouseStocks::create([
                         'product_id'        => $item['product_id'],
-                        'purchase_price'    => $item['unit_price'],
+                        'purchase_price'    => $unitPrice,
                         'purchase_qty'      => $item['final_quantity'],
                         'sales_qty'         => 0,
                         'sales_return_qty'  => 0,
@@ -81,12 +77,14 @@ class PurchaseService {
                 }
             }
 
+            $paidAtPurchase = (float) ($request->paid ?? 0);
+
             SupplierPayment::create([
                 'ledger_id' => $purchase->id,
                 'supplier_id'    => $request->supplier_id,
                 'payment_date'   => $request->purchase_date,
-                'amount'         => $request->paid ?? 0,
-                'payment_method' => 'cash', // or from request
+                'amount'         => $paidAtPurchase,
+                'payment_method' => 'cash',
                 'note'           => 'Purchase payment',
                 'type'           => SupplierPayment::TYPE_INVOICE_PAYMENT,
                 'created_by'     => Auth::user()->id,
@@ -119,38 +117,24 @@ class PurchaseService {
 
             // 3️⃣ ROLLBACK OLD STOCK
             foreach ($oldEntries as $entry) {
-                $stock = WareHouseStocks::where('product_id', $entry->product_id)
-                    ->where('purchase_price', $entry->unit_price) // ✅ CRITICAL
-                    ->first();
-
-                if ($stock) {
-                    $stock->decrement('purchase_qty', $entry->final_quantity);
-
-                    // Optional cleanup
-                    if ($stock->purchase_qty <= 0) {
-                        $stock->delete();
-                    }
-                }
+                $this->rollbackPurchaseEntryFromWarehouse($entry);
             }
-
 
             // 4️⃣ DELETE OLD ENTRIES
             PurchaseEntry::where('purchase_ledger_id', $purchase->id)->delete();
 
-            // 5️⃣ DELETE OLD SUPPLIER PAYMENT
-            SupplierPayment::where([
-                'ledger_id'   => $purchase->id,
-                'type'        => SupplierPayment::TYPE_INVOICE_PAYMENT,
-                'note'        => 'Purchase payment'
-            ])->delete();
+            // 5️⃣ DELETE OLD SUPPLIER PAYMENTS (invoice rows for this purchase)
+            SupplierPayment::where('ledger_id', $purchase->id)
+                ->where('type', SupplierPayment::TYPE_INVOICE_PAYMENT)
+                ->delete();
 
             // 6️⃣ UPDATE PURCHASE LEDGER
             $purchase->update([
                 'supplier_id'   => $request->supplier_id,
                 'purchase_date' => $request->purchase_date,
-                'total_amount'  => $request->total_amount,
-                'discount'      => $request->discount ?? 0,
-                'paid_amount'   => $request->paid ?? 0,
+                'total_amount'  => (float) ($request->total_amount ?? 0),
+                'discount'      => (float) ($request->discount ?? 0),
+                'paid_amount'   => (float) ($request->paid ?? 0),
                 'note'          => $request->note,
             ]);
 
@@ -174,21 +158,19 @@ class PurchaseService {
 
                 $product = Product::find($item['product_id']);
 
-                $stock = WareHouseStocks::where('product_id', $item['product_id'])
-                    ->where('purchase_price', $item['unit_price']) // ✅
-                    ->first();
+                $unitPrice = WareHouseStocks::normalizePurchasePrice($item['unit_price'] ?? 0);
+                $stock = WareHouseStocks::findMatchingStockRow((int) $item['product_id'], $unitPrice);
 
                 if ($stock) {
                     $stock->increment('purchase_qty', $item['final_quantity']);
 
-                    // update sale price if changed
                     if (!empty($item['sale_price'])) {
                         $stock->update(['sale_price' => $item['sale_price']]);
                     }
                 } else {
                     WareHouseStocks::create([
                         'product_id'        => $item['product_id'],
-                        'purchase_price'    => $item['unit_price'],
+                        'purchase_price'    => $unitPrice,
                         'purchase_qty'      => $item['final_quantity'],
                         'sales_qty'         => 0,
                         'sales_return_qty'  => 0,
@@ -206,19 +188,19 @@ class PurchaseService {
 
             }
 
-            // 8️⃣ INSERT NEW SUPPLIER PAYMENT
-            if ($request->paid > 0) {
-                SupplierPayment::create([
-                    'ledger_id'      => $purchase->id,
-                    'supplier_id'    => $request->supplier_id,
-                    'payment_date'   => $request->purchase_date,
-                    'amount'         => $request->paid,
-                    'payment_method' => 'cash',
-                    'note'           => 'Purchase payment',
-                    'type'           => SupplierPayment::TYPE_INVOICE_PAYMENT,
-                    'created_by'     => Auth::id(),
-                ]);
-            }
+            // 8️⃣ INSERT NEW SUPPLIER PAYMENT (always, including 0 — matches storePurchase)
+            $paidAtPurchase = (float) ($request->paid ?? 0);
+
+            SupplierPayment::create([
+                'ledger_id'      => $purchase->id,
+                'supplier_id'    => $request->supplier_id,
+                'payment_date'   => $request->purchase_date,
+                'amount'         => $paidAtPurchase,
+                'payment_method' => 'cash',
+                'note'           => 'Purchase payment',
+                'type'           => SupplierPayment::TYPE_INVOICE_PAYMENT,
+                'created_by'     => Auth::id(),
+            ]);
 
             DB::commit();
 
@@ -268,37 +250,18 @@ class PurchaseService {
             // 2️⃣ Fetch purchase entries
             $entries = PurchaseEntry::where('purchase_ledger_id', $purchase->id)->get();
 
-            // 3️⃣ ROLLBACK STOCK (PRICE-AWARE)
+            // 3️⃣ ROLLBACK STOCK (PRICE-AWARE; blocks if sales/returns consumed this batch)
             foreach ($entries as $entry) {
-
-                $stock = WareHouseStocks::where('product_id', $entry->product_id)
-                    ->where('purchase_price', $entry->unit_price) // ✅ CRITICAL
-                    ->first();
-
-                if ($stock) {
-                    $stock->decrement('purchase_qty', $entry->final_quantity);
-
-                    // 🔒 Safety checks
-                    if ($stock->purchase_qty < 0) {
-                        throw new \Exception('Stock mismatch detected for product ID: ' . $entry->product_id);
-                    }
-
-                    // Optional cleanup
-                    if ($stock->purchase_qty == 0) {
-                        $stock->delete();
-                    }
-                }
+                $this->rollbackPurchaseEntryFromWarehouse($entry);
             }
 
             // 4️⃣ DELETE PURCHASE ENTRIES
             PurchaseEntry::where('purchase_ledger_id', $purchase->id)->delete();
 
-            // 5️⃣ DELETE SUPPLIER PAYMENTS
-            SupplierPayment::where([
-                'ledger_id'   => $purchase->id,
-                'type'        => SupplierPayment::TYPE_INVOICE_PAYMENT,
-                'note'        => 'Purchase payment'
-            ])->delete();
+            // 5️⃣ DELETE SUPPLIER PAYMENTS (invoice rows for this purchase)
+            SupplierPayment::where('ledger_id', $purchase->id)
+                ->where('type', SupplierPayment::TYPE_INVOICE_PAYMENT)
+                ->delete();
 
             // 6️⃣ DELETE PURCHASE LEDGER
             $purchase->delete();
@@ -317,6 +280,54 @@ class PurchaseService {
 
         return [$status_code, $status_message];
 
+    }
+
+    /**
+     * Remove purchase quantity from the matching FIFO warehouse row.
+     * Fails closed if the batch row is missing or if net stock would go negative (sales / returns / driver issue already applied).
+     */
+    private function rollbackPurchaseEntryFromWarehouse(PurchaseEntry $entry): void
+    {
+        $stock = WareHouseStocks::findMatchingStockRow(
+            (int) $entry->product_id,
+            WareHouseStocks::normalizePurchasePrice($entry->unit_price)
+        );
+
+        if (! $stock) {
+            throw new \RuntimeException(
+                'Warehouse batch not found for purchase line (product #'.$entry->product_id.'). Cannot roll back stock.'
+            );
+        }
+
+        $finalQty = (float) $entry->final_quantity;
+        if ($finalQty <= 0) {
+            return;
+        }
+
+        $newPurchaseQty = (float) $stock->purchase_qty - $finalQty;
+        $sr = (float) ($stock->sr_issue_qty ?? 0);
+        $projectedNet = $newPurchaseQty
+            + (float) $stock->sales_return_qty
+            - (float) $stock->sales_qty
+            - (float) $stock->return_qty
+            - $sr;
+
+        if ($projectedNet < -0.0001) {
+            throw new \RuntimeException(
+                'Cannot roll back this purchase: sales, returns, or issues already used quantity from the same cost batch (product #'.$entry->product_id.'). Adjust or delete those records first.'
+            );
+        }
+
+        $stock->decrement('purchase_qty', $finalQty);
+        $stock->refresh();
+
+        if ((float) $stock->purchase_qty < -0.0001) {
+            throw new \RuntimeException('Stock mismatch after rollback for product ID: '.$entry->product_id);
+        }
+
+        if (abs((float) $stock->stock_qty) < 0.0001) {
+            $stock->delete();
+        }
     }
 
 }

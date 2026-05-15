@@ -110,7 +110,7 @@ class SupplierBalanceSheetController extends Controller
 
         $data['supplier'] = (new Supplier())->find($request->supplier_id);
 
-        $data['items'] = (new SupplierService())->getSupplierData($data);
+        $data['items'] = (new SupplierService())->getSupplierBalanceSheetLines($data);
 
         return view($this->path.'.print',$data);
     }

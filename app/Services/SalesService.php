@@ -7,13 +7,38 @@ use App\Models\Customer;
 use App\Models\SalesEntry;
 use App\Models\SalesLedger;
 use App\Models\SalesPayment;
-use App\Models\WareHouseStocks;
+use App\Services\DriverPeriodService;
 use App\Traits\FileUploader;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SalesService {
+    /**
+     * Convert a qty in the sales_entry "quantity" unit (boxes, etc.) to base pieces for driver_issue_items.
+     */
+    public static function returnQtyLineUnitToPieces(?SalesEntry $entry, float $qtyLineUnit): float
+    {
+        if (!$entry) {
+            return $qtyLineUnit;
+        }
+        $q = (float) $entry->quantity;
+        if ($q <= 0.000001) {
+            return $qtyLineUnit;
+        }
+
+        return $qtyLineUnit * ((float) $entry->final_quantity / $q);
+    }
+
+    /**
+     * Qty still sellable from a driver issue line (matches StockService::getDriverStock).
+     */
+    public static function qtyAvailableOnDriverIssueLine(DriverIssueItem $line): float
+    {
+        // return_qty = customer sales returns received on van (adds sellable stock)
+        return max(0.0, (float) $line->issue_qty - (float) $line->sold_qty + (float) ($line->return_qty ?? 0));
+    }
+
     public function getSalesList($search = [], $is_paginate = true, $is_relation = true)
     {
         $status_code = $status_message = $response = '';
@@ -34,6 +59,14 @@ class SalesService {
         $status_code = $status_message = $invoice_url = '';
         try {
             DB::beginTransaction();
+
+            if (Auth::user()->driver_id) {
+                DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                    (int) Auth::user()->driver_id,
+                    (string) $request->sale_date
+                );
+            }
+
             $cartItems = json_decode($request->cart_items, true);
 
             if (!$cartItems || count($cartItems) == 0) {
@@ -94,76 +127,111 @@ class SalesService {
             // 🔥 LOOP PRODUCTS
             foreach ($cartItems as $item) {
 
-                $requiredQty = $item['final_quantity'];
+                $requiredQty = (float) $item['final_quantity'];
                 $remainingQty = $requiredQty;
 
                 $driverId = Auth::user()->driver_id;
-
-                $today = Carbon::today()->toDateString(); // 'YYYY-MM-DD'
+                $period = DriverPeriodService::periodForDriver((int) $driverId);
 
                 $issueItems = DriverIssueItem::where('product_id', $item['product_id'])
-                    ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
+                    ->whereHas('driverIssue', function ($q) use ($driverId, $period) {
                         $q->where('driver_id', $driverId)
-                        ->whereDate('issue_date', $today)   // today's date
-                        ->where('status', 'accepted');    // status = open
+                            ->where('status', 'accepted')
+                            ->whereDate('issue_date', '>=', $period['start_date'])
+                            ->whereDate('issue_date', '<=', $period['end_date']);
                     })
                     ->lockForUpdate()
-                    ->orderBy('created_at', 'asc') // FIFO
+                    ->orderBy('created_at', 'asc')
+                    ->orderBy('id', 'asc')
                     ->get();
 
-                $totalAvailable = 0;
+                $totalAvailable = $issueItems->sum(fn ($issue) => self::qtyAvailableOnDriverIssueLine($issue));
 
-                foreach ($issueItems as $issue) {
-                    $available = $issue->issue_qty - $issue->sold_qty;
-                    $totalAvailable += $available;
-                }
-
-                if ($totalAvailable < $requiredQty) {
+                if ($totalAvailable + 0.000001 < $requiredQty) {
                     throw new \Exception('Driver stock not sufficient');
                 }
 
-                $totalPurchaseCost = 0;
-                $totalIssued = 0;
+                $slices = [];
 
                 foreach ($issueItems as $issue) {
+                    $available = self::qtyAvailableOnDriverIssueLine($issue);
 
-                    $available = $issue->issue_qty - $issue->sold_qty;
-
-                    if ($available <= 0) continue;
+                    if ($available <= 0) {
+                        continue;
+                    }
 
                     $deduct = min($available, $remainingQty);
 
-                    // 🔥 Increment sold_qty
+                    $linePurchase = (float) $issue->purchase_price;
+                    if ($deduct > 0 && $linePurchase <= 0) {
+                        throw new \Exception(
+                            'Missing purchase cost on driver stock for this product. Ask warehouse to re-issue with correct batch / price.'
+                        );
+                    }
+
+                    // FIFO: oldest driver_issue_items rows first — increment sold_qty
                     $issue->increment('sold_qty', $deduct);
 
-                    // 🔥 Take purchase_price directly from driver_issue_items
-                    $totalPurchaseCost += $deduct * $issue->purchase_price;
-
-                    $totalIssued += $deduct;
+                    $slices[] = [
+                        'deduct' => $deduct,
+                        'purchase_price' => $linePurchase,
+                    ];
                     $remainingQty -= $deduct;
 
-                    if ($remainingQty <= 0) break;
+                    if ($remainingQty <= 0) {
+                        break;
+                    }
                 }
 
-                if ($remainingQty > 0) {
+                if ($remainingQty > 0.000001) {
                     throw new \Exception('Driver stock not sufficient');
                 }
 
-                // Weighted average purchase price (if multiple issue rows used)
-                $avgPurchasePrice = $totalPurchaseCost / $totalIssued;
+                $saleLineUid = (string) Str::uuid();
+                $sliceCount = count($slices);
+                $totalCartQty = (float) $item['qty'];
+                $discountTotal = (float) ($item['discount'] ?? 0);
+                $sumQtyAssigned = 0.0;
+                $sumDiscountAssigned = 0.0;
 
+                foreach ($slices as $idx => $slice) {
+                    $deduct = (float) $slice['deduct'];
+                    $isLast = $idx === $sliceCount - 1;
 
-                // 🔥 Insert Entry
-                SalesEntry::create([
-                    'ledger_id'      => $ledger->id,
-                    'product_id'     => $item['product_id'],
-                    'quantity'       => $item['qty'],
-                    'final_quantity' => $item['final_quantity'],
-                    'sub_unit_id'    => $item['sub_unit_id'],
-                    'sale_price'     => $item['price'],
-                    'discount'       => $item['discount'],
-                    'purchase_price' => $avgPurchasePrice,
-                ]);
+                    $sliceFinal = $deduct;
+
+                    $sliceQty = $isLast
+                        ? max(0.0, $totalCartQty - $sumQtyAssigned)
+                        : ($requiredQty > 0.000001
+                            ? round($totalCartQty * ($deduct / $requiredQty), 4)
+                            : 0.0);
+                    $sumQtyAssigned += $sliceQty;
+
+                    $sliceDiscount = $isLast
+                        ? max(0.0, $discountTotal - $sumDiscountAssigned)
+                        : ($requiredQty > 0.000001
+                            ? round($discountTotal * ($deduct / $requiredQty), 4)
+                            : 0.0);
+                    $sumDiscountAssigned += $sliceDiscount;
+
+                    if ($slice['purchase_price'] <= 0 && $deduct > 0) {
+                        throw new \Exception(
+                            'Sale line has no valid purchase price. Check driver issue / warehouse issue lines.'
+                        );
+                    }
+
+                    SalesEntry::create([
+                        'sale_line_uid'  => $saleLineUid,
+                        'ledger_id'      => $ledger->id,
+                        'product_id'     => $item['product_id'],
+                        'quantity'       => $sliceQty,
+                        'final_quantity' => $sliceFinal,
+                        'sub_unit_id'    => $item['sub_unit_id'],
+                        'sale_price'     => $item['price'],
+                        'discount'       => $sliceDiscount,
+                        'purchase_price' => round((float) $slice['purchase_price'], 4),
+                    ]);
+                }
             }
 
             // 🔥 Insert Payment If Paid > 0
@@ -195,7 +263,7 @@ class SalesService {
     {
         $status_code = $status_message = $response = '';
         try {
-            $response = (new SalesLedger())->find($id);
+            $response = SalesLedger::with(['customer', 'driver', 'items.product', 'items.subUnit'])->find($id);
             $status_code = ApiService::API_SUCCESS;
             $status_message = 'Sales Found';
         } catch (\Throwable $th) {
@@ -212,32 +280,49 @@ class SalesService {
             DB::beginTransaction();
             $ledger = SalesLedger::with('items')->findOrFail($id);
 
-            // 1️⃣ Rollback sold_qty in driver_issue_items
-            foreach ($ledger->items as $entry) {
-                $requiredQty = $entry->final_quantity;
+            if (Auth::user()->hasRole('Driver')
+                && $ledger->driver_id
+                && (int) $ledger->driver_id === (int) Auth::user()->driver_id
+            ) {
+                DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                    (int) $ledger->driver_id,
+                    (string) $ledger->date
+                );
+            }
+
+            // 1️⃣ Rollback sold_qty in driver_issue_items (one FIFO pass per invoice line / bundle)
+            $bundles = $ledger->items->groupBy(fn (SalesEntry $e) => $e->sale_line_uid ?: ('legacy:'.$e->id));
+
+            foreach ($bundles as $bundle) {
+                $first = $bundle->first();
+                $requiredQty = (float) $bundle->sum('final_quantity');
 
                 $driverId = $ledger->driver_id;
-                $today = $ledger->date;
+                $period = DriverPeriodService::periodForDriver((int) $driverId);
 
-                // Get the driver issue items that were used (FIFO)
-                $issueItems = DriverIssueItem::where('product_id', $entry->product_id)
-                    ->whereHas('driverIssue', function ($q) use ($driverId, $today) {
+                $issueItems = DriverIssueItem::where('product_id', $first->product_id)
+                    ->whereHas('driverIssue', function ($q) use ($driverId, $period) {
                         $q->where('driver_id', $driverId)
-                        ->whereDate('issue_date', $today)
-                        ->whereIn('status', ['accepted', 'closed']); 
+                            ->where('status', 'accepted')
+                            ->whereDate('issue_date', '>=', $period['start_date'])
+                            ->whereDate('issue_date', '<=', $period['end_date']);
                     })
+                    ->lockForUpdate()
                     ->orderBy('created_at', 'asc')
+                    ->orderBy('id', 'asc')
                     ->get();
 
                 $remainingQty = $requiredQty;
 
                 foreach ($issueItems as $issue) {
-                    $deduct = min($issue->sold_qty, $remainingQty); // make sure we don't go negative
+                    $deduct = min((float) $issue->sold_qty, $remainingQty);
                     if ($deduct > 0) {
                         $issue->decrement('sold_qty', $deduct);
                         $remainingQty -= $deduct;
                     }
-                    if ($remainingQty <= 0) break;
+                    if ($remainingQty <= 0) {
+                        break;
+                    }
                 }
             }
 

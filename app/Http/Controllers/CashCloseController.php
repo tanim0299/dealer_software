@@ -9,6 +9,7 @@ use App\Models\ExpenseEntry;
 use App\Models\IncomeEntry;
 use App\Models\SalesPayment;
 use App\Models\SupplierPayment;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,51 +18,58 @@ class CashCloseController extends Controller
     /**
      * Display cash close page
      */
-    public function index()
+    public function index(Request $request)
     {
+        $asOf = $request->input('as_of', now()->format('Y-m-d'));
+        try {
+            $asOfDate = Carbon::parse($asOf)->toDateString();
+        } catch (\Throwable $e) {
+            $asOfDate = now()->toDateString();
+        }
+
         $lastCashClose = (new CashClose())->latest()->first();
         $data['previousCash'] = $lastCashClose ? $lastCashClose->closing_balance : 0;
-       
+
         $data['lastCloseDate'] = $lastCashClose ? $lastCashClose->close_date->copy()->addDay() : '2000-01-01';
-        $data['total_sales'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], today()])
+        $data['as_of'] = $asOfDate;
+        $data['search'] = ['as_of' => $asOfDate];
+
+        $data['total_sales'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', SalesPayment::TYPE_SALE)
             ->sum('amount');
-        $data['other_income'] = IncomeEntry::whereBetween('date', [$data['lastCloseDate'], today()])->sum('amount');
-        $data['purchase_return'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], today()])
+        $data['other_income'] = IncomeEntry::whereBetween('date', [$data['lastCloseDate'], $asOfDate])->sum('amount');
+        $data['purchase_return'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 3)
             ->sum('amount') * -1;
 
-        $data['due_collection'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], today()])
+        $data['due_collection'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 1)
             ->sum('amount');
 
-        $data['bank_withdraw'] = BankTransaction::whereBetween('transaction_date', [$data['lastCloseDate'], today()])
+        $data['bank_withdraw'] = BankTransaction::whereBetween('transaction_date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 'withdraw')
             ->sum('amount');
 
-        
         $data['total_cash_in'] = $data['total_sales'] + $data['other_income'] + $data['purchase_return'] + $data['due_collection'] + $data['bank_withdraw'];
 
-        // expense 
-
-        $data['total_purchases'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], today()])
+        $data['total_purchases'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 1)
             ->sum('amount');
 
-        $data['supplier_payment'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], today()])
+        $data['supplier_payment'] = SupplierPayment::whereBetween('payment_date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 2)
             ->sum('amount');
 
-        $data['total_expenses'] = ExpenseEntry::whereBetween('date', [$data['lastCloseDate'], today()])
-            ->sum('amount');  
-            
-        $data['sales_return'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], today()])
+        $data['total_expenses'] = ExpenseEntry::whereBetween('date', [$data['lastCloseDate'], $asOfDate])
+            ->sum('amount');
+
+        $data['sales_return'] = SalesPayment::whereBetween('date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 3)
             ->sum('amount') * -1;
 
-        $data['salary_payment'] = EmployeeSalaryWithdraw::whereBetween('withdraw_date', [$data['lastCloseDate'], today()])
+        $data['salary_payment'] = EmployeeSalaryWithdraw::whereBetween('withdraw_date', [$data['lastCloseDate'], $asOfDate])
             ->sum('amount');
-        $data['bank_deposit'] = BankTransaction::whereBetween('transaction_date', [$data['lastCloseDate'], today()])
+        $data['bank_deposit'] = BankTransaction::whereBetween('transaction_date', [$data['lastCloseDate'], $asOfDate])
             ->where('type', 'deposit')
             ->sum('amount');
 

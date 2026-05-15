@@ -6,13 +6,13 @@
 
     <div class="row">
 
-        {{-- Driver Name --}}
+        {{-- DSR name --}}
         <div class="col-md-4 col-lg-4 col-12">
             <div class="mb-3">
-                <label for="name" class="form-label">Driver Name</label>
+                <label for="name" class="form-label">DSR name</label>
                 <span class="text-danger">*</span>
                 <input type="text" class="form-control @error('name') is-invalid @enderror" id="name"
-                    name="name" placeholder="Enter Driver Name" value="{{ old('name', @$data->name) }}">
+                    name="name" placeholder="Enter DSR name" value="{{ old('name', @$data->name) }}">
                 @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

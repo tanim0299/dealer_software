@@ -39,6 +39,7 @@
                         <th>Sales Qty</th>
                         <th>Sales Return Qty</th>
                         <th>Return Qty</th>
+                        <th>Issue Qty (DSR)</th>
                         <th>Available Stock</th>
                         <th>Status</th>
                     </tr>
@@ -47,13 +48,14 @@
                     @forelse($stocks as $stock)
                     
                     <tr>
-                        <td>1</td>
+                        <td>{{ $stocks->firstItem() + $loop->index }}</td>
                         <td class="product-name">{{$stock->product->name}}</td>
                         <td class="sku">{{$stock->product->product_code }}</td>
                         <td>{{$stock->purchase_qty}}</td>
                         <td>{{$stock->sales_qty}}</td>
                         <td>{{$stock->sales_return_qty}}</td>
                         <td>{{$stock->return_qty}}</td>
+                        <td>{{ $stock->sr_issue_qty ?? 0 }}</td>
                         <td>
                             <strong>{{$stock->available_qty}}</strong>
                         </td>

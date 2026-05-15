@@ -21,6 +21,7 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['status'] = $request->input('status', '');
         $data['employees'] = (new EmployeeService())->getEmployeeList($data['search'], true)[2];
 
         return view($this->path . '.index', $data);

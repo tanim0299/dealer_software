@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\ApiService;
-use App\Services\IncomeExpenseService;
+use App\Services\DriverCashService;
+use App\Services\DriverPeriodService;
 use App\Services\ExpenseEntryService;
+use App\Services\IncomeExpenseService;
 use Illuminate\Support\Facades\Auth;
 
 class ExpenseEntryController extends Controller
@@ -26,11 +28,14 @@ class ExpenseEntryController extends Controller
         $data['search']['free_text'] = $request->free_text ?? '';
         $data['search']['title_id'] = $request->title_id ?? null;
         $data['search']['amount'] = $request->amount ?? null;
-        $data['search']['from_date'] = $request->from_date ?? null;
-        $data['search']['to_date'] = $request->to_date ?? null;
-
-        if(Auth::user()->hasRole('Driver')) {
+        if (Auth::user()->hasRole('Driver') && Auth::user()->driver_id) {
+            $period = DriverPeriodService::periodForDriver((int) Auth::user()->driver_id);
             $data['search']['driver_id'] = Auth::user()->driver_id;
+            $data['search']['from_date'] = $request->from_date ?? $period['start_date'];
+            $data['search']['to_date'] = $request->to_date ?? $period['end_date'];
+        } else {
+            $data['search']['from_date'] = $request->from_date ?? null;
+            $data['search']['to_date'] = $request->to_date ?? null;
         }
 
         [$status_code, $status_message, $response] = (new ExpenseEntryService())->ExpenseEntryList($data['search'], true);
@@ -41,6 +46,10 @@ class ExpenseEntryController extends Controller
             [$titleStatus, $titleMessage, $expenseTitles] =
                 (new IncomeExpenseService())->IncomeExpenseTitleList(['type' => 2], false);
             $data['expenseTitles'] = $expenseTitles;
+
+            $data['remainingCarryingCash'] = Auth::user()->driver_id
+                ? DriverCashService::openPeriodAvailableCash((int) Auth::id(), (int) Auth::user()->driver_id)
+                : 0.0;
 
             return view('driver.expense.index', $data);
         }
@@ -62,6 +71,10 @@ class ExpenseEntryController extends Controller
         $data['expenses'] = $expense;
 
         if (Auth::user()->hasRole('Driver')) {
+            $data['remainingCarryingCash'] = Auth::user()->driver_id
+                ? DriverCashService::openPeriodAvailableCash((int) Auth::id(), (int) Auth::user()->driver_id)
+                : 0.0;
+
             return view('driver.expense.create', $data);
         }
 
@@ -78,7 +91,7 @@ class ExpenseEntryController extends Controller
 
         if ($status_code == ApiService::API_SUCCESS) {
 
-            // Driver হলে driver index
+            // Driver users: driver expense index
             if (Auth::user()->hasRole('Driver')) {
                 return redirect()
                     ->route('expense_entry.index')
@@ -113,6 +126,11 @@ class ExpenseEntryController extends Controller
             if (!$expenseentry || (int)$expenseentry->driver_id !== (int)Auth::user()->driver_id) {
                 return redirect()->route('expense_entry.index')->with('error', 'Unauthorized expense access.');
             }
+            $data['remainingCarryingCash'] = DriverCashService::openPeriodAvailableCash(
+                (int) Auth::id(),
+                (int) Auth::user()->driver_id
+            ) + (float) $expenseentry->amount;
+
             return view('driver.expense.edit', $data);
         }
 

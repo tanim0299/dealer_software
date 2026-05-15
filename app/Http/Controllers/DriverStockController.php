@@ -11,10 +11,25 @@ class DriverStockController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data['items'] = (new Drivers())->getCurrentDriverStock(Auth::user()->driver_id);
-        return view('driver.stock.index',$data);
+        $items = (new Drivers())->getTodayDriverStock(Auth::user()->driver_id);
+        $search = ['free_text' => $request->input('free_text', '')];
+
+        if (! empty($search['free_text'])) {
+            $needle = mb_strtolower($search['free_text']);
+            $items = $items->filter(function ($row) use ($needle) {
+                $name = mb_strtolower((string) ($row->product->name ?? ''));
+                $code = mb_strtolower((string) ($row->product->product_code ?? ''));
+
+                return str_contains($name, $needle) || str_contains($code, $needle);
+            })->values();
+        }
+
+        return view('driver.stock.index', [
+            'items' => $items,
+            'search' => $search,
+        ]);
     }
 
     /**

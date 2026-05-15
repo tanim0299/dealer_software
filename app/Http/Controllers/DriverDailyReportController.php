@@ -11,6 +11,7 @@ use App\Models\SalesLedger;
 use App\Models\SalesPayment;
 use App\Models\SalesReturnLedger;
 use App\Models\User;
+use App\Services\DriverCashService;
 use Illuminate\Http\Request;
 
 class DriverDailyReportController extends Controller
@@ -60,14 +61,22 @@ class DriverDailyReportController extends Controller
 
         $salesReturns = SalesReturnLedger::with(['customer', 'entries.product', 'payments', 'salesLedger'])
             ->whereDate('date', $date)
-            ->whereHas('salesLedger', function ($query) use ($driverId) {
-                $query->where('driver_id', $driverId);
+            ->where(function ($q) use ($driverId, $user) {
+                $q->whereHas('salesLedger', function ($query) use ($driverId) {
+                    $query->where('driver_id', $driverId);
+                });
+                if ($user) {
+                    $q->orWhere(function ($q2) use ($user) {
+                        $q2->whereNull('sales_ledger_id')
+                            ->where('create_by', $user->id);
+                    });
+                }
             })
             ->get();
 
-        $returnCashPaid = (float) abs($salesReturns->flatMap(function ($returnLedger) {
-            return $returnLedger->payments;
-        })->where('amount', '<', 0)->sum('amount'));
+        $returnCashPaid = $user
+            ? DriverCashService::totalReturnCashRefundsForDriver((int) $user->id, $driverId, $date, $date)
+            : 0.0;
 
         $expenses = ExpenseEntry::with('expense')
             ->where('driver_id', $driverId)

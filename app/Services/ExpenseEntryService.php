@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\ExpenseEntry;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseEntryService
 {
@@ -34,6 +35,15 @@ class ExpenseEntryService
         else
         {
             try {
+                if (Auth::user()?->hasRole('Driver') && Auth::user()->driver_id) {
+                    DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                        (int) Auth::user()->driver_id,
+                        (string) $request->date
+                    );
+                }
+
+                $this->assertDriverExpenseWithinCarryingCash((float) $request->amount);
+
                 (new ExpenseEntry())->createExpenseEntry($request);
                 $status_code = ApiService::API_SUCCESS;
                 $status_message = "Expense Entry created successfully.";
@@ -77,6 +87,22 @@ class ExpenseEntryService
         else
         {
             try {
+                $existing = ExpenseEntry::find($id);
+                if ($existing !== null && Auth::user()?->hasRole('Driver') && Auth::user()->driver_id) {
+                    DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                        (int) Auth::user()->driver_id,
+                        (string) $existing->date
+                    );
+                    DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                        (int) Auth::user()->driver_id,
+                        (string) $request->date
+                    );
+                }
+
+                if ($existing !== null && Auth::user()?->hasRole('Driver')) {
+                    $this->assertDriverExpenseWithinCarryingCash((float) $request->amount, $existing);
+                }
+
                 (new ExpenseEntry())->updateExpenseEntry($request, $id);
                 $status_code = ApiService::API_SUCCESS;
                 $status_message = "Expense Entry updated successfully.";
@@ -91,12 +117,52 @@ class ExpenseEntryService
         return [$status_code, $status_message, $error_message];
     }
 
+    /**
+     * Drivers cannot expense more than open-period carrying cash (same basis as DriverCashService).
+     * When updating, pass existing row so its amount is added back before comparing.
+     */
+    private function assertDriverExpenseWithinCarryingCash(float $amount, ?ExpenseEntry $replaceEntry = null): void
+    {
+        $user = Auth::user();
+        if (! $user || ! $user->hasRole('Driver') || ! $user->driver_id) {
+            return;
+        }
+
+        $driverId = (int) $user->driver_id;
+        $userId = (int) $user->id;
+
+        $available = DriverCashService::openPeriodAvailableCash($userId, $driverId);
+        if ($replaceEntry !== null
+            && (int) ($replaceEntry->driver_id ?? 0) === $driverId
+        ) {
+            $available += (float) $replaceEntry->amount;
+        }
+
+        if ($amount > $available + 0.02) {
+            throw new \RuntimeException(
+                'Not enough carrying cash for this expense. Available after prior spending: Tk '
+                .number_format($available, 2)
+                .'; entered: Tk '.number_format($amount, 2)
+            );
+        }
+    }
+
     public function deleteExpenseEntry($id)
     {
         $status_code = $status_message = null;
 
         try {
-            [$status_code, $status_message] = self::getExpenseEntryById($id);
+            [$status_code, $status_message, $entry] = self::getExpenseEntryById($id);
+            if (Auth::user()?->hasRole('Driver') && Auth::user()->driver_id && $entry) {
+                if ((int) ($entry->driver_id ?? 0) !== (int) Auth::user()->driver_id) {
+                    throw new \RuntimeException('Unauthorized expense delete attempt.');
+                }
+                DriverPeriodService::assertDriverPanelDateOpenForTransaction(
+                    (int) Auth::user()->driver_id,
+                    (string) $entry->date
+                );
+            }
+
             ExpenseEntry::where('id', $id)->delete();
 
             $status_code = ApiService::API_SUCCESS;
