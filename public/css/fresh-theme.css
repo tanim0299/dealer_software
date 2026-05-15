@@ -1,0 +1,991 @@
+/**
+ * Fresh Foods — admin dashboard theme (global overrides on Kaiadmin / Bootstrap)
+ */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+
+:root {
+  --fresh-accent: #0d9488;
+  --fresh-accent-hover: #0f766e;
+  --fresh-accent-soft: rgba(13, 148, 136, 0.12);
+  --fresh-violet: #6366f1;
+  --fresh-sun: #f59e0b;
+  --fresh-rose: #e11d48;
+  --fresh-surface: #f1f5f9;
+  --fresh-surface-2: #ffffff;
+  --fresh-text: #0f172a;
+  --fresh-muted: #64748b;
+  --fresh-radius: 14px;
+  --fresh-radius-sm: 10px;
+  --fresh-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --fresh-shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.08), 0 16px 40px rgba(13, 148, 136, 0.12);
+  --fresh-transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.fresh-ui {
+  color: var(--fresh-text);
+  letter-spacing: 0.01em;
+}
+
+body.fresh-ui .main-panel {
+  background: linear-gradient(165deg, #ecfdf5 0%, var(--fresh-surface) 18%, #e0f2fe 100%) !important;
+  min-height: 100vh;
+}
+
+/* Topbar: pin to viewport + offset for sidebar (Kaiadmin expects .main-panel > .container; we use .fresh-view) */
+@media screen and (min-width: 992px) {
+  body.fresh-ui .main-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 265px !important;
+    right: 0 !important;
+    width: auto !important;
+    z-index: 1030 !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 18px rgba(15, 23, 42, 0.08);
+  }
+
+  body.fresh-ui .wrapper.sidebar_minimize .main-header {
+    left: 75px !important;
+  }
+
+  body.fresh-ui .main-panel > .fresh-view {
+    padding-top: 72px;
+  }
+}
+
+@media screen and (max-width: 991.5px) {
+  body.fresh-ui .main-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1030 !important;
+  }
+
+  body.fresh-ui .main-panel > .fresh-view {
+    padding-top: 118px;
+  }
+}
+
+body.fresh-ui .main-panel > .container {
+  animation: freshFadeUp 0.45s var(--fresh-transition) both;
+}
+
+@keyframes freshFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.fresh-ui h1,
+body.fresh-ui h2,
+body.fresh-ui h3,
+body.fresh-ui h4,
+body.fresh-ui .card-title,
+body.fresh-ui .fresh-page-title {
+  font-family: "Plus Jakarta Sans", "Public Sans", system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+
+/* Sidebar */
+body.fresh-ui .sidebar,
+body.fresh-ui .sidebar[data-background-color="dark"] {
+  background: linear-gradient(180deg, #0f172a 0%, #134e4a 48%, #0f172a 100%) !important;
+  box-shadow: 4px 0 32px rgba(15, 23, 42, 0.35);
+}
+
+body.fresh-ui .sidebar .logo-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.fresh-ui .sidebar .nav > .nav-item a {
+  border-radius: var(--fresh-radius-sm);
+  margin: 2px 8px;
+  transition: background var(--fresh-transition), color var(--fresh-transition), transform var(--fresh-transition);
+}
+
+body.fresh-ui .sidebar .nav > .nav-item a:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  transform: translateX(2px);
+}
+
+body.fresh-ui .sidebar .nav.nav-secondary > .nav-item.active > a,
+body.fresh-ui .sidebar .nav.nav-secondary > .nav-item.submenu > a[aria-expanded="true"] {
+  background: linear-gradient(90deg, rgba(13, 148, 136, 0.35), rgba(99, 102, 241, 0.2)) !important;
+  color: #fff !important;
+  box-shadow: inset 3px 0 0 var(--fresh-accent);
+}
+
+body.fresh-ui .sidebar .nav-collapse li.active > a {
+  background: rgba(13, 148, 136, 0.2) !important;
+  color: #5eead4 !important;
+  font-weight: 600;
+}
+
+body.fresh-ui .sidebar .text-section {
+  color: rgba(148, 163, 184, 0.95) !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-size: 0.68rem !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+body.fresh-ui .sidebar .nav-collapse a {
+  border-radius: 8px;
+  padding-left: 1rem !important;
+}
+
+/* Top navbar */
+body.fresh-ui .navbar-header {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+body.fresh-ui .navbar-header .navbar-form .form-control {
+  border-radius: 999px !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+  background: rgba(255, 255, 255, 0.9);
+  padding-left: 1rem;
+  transition: box-shadow var(--fresh-transition), border-color var(--fresh-transition);
+}
+
+body.fresh-ui .navbar-header .navbar-form .form-control:focus {
+  border-color: var(--fresh-accent) !important;
+  box-shadow: 0 0 0 3px var(--fresh-accent-soft) !important;
+}
+
+body.fresh-ui .topbar-user .profile-username .fw-bold {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+/* Cards (all pages) */
+body.fresh-ui .card {
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-radius: var(--fresh-radius) !important;
+  box-shadow: var(--fresh-shadow) !important;
+  overflow: hidden;
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .card:hover {
+  box-shadow: var(--fresh-shadow-hover) !important;
+}
+
+body.fresh-ui .card.card-round,
+body.fresh-ui .card.card-stats {
+  border-radius: var(--fresh-radius) !important;
+}
+
+body.fresh-ui .card .card-header {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(255, 255, 255, 0.6)) !important;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15) !important;
+  padding: 1rem 1.25rem !important;
+}
+
+body.fresh-ui .card .card-header .card-title {
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+body.fresh-ui .card .card-body {
+  padding: 1.25rem !important;
+}
+
+/* Tables */
+body.fresh-ui .table {
+  border-radius: var(--fresh-radius-sm);
+  overflow: hidden;
+}
+
+body.fresh-ui .table thead th {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fresh-muted) !important;
+  border-bottom-width: 1px !important;
+  background: rgba(241, 245, 249, 0.9) !important;
+}
+
+body.fresh-ui .table tbody tr {
+  transition: background 0.15s ease;
+}
+
+body.fresh-ui .table-hover tbody tr:hover {
+  background: rgba(13, 148, 136, 0.06) !important;
+}
+
+body.fresh-ui .table-bordered {
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+body.fresh-ui .table-bordered th,
+body.fresh-ui .table-bordered td {
+  border-color: rgba(148, 163, 184, 0.18) !important;
+}
+
+/* Buttons */
+body.fresh-ui .btn {
+  border-radius: var(--fresh-radius-sm) !important;
+  font-weight: 500;
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition), background var(--fresh-transition);
+}
+
+body.fresh-ui .btn-primary {
+  background: linear-gradient(135deg, var(--fresh-accent), #0891b2) !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.35);
+}
+
+body.fresh-ui .btn-primary:hover {
+  background: linear-gradient(135deg, var(--fresh-accent-hover), #0e7490) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+}
+
+body.fresh-ui .btn-success {
+  border-radius: var(--fresh-radius-sm) !important;
+}
+
+body.fresh-ui .btn-round {
+  border-radius: 999px !important;
+}
+
+body.fresh-ui .btn-outline-primary {
+  border-color: rgba(13, 148, 136, 0.45) !important;
+  color: var(--fresh-accent-hover) !important;
+}
+
+body.fresh-ui .btn-outline-primary:hover {
+  background: var(--fresh-accent-soft) !important;
+  border-color: var(--fresh-accent) !important;
+  color: var(--fresh-accent-hover) !important;
+}
+
+/* Forms */
+body.fresh-ui .form-control,
+body.fresh-ui .form-select {
+  border-radius: var(--fresh-radius-sm) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  transition: border-color var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .form-control:focus,
+body.fresh-ui .form-select:focus {
+  border-color: var(--fresh-accent) !important;
+  box-shadow: 0 0 0 3px var(--fresh-accent-soft) !important;
+}
+
+body.fresh-ui .form-label {
+  font-weight: 500;
+  color: var(--fresh-muted);
+  font-size: 0.875rem;
+}
+
+/* Page inner spacing */
+body.fresh-ui .page-inner {
+  padding-top: 0.5rem;
+  padding-bottom: 2rem;
+}
+
+/* Page title (plain — no card wrapper; see breadcrumb partial) */
+body.fresh-ui .fresh-page-title {
+  font-size: 1.5rem;
+  margin: 0;
+  line-height: 1.3;
+  color: var(--fresh-text);
+  font-weight: 700 !important;
+}
+
+/* Footer */
+body.fresh-ui .footer {
+  background: transparent !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
+  padding: 1rem 0;
+  margin-top: 2rem;
+}
+
+body.fresh-ui .footer .copyright,
+body.fresh-ui .footer .nav-link {
+  color: var(--fresh-muted) !important;
+  font-size: 0.875rem;
+}
+
+/* Hide demo theme switcher for cleaner UI */
+body.fresh-ui .custom-template {
+  display: none !important;
+}
+
+/* Badges */
+body.fresh-ui .badge {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.35em 0.65em;
+}
+
+/* Pagination */
+body.fresh-ui .pagination .page-link {
+  border-radius: 8px !important;
+  margin: 0 2px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+body.fresh-ui .pagination .page-item.active .page-link {
+  background: linear-gradient(135deg, var(--fresh-accent), #0891b2);
+  border-color: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* Admin dashboard (home)                                             */
+/* ------------------------------------------------------------------ */
+
+body.fresh-ui .fresh-dashboard {
+  padding-bottom: 2rem;
+}
+
+body.fresh-ui .fresh-dash-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  body.fresh-ui .fresh-dash-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+}
+
+body.fresh-ui .fresh-dash-header__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--fresh-muted);
+  font-weight: 500;
+  max-width: 36rem;
+}
+
+body.fresh-ui .fresh-dash-header__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+body.fresh-ui .fresh-dash-header .fresh-page-title {
+  margin-bottom: 0;
+}
+
+/* KPI stat cards */
+body.fresh-ui .fresh-stat-card {
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.14) !important;
+  overflow: hidden;
+  min-height: 118px;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04), 0 12px 32px rgba(15, 23, 42, 0.06) !important;
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08), 0 20px 48px rgba(13, 148, 136, 0.1) !important;
+}
+
+body.fresh-ui .fresh-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.1;
+  background: radial-gradient(circle at 100% 0%, currentColor, transparent 52%);
+  pointer-events: none;
+}
+
+body.fresh-ui .fresh-stat-card .card-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem !important;
+}
+
+body.fresh-ui .fresh-stat-card .fresh-stat-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  margin-bottom: 0 !important;
+  background: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+body.fresh-ui .fresh-stat-card .numbers {
+  flex: 1;
+  min-width: 0;
+}
+
+body.fresh-ui .fresh-stat-card.fresh-stat--teal {
+  color: var(--fresh-accent);
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 55%, #d1fae5 100%) !important;
+}
+
+body.fresh-ui .fresh-stat-card.fresh-stat--indigo {
+  color: var(--fresh-violet);
+  background: linear-gradient(135deg, #ffffff 0%, #eef2ff 55%, #e0e7ff 100%) !important;
+}
+
+body.fresh-ui .fresh-stat-card.fresh-stat--amber {
+  color: #b45309;
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 55%, #fef3c7 100%) !important;
+}
+
+body.fresh-ui .fresh-stat-card.fresh-stat--rose {
+  color: var(--fresh-rose);
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 55%, #ffe4e6 100%) !important;
+}
+
+body.fresh-ui .fresh-stat-card .card-category {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fresh-muted) !important;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+body.fresh-ui .fresh-stat-card .card-title {
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em;
+  color: var(--fresh-text) !important;
+  margin-bottom: 0.35rem;
+}
+
+body.fresh-ui .fresh-stat-card a.small {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: inherit !important;
+  opacity: 0.88;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: opacity var(--fresh-transition), border-color var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-stat-card a.small:hover {
+  opacity: 1;
+  border-bottom-color: currentColor;
+}
+
+/* Mini entity counts */
+body.fresh-ui .fresh-dash-minis .fresh-mini-stat {
+  border: none !important;
+  border-radius: 16px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06) !important;
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-dash-minis .fresh-mini-stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08), 0 18px 40px rgba(13, 148, 136, 0.12) !important;
+}
+
+body.fresh-ui .fresh-mini-stat .card-body {
+  text-align: center;
+  padding: 1.1rem 0.75rem !important;
+}
+
+body.fresh-ui .fresh-mini-stat__icon {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+body.fresh-ui .fresh-mini-stat__num,
+body.fresh-ui .fresh-mini-stat .fw-bold {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  color: var(--fresh-text) !important;
+  line-height: 1.2;
+}
+
+body.fresh-ui .fresh-mini-stat small {
+  color: var(--fresh-muted);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Dashboard panels + summary */
+body.fresh-ui .fresh-dash-panel {
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04), 0 12px 28px rgba(15, 23, 42, 0.05) !important;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96) !important;
+}
+
+body.fresh-ui .fresh-dash-panel__head {
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98) 0%, rgba(255, 255, 255, 0.5) 100%);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+  padding: 1rem 1.25rem !important;
+}
+
+body.fresh-ui .fresh-dash-panel__head .card-title {
+  font-size: 1.05rem !important;
+}
+
+body.fresh-ui .fresh-dash-summary {
+  padding: 0.25rem 0.15rem !important;
+}
+
+body.fresh-ui .fresh-dash-summary__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  margin: 0 0.35rem;
+  border-radius: 12px;
+  transition: background var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-dash-summary__row:hover {
+  background: rgba(241, 245, 249, 0.85);
+}
+
+body.fresh-ui .fresh-dash-summary__row + .fresh-dash-summary__row {
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+body.fresh-ui .fresh-dash-summary__row--last {
+  margin-bottom: 0.25rem;
+}
+
+body.fresh-ui .fresh-dash-summary__label {
+  color: var(--fresh-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+body.fresh-ui .fresh-dash-summary__value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Quick link tiles */
+body.fresh-ui .fresh-dash-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 0.9rem;
+  border-radius: 14px !important;
+  text-decoration: none !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--fresh-text) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(248, 250, 252, 0.9);
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition), border-color var(--fresh-transition);
+  min-height: 3.25rem;
+}
+
+body.fresh-ui .fresh-dash-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+
+body.fresh-ui .fresh-dash-link__icon {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+}
+
+body.fresh-ui .fresh-dash-link__text {
+  line-height: 1.25;
+}
+
+body.fresh-ui .fresh-dash-link--teal .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+}
+body.fresh-ui .fresh-dash-link--teal:hover {
+  border-color: rgba(13, 148, 136, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--indigo .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+}
+body.fresh-ui .fresh-dash-link--indigo:hover {
+  border-color: rgba(99, 102, 241, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--amber .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+}
+body.fresh-ui .fresh-dash-link--amber:hover {
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--sun .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #ea580c, #fb923c);
+}
+body.fresh-ui .fresh-dash-link--sun:hover {
+  border-color: rgba(251, 146, 60, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--rose .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #be123c, #f43f5e);
+}
+body.fresh-ui .fresh-dash-link--rose:hover {
+  border-color: rgba(244, 63, 94, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--emerald .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #047857, #10b981);
+}
+body.fresh-ui .fresh-dash-link--emerald:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--slate .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #334155, #64748b);
+}
+body.fresh-ui .fresh-dash-link--slate:hover {
+  border-color: rgba(100, 116, 139, 0.45);
+}
+
+body.fresh-ui .fresh-dash-link--violet .fresh-dash-link__icon {
+  background: linear-gradient(135deg, #6d28d9, #8b5cf6);
+}
+body.fresh-ui .fresh-dash-link--violet:hover {
+  border-color: rgba(139, 92, 246, 0.45);
+}
+
+/* Recent tables */
+body.fresh-ui .fresh-dash-table-card .card-body {
+  border-top: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+body.fresh-ui .fresh-dash-table thead th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: var(--fresh-muted) !important;
+  background: rgba(248, 250, 252, 0.95) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95) !important;
+  padding: 0.65rem 1rem !important;
+}
+
+body.fresh-ui .fresh-dash-table tbody td {
+  padding: 0.7rem 1rem !important;
+  vertical-align: middle;
+}
+
+body.fresh-ui .fresh-dash-table tbody tr:hover td {
+  background: rgba(240, 253, 250, 0.55);
+}
+
+/* Legacy quick link buttons (other pages) */
+body.fresh-ui .fresh-quick-link {
+  border-radius: var(--fresh-radius-sm) !important;
+  font-weight: 600;
+  border-width: 1.5px !important;
+  padding: 0.65rem 0.5rem;
+  transition: transform var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-quick-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fresh-shadow);
+}
+
+/* Scrollbar (webkit) */
+body.fresh-ui .sidebar-wrapper::-webkit-scrollbar,
+body.fresh-ui .scrollbar-inner::-webkit-scrollbar {
+  width: 6px;
+}
+
+body.fresh-ui .sidebar-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+}
+
+/* Alerts */
+body.fresh-ui .alert {
+  border-radius: var(--fresh-radius-sm);
+  border: none;
+  box-shadow: var(--fresh-shadow);
+}
+
+/* Reduce harsh logo header in mini panel */
+body.fresh-ui .main-header-logo .logo-header {
+  border-radius: 0 0 var(--fresh-radius-sm) var(--fresh-radius-sm);
+}
+
+@media (max-width: 576px) {
+  body.fresh-ui .fresh-page-title {
+    font-size: 1.35rem;
+  }
+}
+
+body.fresh-ui .btn-label-info {
+  background: rgba(8, 145, 178, 0.1);
+  color: #0e7490 !important;
+  border: 1px solid rgba(8, 145, 178, 0.25);
+}
+
+body.fresh-ui .btn-label-info:hover {
+  background: rgba(8, 145, 178, 0.18);
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms — applies to all pages under .fresh-view (backend)            */
+/* ------------------------------------------------------------------ */
+
+body.fresh-ui .fresh-view form {
+  position: relative;
+}
+
+body.fresh-ui .fresh-view .card .form-label {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #475569 !important;
+}
+
+/* Fix: row > card without col-12 */
+body.fresh-ui .fresh-view .page-inner .row > .card {
+  width: 100%;
+  max-width: 100%;
+}
+
+body.fresh-ui .fresh-view .card .card-body:not(.p-0) {
+  padding: 1.35rem 1.5rem !important;
+}
+
+body.fresh-ui .fresh-view form .mb-3,
+body.fresh-ui .fresh-view form .mb-2 {
+  margin-bottom: 1.1rem !important;
+}
+
+body.fresh-ui .fresh-view form .form-label {
+  margin-bottom: 0.45rem;
+  display: inline;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569 !important;
+  letter-spacing: 0.02em;
+}
+
+body.fresh-ui .fresh-view form .form-label + .text-danger {
+  margin-left: 3px;
+  font-weight: 700;
+}
+
+body.fresh-ui .fresh-view textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+body.fresh-ui .fresh-view .form-control,
+body.fresh-ui .fresh-view .form-select {
+  padding: 0.55rem 0.9rem;
+  min-height: 42px;
+  font-size: 0.9375rem;
+  background-color: rgba(255, 255, 255, 0.92);
+}
+
+body.fresh-ui .fresh-view .form-control:hover,
+body.fresh-ui .fresh-view .form-select:hover {
+  border-color: rgba(100, 116, 139, 0.65) !important;
+}
+
+body.fresh-ui .fresh-view .form-control::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+body.fresh-ui .fresh-view .input-group-text {
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+body.fresh-ui .fresh-view .input-group > .form-control:focus {
+  z-index: 2;
+}
+
+body.fresh-ui .fresh-view .form-check {
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--fresh-radius-sm);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(248, 250, 252, 0.6);
+  transition: background var(--fresh-transition), border-color var(--fresh-transition);
+}
+
+body.fresh-ui .fresh-view .form-check:hover {
+  border-color: rgba(13, 148, 136, 0.35);
+  background: rgba(240, 253, 250, 0.5);
+}
+
+body.fresh-ui .fresh-view .form-check-input {
+  width: 1.15em;
+  height: 1.15em;
+  margin-top: 0.15em;
+  border-radius: 6px !important;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+}
+
+body.fresh-ui .fresh-view .form-check-input:checked {
+  background-color: var(--fresh-accent);
+  border-color: var(--fresh-accent);
+}
+
+body.fresh-ui .fresh-view .form-check-label {
+  font-size: 0.9rem;
+  padding-left: 0.25rem;
+  color: var(--fresh-text);
+}
+
+body.fresh-ui .fresh-view .form-control.is-invalid,
+body.fresh-ui .fresh-view .form-select.is-invalid {
+  border-color: #f87171 !important;
+  background-color: rgba(254, 242, 242, 0.55) !important;
+}
+
+body.fresh-ui .fresh-view .invalid-feedback {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.35rem;
+}
+
+body.fresh-ui .fresh-view input[type="file"].form-control {
+  padding: 0.6rem 0.85rem;
+  line-height: 1.45;
+}
+
+body.fresh-ui .fresh-view input[type="color"].form-control {
+  min-height: 44px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+body.fresh-ui .fresh-view form small.text-muted,
+body.fresh-ui .fresh-view form .text-muted.small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.78rem !important;
+  line-height: 1.45;
+  color: #64748b !important;
+}
+
+body.fresh-ui .fresh-view form > .row,
+body.fresh-ui .fresh-view form .row.g-2,
+body.fresh-ui .fresh-view form .row.g-3 {
+  --bs-gutter-y: 0.25rem;
+}
+
+body.fresh-ui .fresh-view form .border.rounded,
+body.fresh-ui .fresh-view form .border.rounded.p-3 {
+  border-color: rgba(148, 163, 184, 0.25) !important;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+body.fresh-ui .fresh-view form .table {
+  --bs-table-bg: transparent;
+}
+
+body.fresh-ui .fresh-view form .table thead th {
+  font-size: 0.68rem;
+  padding-top: 0.65rem;
+  padding-bottom: 0.65rem;
+}
+
+body.fresh-ui .fresh-view form .table td {
+  vertical-align: middle;
+}
+
+body.fresh-ui .fresh-view form .btn-sm {
+  min-height: 34px;
+}
+
+body.fresh-ui .fresh-view form .btn:not(.btn-sm):not(.btn-xs) {
+  padding: 0.55rem 1.25rem;
+}
+
+body.fresh-ui .fresh-view .mt-4.text-end .btn,
+body.fresh-ui .fresh-view form .text-end .btn,
+body.fresh-ui .fresh-view form .d-flex.justify-content-end .btn {
+  min-width: 118px;
+}
+
+body.fresh-ui .fresh-view .modal .form-control,
+body.fresh-ui .fresh-view .modal .form-select {
+  min-height: 40px;
+}
+
+/* Select2 (admin forms) */
+body.fresh-ui .select2-container {
+  min-width: 4rem !important;
+}
+
+body.fresh-ui .select2-container--default .select2-selection--single {
+  border-radius: var(--fresh-radius-sm) !important;
+  border: 1px solid rgba(148, 163, 184, 0.45) !important;
+  min-height: 42px !important;
+  padding: 4px 6px;
+  background: rgba(255, 255, 255, 0.92) !important;
+  transition: border-color var(--fresh-transition), box-shadow var(--fresh-transition);
+}
+
+body.fresh-ui .select2-container--default .select2-selection--single .select2-selection__rendered {
+  line-height: 2.15rem;
+  padding-left: 0.35rem;
+  color: var(--fresh-text);
+}
+
+body.fresh-ui .select2-container--default.select2-container--focus .select2-selection--single,
+body.fresh-ui .select2-container--default.select2-container--open .select2-selection--single {
+  border-color: var(--fresh-accent) !important;
+  box-shadow: 0 0 0 3px var(--fresh-accent-soft) !important;
+}
+
+body.fresh-ui .select2-dropdown {
+  border-radius: var(--fresh-radius-sm) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  box-shadow: var(--fresh-shadow-hover) !important;
+}
+
+body.fresh-ui .select2-results__option--highlighted[aria-selected] {
+  background: linear-gradient(90deg, var(--fresh-accent), #0891b2) !important;
+}

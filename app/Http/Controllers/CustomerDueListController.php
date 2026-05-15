@@ -86,35 +86,52 @@ class CustomerDueListController extends Controller
      */
     public function storePayment(Request $request)
     {
-        try {
-            $request->validate([
-                'customer_id' => 'required|exists:customers,id',
-                'amount' => 'required|numeric|min:0.01',
-                'note' => 'nullable|string',
-            ]);
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'amount'      => 'required|numeric|min:0.01',
+            'note'        => 'nullable|string|max:2000',
+        ]);
 
+        $customerId = (int) $validated['customer_id'];
+        $amount = (float) $validated['amount'];
+
+        $due = (new CustomerService())->getCustomerDueById($customerId);
+
+        if ($due <= 0.009) {
+            return back()->with('error', 'This customer has no outstanding due.');
+        }
+
+        if (($amount - $due) > 0.02) {
+            return back()->with(
+                'error',
+                'Amount cannot exceed outstanding due (Tk ' . number_format($due, 2) . ').'
+            );
+        }
+
+        try {
             DB::beginTransaction();
 
             SalesPayment::create([
+                'ledger_id'      => null,
                 'date'           => now()->toDateString(),
                 'time'           => now()->toTimeString(),
-                'customer_id'    => $request->customer_id,
-                'amount'         => $request->amount,
-                'type'           => 1, // normal payment
+                'customer_id'    => $customerId,
+                'amount'         => $amount,
+                'type'           => SalesPayment::TYPE_PAYMENT,
                 'reference_type' => 'payment',
                 'reference_id'   => null,
-                'note'           => $request->note,
+                'note'           => $validated['note'] ?? null,
                 'create_by'      => Auth::user()->id,
             ]);
 
             DB::commit();
 
             return redirect()
-                ->route('customer_due_list.show', $request->customer_id)
+                ->route('customer_due_list.show', $customerId)
                 ->with('success', 'Payment recorded successfully!');
-
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return back()->with('error', $th->getMessage());
         }
     }

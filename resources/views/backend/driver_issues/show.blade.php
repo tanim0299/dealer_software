@@ -32,7 +32,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">ðŸšš Driver Information</h6>
+                        <h6 class="mb-0"><i class="fa fa-truck me-2" aria-hidden="true"></i>Driver Information</h6>
                     </div>
                     <div class="card-body">
                         <p><strong>Name :</strong> {{ $issue->driver->name ?? 'N/A' }}</p>
@@ -45,7 +45,7 @@
             <div class="col-md-4">
                 <div class="card">
                     <div class="card-header">
-                        <h6 class="mb-0">ðŸ“¦ Issue Information</h6>
+                        <h6 class="mb-0"><i class="fa fa-info-circle me-2" aria-hidden="true"></i>Issue Information</h6>
                     </div>
                     <div class="card-body">
                         <p><strong>Issue Date :</strong>
@@ -79,7 +79,7 @@
                 <div class="card">
 
                     <div class="card-header">
-                        <h6 class="mb-0">ðŸ§¾ Issued Product List</h6>
+                        <h6 class="mb-0"><i class="fa fa-list me-2" aria-hidden="true"></i>Issued Product List</h6>
                     </div>
 
                     <div class="card-body">
@@ -90,6 +90,7 @@
                                         <th width="50">SL</th>
                                         <th>Product</th>
                                         <th>Issue Qty</th>
+                                        <th>Purchase price</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -107,10 +108,13 @@
                                             <td>
                                                 {{ $item->issue_qty }}
                                             </td>
+                                            <td>
+                                                {{ number_format((float) $item->purchase_price, 4) }}
+                                            </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted">
+                                            <td colspan="4" class="text-center text-muted">
                                                 No items found
                                             </td>
                                         </tr>
@@ -118,7 +122,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <th colspan="2" class="text-end">Total Qty</th>
+                                        <th colspan="3" class="text-end">Total Qty</th>
                                         <th>{{ $issue->items->sum('issue_qty') }}</th>
                                     </tr>
                                 </tfoot>

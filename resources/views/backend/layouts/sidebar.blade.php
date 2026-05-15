@@ -4,7 +4,7 @@ $currentRoute = Route::currentRouteName();
 $baseRoute = explode('.',$currentRoute);
 $parentMenu = (new App\Models\Menu())->where('route',$baseRoute[0])->first();
 @endphp
-<div class="sidebar" data-background-color="dark">
+<div class="sidebar fresh-sidebar" data-background-color="dark">
     <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">

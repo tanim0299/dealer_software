@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class SalesLedger extends Model
 {
@@ -11,6 +12,29 @@ class SalesLedger extends Model
     public function items()
     {
         return $this->hasMany(SalesEntry::class,'ledger_id');
+    }
+
+    /**
+     * Merge FIFO-split sales rows (same sale_line_uid) for invoice-style display.
+     */
+    public function invoiceDisplayLines(): Collection
+    {
+        return $this->items->sortBy('id')
+            ->groupBy(fn (SalesEntry $e) => $e->sale_line_uid ?: 'legacy:'.$e->id)
+            ->map(function (Collection $entries) {
+                $first = $entries->first();
+                $finalQty = (float) $entries->sum('final_quantity');
+                $discount = (float) $entries->sum('discount');
+
+                return (object) [
+                    'product' => $first->product,
+                    'subUnit' => $first->subUnit,
+                    'final_quantity' => $finalQty,
+                    'sale_price' => (float) $first->sale_price,
+                    'discount' => $discount,
+                ];
+            })
+            ->values();
     }
 
     public function customer()
@@ -29,7 +53,7 @@ class SalesLedger extends Model
 
         // Eager load relations if needed
         if ($is_relation) {
-            $query->with(['customer', 'items.product', 'items.subUnit']);
+            $query->with(['customer', 'driver', 'items.product', 'items.subUnit']);
         }
 
         // Filter by driver

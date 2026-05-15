@@ -199,6 +199,19 @@ class CustomerService
         return [$status_code, $status_message, $response];
     }
 
+    /**
+     * Whether this DSR may collect from the customer (matches customer_payment create list).
+     */
+    public function driverCanCollectFromCustomer(int $driverId, int $customerId): bool
+    {
+        [, , $customers] = $this->getrDriverCustomer($driverId);
+        if (!$customers instanceof \Illuminate\Support\Collection) {
+            return false;
+        }
+
+        return $customers->contains(fn ($c) => (int) $c->id === $customerId);
+    }
+
     public function getGlobalCashCustomer(): ?Customer
     {
         return Customer::firstOrCreate(
@@ -264,6 +277,7 @@ class CustomerService
             'sale.items.product',
             'sale.items.subUnit',
             'returnLedger.entries.product',
+            'returnLedger.salesLedger',
         ])->whereIn('type', [0, 1, 2, SalesPayment::TYPE_PREVIOUS_DUE]);
         
         if(!empty($search['customer_id'])) {

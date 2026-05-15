@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\DriverPeriodService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -42,6 +43,11 @@ class Drivers extends Model
     public function employee()
     {
         return $this->hasOne(Employee::class, 'driver_id');
+    }
+
+    public function loginUser()
+    {
+        return $this->hasOne(User::class, 'driver_id');
     }
 
     public function cashCustomer()
@@ -101,26 +107,55 @@ class Drivers extends Model
 
     public function getTodayDriverStock($driver_id = null)
     {
+        return $this->getOpenPeriodDriverStock($driver_id);
+    }
+
+    /**
+     * Stock from all accepted issues in the open period (last closing + 1 day through today).
+     */
+    public function getOpenPeriodDriverStock($driver_id = null)
+    {
         $driverId = $driver_id ?? Auth::user()->driver_id;
-
-        $issue = DriverIssues::with(['items.product'])
-            ->where('driver_id', $driverId)
-            ->whereDate('issue_date', now()->toDateString())
-            ->where('status', 'accepted')
-            ->first();
-
-        $items = collect();
-
-        if ($issue) {
-            $items = $issue->items;
+        if (! $driverId) {
+            return collect();
         }
 
-        return $items;
+        $period = DriverPeriodService::periodForDriver((int) $driverId);
+
+        return DriverIssueItem::query()
+            ->with(['product'])
+            ->whereHas('driverIssue', function ($query) use ($driverId, $period) {
+                $query->where('driver_id', $driverId)
+                    ->where('status', 'accepted')
+                    ->whereDate('issue_date', '>=', $period['start_date'])
+                    ->whereDate('issue_date', '<=', $period['end_date']);
+            })
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($rows) {
+                $r0 = $rows->first();
+                $merged = $r0->replicate();
+                $merged->exists = false;
+                $merged->issue_qty = $rows->sum(fn ($r) => (float) $r->issue_qty);
+                $merged->sold_qty = $rows->sum(fn ($r) => (float) $r->sold_qty);
+                $merged->return_qty = $rows->sum(fn ($r) => (float) $r->return_qty);
+                $merged->setRelation('product', $r0->product);
+
+                return $merged;
+            })
+            ->filter(fn ($row) => ($row->issue_qty - $row->sold_qty + $row->return_qty) > 0)
+            ->sortBy(fn ($row) => mb_strtolower((string) ($row->product->name ?? '')))
+            ->values();
     }
 
     public function getCurrentDriverStock($driver_id = null)
     {
         $driverId = $driver_id ?? Auth::user()->driver_id;
+        if (! $driverId) {
+            return collect();
+        }
+
+        $period = DriverPeriodService::periodForDriver((int) $driverId);
 
         return DriverIssueItem::query()
             ->select(
@@ -129,15 +164,17 @@ class Drivers extends Model
                 DB::raw('SUM(sold_qty) as sold_qty'),
                 DB::raw('SUM(return_qty) as return_qty')
             )
-            ->whereHas('driverIssue', function ($query) use ($driverId) {
+            ->whereHas('driverIssue', function ($query) use ($driverId, $period) {
                 $query->where('driver_id', $driverId)
-                    ->where('status', 'accepted');
+                    ->where('status', 'accepted')
+                    ->whereDate('issue_date', '>=', $period['start_date'])
+                    ->whereDate('issue_date', '<=', $period['end_date']);
             })
             ->with('product')
             ->groupBy('product_id')
             ->get()
             ->filter(function ($item) {
-                return ($item->issue_qty - $item->sold_qty - $item->return_qty) > 0;
+                return ($item->issue_qty - $item->sold_qty + $item->return_qty) > 0;
             })
             ->values();
     }

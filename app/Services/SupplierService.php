@@ -132,7 +132,8 @@ class SupplierService {
         $purchaseQuery = PurchaseLedger::where('supplier_id', $supplier_id);
         $paymentQuery = SupplierPayment::where('supplier_id', $supplier_id);
         $returnQuery = PurchaseReturnLedger::where('supplier_id', $supplier_id);
-        $returnPaidQuery = SupplierPayment::where('supplier_id', $supplier_id)->where('type', 3);
+        $returnPaidQuery = SupplierPayment::where('supplier_id', $supplier_id)
+            ->where('type', SupplierPayment::TYPE_PURCHASE_RETURN);
         $openingDueQuery = SupplierPayment::where('supplier_id', $supplier_id)
             ->where('type', SupplierPayment::TYPE_PREVIOUS_DUE);
 
@@ -156,13 +157,19 @@ class SupplierService {
         
         $totalPaid = $paymentQuery->where('type', 2)->sum('amount');
         
-        $totalReturnMinus = $returnQuery->where('return_type', 2)->sum('subtotal');
-        
-        $totalReturnPaid = $returnPaidQuery->sum('amount') * -1;
-        $openingDue = $openingDueQuery->sum('amount');
-      
-        
-        $due = $openingDue + $totalPurchase + $totalReturnPaid - $totalPurchaseDiscount - $totalPaid - $totalPurchasePid - $totalReturnMinus;
+        $totalReturnMinus = $returnQuery->where('return_type', 2)->sum('due_adjustment');
+
+        // Purchase-return cash rows store negative amounts (cash effect); add sum directly so due decreases.
+        $totalReturnCash = (float) $returnPaidQuery->sum('amount');
+        $openingDue = (float) $openingDueQuery->sum('amount');
+
+        $due = $openingDue
+            + (float) $totalPurchase
+            + $totalReturnCash
+            - (float) $totalPurchaseDiscount
+            - (float) $totalPaid
+            - (float) $totalPurchasePid
+            - (float) $totalReturnMinus;
 
         return $due;
     }
@@ -171,45 +178,140 @@ class SupplierService {
     public function getSupplierData($search = [])
     {
         $query = SupplierPayment::query();
-        if(!empty($search['supplier_id']))
-        {
-            $query  = $query->where('supplier_id',$search['supplier_id']);
+        if (! empty($search['supplier_id'])) {
+            $query = $query->where('supplier_id', $search['supplier_id']);
         }
-        if (!empty($search['report_type'])) {
-
-            switch ($search['report_type']) {
-
-                case 'daily':
-                    if (!empty($search['date'])) {
-                        $date = Carbon::parse($search['date'])->toDateString();
-                        $query->whereDate('payment_date', $date);
-                    }
-                    break;
-
-                case 'date_to_date':
-                    if (!empty($search['from_date']) && !empty($search['to_date'])) {
-                        $from = Carbon::parse($search['from_date'])->startOfDay();
-                        $to   = Carbon::parse($search['to_date'])->endOfDay();
-                        $query->whereBetween('payment_date', [$from, $to]);
-                    }
-                    break;
-
-                case 'monthly':
-                    if (!empty($search['month'])) {
-                        $month = Carbon::createFromFormat('Y-m', $search['month']);
-                        $query->whereMonth('payment_date', $month->month)
-                            ->whereYear('payment_date', $month->year);
-                    }
-                    break;
-
-                case 'yearly':
-                    if (!empty($search['year'])) {
-                        $query->whereYear('payment_date', $search['year']);
-                    }
-                    break;
-            }
-        }
+        $this->applySupplierPaymentReportDateFilter($query, $search);
 
         return $query->get();
+    }
+
+    /**
+     * Payments (excluding purchase-return cash rows) merged with purchase return ledgers,
+     * so "minus from due" returns appear even when no type-3 SupplierPayment exists.
+     */
+    public function getSupplierBalanceSheetLines(array $search): \Illuminate\Support\Collection
+    {
+        $supplierId = $search['supplier_id'] ?? null;
+        if (! $supplierId) {
+            return collect();
+        }
+
+        $paymentsQuery = SupplierPayment::query()
+            ->with(['purchase.entries.product', 'return'])
+            ->where('supplier_id', $supplierId)
+            ->where('type', '!=', SupplierPayment::TYPE_PURCHASE_RETURN);
+
+        $this->applySupplierPaymentReportDateFilter($paymentsQuery, $search);
+        $payments = $paymentsQuery->orderBy('payment_date')->orderBy('id')->get();
+
+        $returnsQuery = PurchaseReturnLedger::query()
+            ->with(['entries.product'])
+            ->where('supplier_id', $supplierId);
+        $this->applyPurchaseReturnReportDateFilter($returnsQuery, $search);
+        $returns = $returnsQuery->orderBy('date')->orderBy('id')->get();
+
+        $rows = collect();
+        foreach ($payments as $p) {
+            $rows->push((object) [
+                'kind' => 'payment',
+                'payment' => $p,
+                'at' => $p->created_at ?? Carbon::parse($p->payment_date),
+            ]);
+        }
+        foreach ($returns as $r) {
+            $rows->push((object) [
+                'kind' => 'return',
+                'return' => $r,
+                'at' => $r->created_at ?? Carbon::parse($r->date),
+            ]);
+        }
+
+        return $rows->sort(function ($a, $b) {
+            $ta = Carbon::parse($a->at)->timestamp;
+            $tb = Carbon::parse($b->at)->timestamp;
+            if ($ta !== $tb) {
+                return $ta <=> $tb;
+            }
+            $idA = $a->kind === 'payment' ? $a->payment->id : $a->return->id;
+            $idB = $b->kind === 'payment' ? $b->payment->id : $b->return->id;
+
+            return $idA <=> $idB;
+        })->values();
+    }
+
+    private function applySupplierPaymentReportDateFilter($query, array $search): void
+    {
+        if (empty($search['report_type'])) {
+            return;
+        }
+
+        switch ($search['report_type']) {
+            case 'daily':
+                if (! empty($search['date'])) {
+                    $date = Carbon::parse($search['date'])->toDateString();
+                    $query->whereDate('payment_date', $date);
+                }
+                break;
+
+            case 'date_to_date':
+                if (! empty($search['from_date']) && ! empty($search['to_date'])) {
+                    $from = Carbon::parse($search['from_date'])->startOfDay();
+                    $to = Carbon::parse($search['to_date'])->endOfDay();
+                    $query->whereBetween('payment_date', [$from, $to]);
+                }
+                break;
+
+            case 'monthly':
+                if (! empty($search['month'])) {
+                    $month = Carbon::createFromFormat('Y-m', $search['month']);
+                    $query->whereMonth('payment_date', $month->month)
+                        ->whereYear('payment_date', $month->year);
+                }
+                break;
+
+            case 'yearly':
+                if (! empty($search['year'])) {
+                    $query->whereYear('payment_date', $search['year']);
+                }
+                break;
+        }
+    }
+
+    private function applyPurchaseReturnReportDateFilter($query, array $search): void
+    {
+        if (empty($search['report_type'])) {
+            return;
+        }
+
+        switch ($search['report_type']) {
+            case 'daily':
+                if (! empty($search['date'])) {
+                    $query->whereDate('date', Carbon::parse($search['date'])->toDateString());
+                }
+                break;
+
+            case 'date_to_date':
+                if (! empty($search['from_date']) && ! empty($search['to_date'])) {
+                    $from = Carbon::parse($search['from_date'])->toDateString();
+                    $to = Carbon::parse($search['to_date'])->toDateString();
+                    $query->whereBetween('date', [$from, $to]);
+                }
+                break;
+
+            case 'monthly':
+                if (! empty($search['month'])) {
+                    $month = Carbon::createFromFormat('Y-m', $search['month']);
+                    $query->whereYear('date', $month->year)
+                        ->whereMonth('date', $month->month);
+                }
+                break;
+
+            case 'yearly':
+                if (! empty($search['year'])) {
+                    $query->whereYear('date', (int) $search['year']);
+                }
+                break;
+        }
     }
 }

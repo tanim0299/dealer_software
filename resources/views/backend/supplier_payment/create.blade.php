@@ -23,7 +23,7 @@
                         <select name="supplier_id" id="supplier_id" class="form-select" required>
                             <option value="">Select Supplier</option>
                             @foreach($suppliers as $supplier)
-                                <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                <option value="{{ $supplier->id }}" @selected((string) request('supplier_id') === (string) $supplier->id)>{{ $supplier->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -67,6 +67,13 @@ document.getElementById('supplier_id').addEventListener('change', function() {
         .then(data => {
             document.getElementById('current_due').value = data.due;
         });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const sel = document.getElementById('supplier_id');
+    if (sel && sel.value) {
+        sel.dispatchEvent(new Event('change'));
+    }
 });
 </script>
 

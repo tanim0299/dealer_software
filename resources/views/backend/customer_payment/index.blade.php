@@ -20,7 +20,7 @@
             <div class="card">
                 <div class="card-body">
 
-                    {{-- ðŸ”¹ Filter (driver page logic) --}}
+                    {{-- Filter (driver page logic) --}}
                     <form method="GET" action="{{ route('customer_payment.index') }}">
                         <div class="row mb-3">
 
@@ -58,16 +58,25 @@
                                        class="form-control">
                             </div>
 
-                            <div class="col-lg-3 col-md-4">
-                                <button class="btn btn-primary w-100">
+                            <div class="col-lg-3 col-md-6">
+                                <input type="text"
+                                       name="free_text"
+                                       value="{{ data_get($search ?? [], 'free_text') }}"
+                                       placeholder="Note / customer / phone"
+                                       class="form-control">
+                            </div>
+
+                            <div class="col-lg-2 col-md-6 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
                                     <i class="fa fa-filter"></i> Filter
                                 </button>
+                                <a href="{{ route('customer_payment.index') }}" class="btn btn-outline-secondary">Reset</a>
                             </div>
 
                         </div>
                     </form>
 
-                    {{-- ðŸ”¹ Table (UI unchanged) --}}
+                    {{-- Table (UI unchanged) --}}
                     <div class="table-responsive">
                         <table class="table table-bordered table-hover">
                             <thead class="table-light">

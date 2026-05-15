@@ -95,7 +95,7 @@ class MenuSectionsTableSeeder extends Seeder
             array (
                 'id' => 10,
                 'sl' => 9,
-                'name' => 'Driver Section',
+                'name' => 'DSR Section',
                 'status' => 1,
                 'created_at' => '2026-01-25 16:50:49',
                 'updated_at' => '2026-01-25 16:50:49',

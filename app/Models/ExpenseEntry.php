@@ -56,9 +56,13 @@ public function driver()
         }
 
         if (!empty($search['free_text'])) {
-            $query->where(function ($q) use ($search) {
-                $q->where('amount', 'like', '%' . $search['free_text'] . '%')
-                  ->orWhere('note', 'like', '%' . $search['free_text'] . '%');
+            $ft = '%' . $search['free_text'] . '%';
+            $query->where(function ($q) use ($ft) {
+                $q->where('note', 'like', $ft)
+                    ->orWhereRaw('CAST(amount AS CHAR) LIKE ?', [$ft])
+                    ->orWhereHas('expense', function ($eq) use ($ft) {
+                        $eq->where('title', 'like', $ft);
+                    });
             });
         }
 

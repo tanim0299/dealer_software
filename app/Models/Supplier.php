@@ -34,18 +34,21 @@ class Supplier extends Model
     public function getSupplierList($search = [], $is_paginate = true, $is_relation = true)
     {
         $query = self::query();
-        if(!empty($search['free_text']))
-        {
-            $query->where('name','like','%'.$search['free_text'].'%')
-                ->orWhere('phone','like','%'.$search['free_text'].'%')
-                ->orWhere('email','like','%'.$search['free_text'].'%');
+        if (!empty($search['free_text'])) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search['free_text'] . '%')
+                    ->orWhere('phone', 'like', '%' . $search['free_text'] . '%')
+                    ->orWhere('email', 'like', '%' . $search['free_text'] . '%')
+                    ->orWhere('supplier_id', 'like', '%' . $search['free_text'] . '%');
+            });
         }
-        if($is_paginate)
-        {
-            $query = $query->paginate(10);
+        if (isset($search['status']) && $search['status'] !== '' && $search['status'] !== null) {
+            $query->where('status', (int) $search['status']);
         }
-        else
-        {
+        $query->orderByDesc('id');
+        if ($is_paginate) {
+            $query = $query->paginate(10)->withQueryString();
+        } else {
             $query = $query->get();
         }
 

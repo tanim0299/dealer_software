@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\DriverCashDistribution;
-use App\Models\DriverClosing;
 use App\Models\Employee;
 use App\Models\EmployeeSalaryWithdraw;
-use App\Models\SalesLedger;
-use App\Models\SalesPayment;
+use App\Services\DriverCashService;
+use App\Services\DriverPeriodService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,16 +21,14 @@ class DriverCashDistributionController extends Controller
 
         $driverId = Auth::user()->driver_id;
 
+        $period = DriverPeriodService::periodForDriver((int) $driverId);
+
         $query = DriverCashDistribution::with('employee')
             ->where('driver_id', $driverId);
 
-        if (!$request->from_date && !$request->to_date) {
-            $query->whereDate('date', now()->toDateString());
-        }
-
-        if ($request->from_date && $request->to_date) {
-            $query->whereBetween('date', [$request->from_date, $request->to_date]);
-        }
+        $from = $request->filled('from_date') ? $request->from_date : $period['start_date'];
+        $to = $request->filled('to_date') ? $request->to_date : $period['end_date'];
+        $query->whereBetween('date', [$from, $to]);
 
         if ($request->employee_id) {
             $query->where('employee_id', $request->employee_id);
@@ -70,9 +67,15 @@ class DriverCashDistributionController extends Controller
             ->orderBy('name')
             ->get();
 
-        [$totalCollectedCash, $alreadyGiven, $availableBalance] = $this->getAvailableCollectionCash($driverId, now()->toDateString());
+        extract($this->periodCashFigures((int) $driverId));
 
-        return view('driver.cash_distribution.create', compact('employees', 'totalCollectedCash', 'alreadyGiven', 'availableBalance'));
+        return view('driver.cash_distribution.create', compact(
+            'employees',
+            'totalCollectedCash',
+            'alreadyGiven',
+            'deductionsOther',
+            'availableBalance'
+        ));
     }
 
     public function store(Request $request)
@@ -98,15 +101,16 @@ class DriverCashDistributionController extends Controller
             return back()->withInput()->with('error', 'You can give amount only to non-DSR other employees.');
         }
 
-        $closingExists = DriverClosing::where('driver_id', $driverId)->whereDate('date', $date)->exists();
+        $closingExists = DriverPeriodService::isDriverPanelDateInClosedLedger((int) $driverId, $date);
         if ($closingExists) {
-            return back()->withInput()->with('error', 'Closing already submitted for this date.');
+            return back()->withInput()->with('error', DriverPeriodService::DRIVER_PANEL_CLOSED_LEDGER_MESSAGE);
         }
 
-        [, , $availableBalance] = $this->getAvailableCollectionCash($driverId, $date);
+        $figures = $this->periodCashFigures((int) $driverId);
+        $availableBalance = $figures['availableBalance'];
 
         if ((float) $request->amount > $availableBalance) {
-            return back()->withInput()->with('error', 'Given amount can not exceed your available sales balance for this date.');
+            return back()->withInput()->with('error', 'Given amount cannot exceed your available carrying cash for this period (after expenses and cash returns).');
         }
 
         DB::beginTransaction();
@@ -117,7 +121,7 @@ class DriverCashDistributionController extends Controller
                 'withdraw_date' => $date,
                 'salary_month' => date('Y-m', strtotime($date)),
                 'amount' => $request->amount,
-                'note' => 'Daily expense salary',
+                'note' => 'Daily expense salary (DSR cash given)',
                 'created_by' => Auth::id(),
             ]);
 
@@ -150,20 +154,13 @@ class DriverCashDistributionController extends Controller
 
         $distribution = DriverCashDistribution::where('driver_id', $driverId)->findOrFail($id);
 
-        $closingExists = DriverClosing::where('driver_id', $driverId)
-            ->whereDate('date', $distribution->date)
-            ->exists();
-
-        if ($closingExists) {
-            return back()->with('error', 'Can not delete after closing submission.');
+        $locked = DriverPeriodService::isDriverPanelDateInClosedLedger((int) $driverId, (string) $distribution->date);
+        if ($locked) {
+            return back()->with('error', DriverPeriodService::DRIVER_PANEL_CLOSED_LEDGER_MESSAGE);
         }
 
         DB::beginTransaction();
         try {
-            if (!empty($distribution->employee_salary_withdraw_id)) {
-                EmployeeSalaryWithdraw::where('id', $distribution->employee_salary_withdraw_id)->delete();
-            }
-
             $distribution->delete();
             DB::commit();
         } catch (\Throwable $th) {
@@ -174,24 +171,18 @@ class DriverCashDistributionController extends Controller
         return back()->with('success', 'Given amount entry deleted successfully.');
     }
 
-    private function getAvailableCollectionCash(int $driverId, string $date): array
+    /**
+     * @return array{totalCollectedCash: float, alreadyGiven: float, deductionsOther: float, availableBalance: float}
+     */
+    private function periodCashFigures(int $driverId): array
     {
-        $todayPaid = (float) SalesLedger::where('driver_id', $driverId)
-            ->whereDate('date', $date)
-            ->sum('paid');
+        $b = DriverCashService::openPeriodCashBreakdown((int) Auth::id(), $driverId);
 
-        $todayDueCollection = (float) SalesPayment::where('type', 1)
-            ->where('create_by', Auth::id())
-            ->whereDate('date', $date)
-            ->sum('amount');
-
-        $alreadyGiven = (float) DriverCashDistribution::where('driver_id', $driverId)
-            ->whereDate('date', $date)
-            ->sum('amount');
-
-        $totalCollectedCash = $todayPaid + $todayDueCollection;
-        $availableBalance = $totalCollectedCash - $alreadyGiven;
-
-        return [$totalCollectedCash, $alreadyGiven, $availableBalance];
+        return [
+            'totalCollectedCash' => (float) $b['total_collected'],
+            'alreadyGiven' => (float) $b['cash_distributions'],
+            'deductionsOther' => (float) $b['return_cash_out'] + (float) $b['expenses'],
+            'availableBalance' => (float) $b['available'],
+        ];
     }
 }

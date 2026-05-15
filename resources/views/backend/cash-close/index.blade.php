@@ -8,6 +8,21 @@
             @include('backend.layouts.partials.breadcrumb', ['page_title' => 'Cash Close'])
         </div>
 
+        <div class="card mb-3">
+            <div class="card-body py-2">
+                <form method="GET" action="{{ route('cash_close.index') }}" class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label small mb-0">Figures as of date</label>
+                        <input type="date" name="as_of" class="form-control" value="{{ $search['as_of'] ?? ($as_of ?? now()->format('Y-m-d')) }}">
+                    </div>
+                    <div class="col-md-auto d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Apply</button>
+                        <a href="{{ route('cash_close.index') }}" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         @if ($message = Session::get('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fa fa-check-circle"></i> {{ $message }}

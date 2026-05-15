@@ -61,6 +61,8 @@ Route::get('supplier_due/{id}', [SupplierDueListController::class, 'show'])->nam
 Route::get('/dashboard', [BackendController::class,'index'])->middleware(['auth', 'verified'])->name('dashboard.index');
 
 Route::middleware('auth')->group(function () {
+    Route::get('purchase_return/stock-products', [PurchaseReturnController::class, 'stockProducts'])->name('purchase_return.stock_products');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -150,10 +152,10 @@ Route::middleware('auth')->group(function () {
     Route::post('customer_due_list/payment', [CustomerDueListController::class, 'storePayment'])->name('customer_due_list.storePayment');
     Route::post('sales/driver/customer', [SalesController::class, 'storeDriverCustomer'])->name('sales.driver_customer.store');
 
-    Route::get('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
-    ->name('driver-issues.accept');
+    Route::post('driver-issues/{id}/accept', [DriverIssueController::class, 'accept'])
+        ->name('driver-issues.accept');
 
-    Route::get('driver-issues/{id}/reject', [DriverIssueController::class, 'reject'])
+    Route::post('driver-issues/{id}/reject', [DriverIssueController::class, 'reject'])
         ->name('driver-issues.reject');
 
 

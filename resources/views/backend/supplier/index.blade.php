@@ -24,6 +24,26 @@
                     </div>
 
                     <div class="card-body">
+                        <form method="get" action="{{ route('supplier.index') }}" class="mb-3">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label small text-muted mb-0">Search</label>
+                                    <input type="text" name="free_text" class="form-control" placeholder="Name, phone, email, ID" value="{{ $search['free_text'] ?? '' }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small text-muted mb-0">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="">All</option>
+                                        <option value="1" {{ ($search['status'] ?? '') === '1' || ($search['status'] ?? '') === 1 ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ ($search['status'] ?? '') === '0' || ($search['status'] ?? '') === 0 ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Filter</button>
+                                    <a href="{{ route('supplier.index') }}" class="btn btn-outline-secondary">Reset</a>
+                                </div>
+                            </div>
+                        </form>
                         <div class="table-responsive">
                             <table class="table table-bordered table-hover">
                                 <thead class="table-light">

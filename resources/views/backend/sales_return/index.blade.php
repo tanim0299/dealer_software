@@ -60,6 +60,8 @@
                                     $payment = \App\Models\SalesPayment::where('reference_type', 'return')
                                         ->where('reference_id', $ledger->id)
                                         ->first();
+                                    $cashPaid = ($payment && (float) $payment->amount < -0.001) ? abs((float) $payment->amount) : 0.0;
+                                    $dueApplied = max(0.0, (float) $ledger->subtotal - $cashPaid);
                                 @endphp
 
                                 <tr>
@@ -69,10 +71,14 @@
                                     <td>{{ number_format($ledger->subtotal, 2) }}</td>
 
                                     <td>
-                                        @if ($payment && $payment->amount < 0)
-                                            <span class="badge bg-danger">Cash Paid</span>
+                                        @if($cashPaid > 0.001 && $dueApplied > 0.001)
+                                            <span class="badge bg-info text-dark">Due + cash</span>
+                                        @elseif($cashPaid > 0.001)
+                                            <span class="badge bg-danger">Cash paid</span>
+                                        @elseif((float) $ledger->subtotal > 0.001)
+                                            <span class="badge bg-warning text-dark">Due only</span>
                                         @else
-                                            <span class="badge bg-warning text-dark">Adjusted With Due</span>
+                                            <span class="badge bg-secondary">—</span>
                                         @endif
                                     </td>
 

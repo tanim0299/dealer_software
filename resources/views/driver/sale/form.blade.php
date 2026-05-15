@@ -55,7 +55,7 @@
 
     .sale-form-shell .sticky-submit {
         position: sticky;
-        bottom: 78px;
+        bottom: calc(var(--driver-bottom-nav-h, 68px) + 10px);
         z-index: 10;
         padding-top: 6px;
     }

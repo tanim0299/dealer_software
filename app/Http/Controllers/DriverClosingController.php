@@ -15,6 +15,8 @@ use App\Models\SalesPayment;
 use App\Models\SalesReturnLedger;
 use App\Models\User;
 use App\Models\WareHouseStocks;
+use App\Services\DriverCashService;
+use App\Services\DriverPeriodService;
 use App\Services\DriverService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -31,13 +33,222 @@ class DriverClosingController extends Controller
     }
 
     /**
-     * Display a listing of the resource.
+     * Driver closing workbench: filter + inline report on the same page.
      */
-    public function index()
+    public function index(Request $request)
     {
-        
-        $data['drivers'] = (new DriverService())->getDriverList([],false,false)[2];
-        return view($this->path.'.index',$data);
+        return $this->renderClosingWorkbench($request);
+    }
+
+    /**
+     * Legacy URL (?driver_id=) — same workbench as index.
+     */
+    public function driverClosing(Request $request)
+    {
+        return $this->renderClosingWorkbench($request);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function closingReportPayload(int $driverId): array
+    {
+        $period = DriverPeriodService::periodForDriver($driverId);
+        $closingDate = $period['end_date'];
+
+        $user = User::where('driver_id', $driverId)->first();
+        $driverEmployee = Employee::where('driver_id', $driverId)->first();
+
+        $sales = SalesLedger::query()
+            ->with('customer')
+            ->where('driver_id', $driverId)
+            ->whereDate('date', '>=', $period['start_date'])
+            ->whereDate('date', '<=', $closingDate)
+            ->get();
+
+        $collections = SalesPayment::query()
+            ->with('customer')
+            ->where('type', SalesPayment::TYPE_PAYMENT)
+            ->where('create_by', $user?->id)
+            ->whereDate('date', '>=', $period['start_date'])
+            ->whereDate('date', '<=', $closingDate)
+            ->orderBy('date')
+            ->orderBy('id')
+            ->get();
+
+        $expenses = ExpenseEntry::query()
+            ->with('expense')
+            ->where('driver_id', $driverId)
+            ->whereDate('date', '>=', $period['start_date'])
+            ->whereDate('date', '<=', $closingDate)
+            ->get();
+
+        $products = DriverIssueItem::query()
+            ->with('product')
+            ->leftJoin('driver_issues', 'driver_issues.id', '=', 'driver_issue_items.driver_issue_id')
+            ->where('driver_issues.status', 'accepted')
+            ->where('driver_issues.driver_id', $driverId)
+            ->whereDate('driver_issues.issue_date', '>=', $period['start_date'])
+            ->whereDate('driver_issues.issue_date', '<=', $closingDate)
+            ->select('driver_issue_items.*')
+            ->get();
+
+        $stockSummaryRows = $products
+            ->groupBy('product_id')
+            ->map(function ($group) {
+                $first = $group->first();
+                $issue = (float) $group->sum(fn (DriverIssueItem $i) => (float) $i->issue_qty);
+                $weightedSum = (float) $group->sum(function (DriverIssueItem $i) {
+                    $q = (float) $i->issue_qty;
+                    $p = (float) ($i->getAttribute('purchase_price') ?? 0);
+
+                    return $q * $p;
+                });
+                $avgPrice = $issue > 0 ? round($weightedSum / $issue, 6) : 0.0;
+
+                $distinctPrices = $group
+                    ->map(fn (DriverIssueItem $i) => round((float) ($i->getAttribute('purchase_price') ?? 0), 6))
+                    ->unique()
+                    ->sort()
+                    ->values();
+                $priceNote = $distinctPrices->count() > 1
+                    ? $distinctPrices->map(fn ($p) => number_format((float) $p, 2, '.', ''))->implode(' / ')
+                    : null;
+
+                return [
+                    'product' => $first->product,
+                    'product_id' => (int) $first->product_id,
+                    'purchase_price' => $avgPrice,
+                    'purchase_price_note' => $priceNote,
+                    'issue_qty' => $issue,
+                    'sold_qty' => (float) $group->sum(fn (DriverIssueItem $i) => (float) $i->sold_qty),
+                    'return_qty' => (float) $group->sum(fn (DriverIssueItem $i) => (float) $i->return_qty),
+                ];
+            })
+            ->values()
+            ->sortBy(function (array $row) {
+                return (string) ($row['product']->name ?? '');
+            })
+            ->values();
+
+        $issue = DriverIssues::query()
+            ->where('driver_id', $driverId)
+            ->where('status', 'accepted')
+            ->whereDate('issue_date', '>=', $period['start_date'])
+            ->whereDate('issue_date', '<=', $closingDate)
+            ->orderByDesc('issue_date')
+            ->first();
+
+        $distributableEmployees = Employee::query()
+            ->where('designation', '!=', 'DSR')
+            ->when($driverEmployee, function ($query) use ($driverEmployee) {
+                $query->where('id', '!=', $driverEmployee->id);
+            })
+            ->orderBy('name')
+            ->get();
+
+        $givenAmounts = DriverCashDistribution::query()
+            ->with('employee')
+            ->where('driver_id', $driverId)
+            ->whereDate('date', '>=', $period['start_date'])
+            ->whereDate('date', '<=', $closingDate)
+            ->get();
+
+        $salesReturns = SalesReturnLedger::query()
+            ->with(['customer', 'entries.product', 'payments', 'salesLedger'])
+            ->whereDate('date', '>=', $period['start_date'])
+            ->whereDate('date', '<=', $closingDate)
+            ->where(function ($q) use ($driverId, $user) {
+                $q->whereHas('salesLedger', function ($query) use ($driverId) {
+                    $query->where('driver_id', $driverId);
+                });
+                if ($user) {
+                    $q->orWhere(function ($q2) use ($user) {
+                        $q2->whereNull('sales_ledger_id')
+                            ->where('create_by', $user->id);
+                    });
+                }
+            })
+            ->get();
+
+        if ($user) {
+            $linkedIds = DriverCashService::returnCashRefundQuery(
+                (int) $user->id,
+                $driverId,
+                $period['start_date'],
+                $closingDate
+            )->pluck('sp.id');
+            $orphanIds = SalesPayment::query()
+                ->where('type', SalesPayment::TYPE_RETURN)
+                ->where('create_by', $user->id)
+                ->whereNull('reference_id')
+                ->where('amount', '<', 0)
+                ->whereDate('date', '>=', $period['start_date'])
+                ->whereDate('date', '<=', $closingDate)
+                ->pluck('id');
+            $returnpaids = SalesPayment::query()
+                ->with('customer')
+                ->whereIn('id', $linkedIds->merge($orphanIds)->unique()->values())
+                ->orderBy('date')
+                ->orderBy('id')
+                ->get();
+        } else {
+            $returnpaids = collect();
+        }
+
+        $closingStatus = DriverClosing::query()
+            ->where('date', $closingDate)
+            ->where('driver_id', $driverId)
+            ->first();
+
+        $returnCashDeduct = $user
+            ? DriverCashService::totalReturnCashRefundsForDriver(
+                (int) $user->id,
+                $driverId,
+                $period['start_date'],
+                $closingDate
+            )
+            : 0.0;
+
+        $cashInHand = (float) $sales->sum('paid')
+            + (float) $collections->sum('amount')
+            - (float) $expenses->sum('amount')
+            - $returnCashDeduct;
+
+        return [
+            'driver' => Drivers::query()->findOrFail($driverId),
+            'period' => $period,
+            'closingDate' => $closingDate,
+            'sales' => $sales,
+            'collections' => $collections,
+            'expenses' => $expenses,
+            'products' => $products,
+            'stockSummaryRows' => $stockSummaryRows,
+            'issue' => $issue,
+            'distributableEmployees' => $distributableEmployees,
+            'driverEmployee' => $driverEmployee,
+            'givenAmounts' => $givenAmounts,
+            'salesReturns' => $salesReturns,
+            'returnpaids' => $returnpaids,
+            'closingStatus' => $closingStatus,
+            'cashInHand' => $cashInHand,
+        ];
+    }
+
+    private function renderClosingWorkbench(Request $request)
+    {
+        $data['drivers'] = (new DriverService())->getDriverList([], false, false)[2];
+        $data['showReport'] = false;
+
+        if ($request->filled('driver_id')) {
+            $request->validate([
+                'driver_id' => 'required|exists:drivers,id',
+            ]);
+            $data = array_merge($data, $this->closingReportPayload((int) $request->driver_id));
+            $data['showReport'] = true;
+        }
+
+        return view($this->path . '.index', $data);
     }
 
     /**
@@ -58,15 +269,21 @@ class DriverClosingController extends Controller
 
             $closingDate = $request->date ?? date('Y-m-d');
             $salaryMonth = date('Y-m', strtotime($closingDate));
+            $period = DriverPeriodService::periodForDriver((int) $request->driver_id);
 
-            $issue = DriverIssues::where('driver_id', $request->driver_id)
-                ->whereDate('issue_date', $closingDate)
+            if ($closingDate < $period['start_date'] || $closingDate > $period['end_date']) {
+                throw new \Exception('Closing date must be within the open period.');
+            }
+
+            $issues = DriverIssues::where('driver_id', $request->driver_id)
                 ->where('status', 'accepted')
+                ->whereDate('issue_date', '>=', $period['start_date'])
+                ->whereDate('issue_date', '<=', $closingDate)
                 ->with('items')
-                ->first();
+                ->get();
 
-            if (!$issue) {
-                throw new \Exception('No accepted driver issue found for this date.');
+            if ($issues->isEmpty()) {
+                throw new \Exception('No accepted driver stock issue found in the open period.');
             }
 
             $alreadyClosed = DriverClosing::where('driver_id', $request->driver_id)
@@ -88,7 +305,8 @@ class DriverClosingController extends Controller
                 ->toArray();
 
             $distributionRows = DriverCashDistribution::where('driver_id', $request->driver_id)
-                ->whereDate('date', $closingDate)
+                ->whereDate('date', '>=', $period['start_date'])
+                ->whereDate('date', '<=', $closingDate)
                 ->get(['id', 'employee_id', 'employee_salary_withdraw_id', 'amount'])
                 ->map(function ($row) {
                     return [
@@ -109,11 +327,13 @@ class DriverClosingController extends Controller
             $driverUser = User::where('driver_id', $request->driver_id)->first();
 
             $salesPaid = (float) SalesLedger::where('driver_id', $request->driver_id)
-                ->whereDate('date', $closingDate)
+                ->whereDate('date', '>=', $period['start_date'])
+                ->whereDate('date', '<=', $closingDate)
                 ->sum('paid');
 
             $dueCollection = (float) SalesPayment::where('type', 1)
-                ->whereDate('date', $closingDate)
+                ->whereDate('date', '>=', $period['start_date'])
+                ->whereDate('date', '<=', $closingDate)
                 ->when($driverUser, function ($query) use ($driverUser) {
                     $query->where('create_by', $driverUser->id);
                 })
@@ -174,100 +394,174 @@ class DriverClosingController extends Controller
                 ]);
             }
 
-            foreach ($issue->items as $item) {
-
-                /*
-                |--------------------------------------------------------------------------
-                | 1️⃣ SOLD QTY → warehouse sales_qty (FIFO)
-                |--------------------------------------------------------------------------
-                */
-                $remainingSoldQty = $item->sold_qty;
-
-                if ($remainingSoldQty > 0) {
-
-                    $stocks = WareHouseStocks::where('product_id', $item->product_id)
-                        ->where('sr_issue_qty', '>', 0)
-                        ->orderBy('id', 'asc') // FIFO
-                        ->get();
-
-                    foreach ($stocks as $stock) {
-
-                        if ($remainingSoldQty <= 0) break;
-
-                        $availableQty = $stock->sr_issue_qty;
-
-                        if ($availableQty <= 0) continue;
-
-                        $deductQty = min($availableQty, $remainingSoldQty);
-
-                        $stock->increment('sales_qty', $deductQty);
-
-                        $remainingSoldQty -= $deductQty;
-                    }
+            foreach ($issues as $issue) {
+                foreach ($issue->items as $item) {
+                    $this->applyWarehouseStockForClosedDriverIssueLine($item);
                 }
 
-                /*
-                |--------------------------------------------------------------------------
-                | 2️⃣ RETURN QTY → warehouse sales_return_qty (FIFO)
-                |--------------------------------------------------------------------------
-                */
-                $remainingReturnQty = $item->return_qty;
-
-                if ($remainingReturnQty > 0) {
-
-                    $stocks = WareHouseStocks::where('product_id', $item->product_id)
-                        ->where('sr_issue_qty', '>', 0)
-                        ->orderBy('id', 'asc')
-                        ->get();
-
-                    foreach ($stocks as $stock) {
-
-                        if ($remainingReturnQty <= 0) break;
-
-                        $availableQty = $stock->sr_issue_qty;
-
-                        if ($availableQty <= 0) continue;
-
-                        $returnQty = min($availableQty, $remainingReturnQty);
-
-                        $stock->increment('sales_return_qty', $returnQty);
-
-                        $remainingReturnQty -= $returnQty;
-                    }
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | 3️⃣ issue_qty → sr_issue_qty থেকে minus
-                |--------------------------------------------------------------------------
-                */
-                $issuedToAdjust = $item->issue_qty;
-                $stocks = WareHouseStocks::where('product_id', $item->product_id)
-                    ->where('sr_issue_qty', '>', 0)
-                    ->orderBy('id', 'asc')
-                    ->get();
-
-                foreach ($stocks as $stock) {
-                    if ($issuedToAdjust <= 0) {
-                        break;
-                    }
-
-                    $decrementQty = min($issuedToAdjust, $stock->sr_issue_qty);
-                    if ($decrementQty > 0) {
-                        $stock->decrement('sr_issue_qty', $decrementQty);
-                        $issuedToAdjust -= $decrementQty;
-                    }
-                }
+                $issue->update([
+                    'status' => 'closed',
+                ]);
             }
-
-            $issue->update([
-                'status' => 'closed'
-            ]);
             DB::commit();
-            return redirect()->back()->with('succcess','Driver Closing Finished');
+
+            return redirect()
+                ->route('driver_closing.index', ['driver_id' => $request->driver_id])
+                ->with('success', 'Driver closing finished.');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return redirect()->back()->with('error',$th->getMessage());
+
+            return redirect()
+                ->route('driver_closing.index', array_filter(['driver_id' => $request->driver_id]))
+                ->with('error', $th->getMessage());
+        }
+    }
+
+    /**
+     * When a driver issue line is closed: record sales & returns and release SR issue qty to warehouse.
+     *
+     * Uses warehouse_stock_id when set; otherwise a warehouse row with the same
+     * purchase price (4 dp) and enough sr_issue_qty for the full line; otherwise FIFO fallback.
+     */
+    private function applyWarehouseStockForClosedDriverIssueLine(DriverIssueItem $item): void
+    {
+        $productId = (int) $item->product_id;
+        $sold = (float) $item->sold_qty;
+        $ret = (float) $item->return_qty;
+        $issued = (float) $item->issue_qty;
+
+        $directRow = null;
+
+        if ($item->warehouse_stock_id) {
+            $directRow = WareHouseStocks::query()
+                ->whereKey((int) $item->warehouse_stock_id)
+                ->where('product_id', $productId)
+                ->lockForUpdate()
+                ->first();
+            if (! $directRow) {
+                throw new \Exception(
+                    "Warehouse batch #{$item->warehouse_stock_id} for product ID {$productId} is missing. Cannot complete closing."
+                );
+            }
+        } else {
+            $priceNorm = WareHouseStocks::normalizePurchasePrice($item->getAttribute('purchase_price') ?? 0);
+            $directRow = WareHouseStocks::query()
+                ->where('product_id', $productId)
+                ->whereRaw('ROUND(purchase_price, 4) = ?', [$priceNorm])
+                ->where('sr_issue_qty', '>=', $issued - 0.0001)
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
+                ->first();
+        }
+
+        if ($directRow) {
+            if ((float) $directRow->sr_issue_qty + 0.0001 < $issued) {
+                throw new \Exception(
+                    "Warehouse batch #{$directRow->id} does not have enough SR-issued quantity to close this driver line (product ID {$productId}). Reconcile stock or contact support."
+                );
+            }
+            if ($sold > 0) {
+                $directRow->increment('sales_qty', $sold);
+            }
+            if ($ret > 0) {
+                $directRow->increment('sales_return_qty', $ret);
+            }
+            if ($issued > 0) {
+                $directRow->decrement('sr_issue_qty', $issued);
+            }
+
+            return;
+        }
+
+        $this->applyWarehouseStockForClosedDriverIssueLineFifo($item);
+    }
+
+    /**
+     * Legacy: one driver line may span batches (weighted average price, no warehouse_stock_id).
+     */
+    private function applyWarehouseStockForClosedDriverIssueLineFifo(DriverIssueItem $item): void
+    {
+        $productId = (int) $item->product_id;
+
+        $remainingSoldQty = (float) $item->sold_qty;
+
+        if ($remainingSoldQty > 0) {
+            $stocks = WareHouseStocks::where('product_id', $productId)
+                ->where('sr_issue_qty', '>', 0)
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($stocks as $stock) {
+                if ($remainingSoldQty <= 0) {
+                    break;
+                }
+
+                $availableQty = (float) $stock->sr_issue_qty;
+
+                if ($availableQty <= 0) {
+                    continue;
+                }
+
+                $deductQty = min($availableQty, $remainingSoldQty);
+
+                $stock->increment('sales_qty', $deductQty);
+
+                $remainingSoldQty -= $deductQty;
+            }
+        }
+
+        $remainingReturnQty = (float) $item->return_qty;
+
+        if ($remainingReturnQty > 0) {
+            $stocks = WareHouseStocks::where('product_id', $productId)
+                ->where('sr_issue_qty', '>', 0)
+                ->orderBy('id', 'asc')
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($stocks as $stock) {
+                if ($remainingReturnQty <= 0) {
+                    break;
+                }
+
+                $availableQty = (float) $stock->sr_issue_qty;
+
+                if ($availableQty <= 0) {
+                    continue;
+                }
+
+                $returnQty = min($availableQty, $remainingReturnQty);
+
+                $stock->increment('sales_return_qty', $returnQty);
+
+                $remainingReturnQty -= $returnQty;
+            }
+        }
+
+        $issuedToAdjust = (float) $item->issue_qty;
+        $stocks = WareHouseStocks::where('product_id', $productId)
+            ->where('sr_issue_qty', '>', 0)
+            ->orderBy('id', 'asc')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($stocks as $stock) {
+            if ($issuedToAdjust <= 0) {
+                break;
+            }
+
+            $decrementQty = min($issuedToAdjust, (float) $stock->sr_issue_qty);
+            if ($decrementQty > 0) {
+                $stock->decrement('sr_issue_qty', $decrementQty);
+                $issuedToAdjust -= $decrementQty;
+            }
+        }
+
+        if ($issuedToAdjust > 0.0001) {
+            throw new \Exception(
+                "Could not release full issued quantity to warehouse for product ID {$productId}. SR issue qty mismatch — check driver issues and warehouse stock."
+            );
         }
     }
 
@@ -301,52 +595,5 @@ class DriverClosingController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-
-    public function driverClosing(Request $request)
-    {
-        $closingDate = $request->date ?? date('Y-m-d');
-        $user = (new User())->where('driver_id',$request->driver_id)->first();
-        $driverEmployee = Employee::where('driver_id', $request->driver_id)->first();
-
-        $data['driver'] = (new Drivers())->where('id',$request->driver_id)->first();
-        $data['sales'] = (new SalesLedger())->where('driver_id',$request->driver_id)->where('date',$closingDate)->get();
-        $data['collections'] = (new SalesPayment())->where('date',$closingDate)->where('create_by',$user?->id)->get();
-        $data['expenses'] = (new ExpenseEntry())->where('date',$closingDate)->where('driver_id',$request->driver_id)->get();
-        $data['products'] = DriverIssueItem::leftjoin('driver_issues','driver_issues.id','driver_issue_items.driver_issue_id')
-                            ->where('driver_issues.status','accepted')
-                            ->where('driver_issues.driver_id',$request->driver_id)
-                            ->where('issue_date',$closingDate)
-                            ->select('driver_issue_items.*')->get();
-
-        $data['issue'] = DriverIssues::where('driver_id', $request->driver_id)
-            ->whereDate('issue_date', $closingDate)
-            ->first();
-
-        $data['distributableEmployees'] = Employee::where('designation', '!=', 'DSR')
-            ->when($driverEmployee, function ($query) use ($driverEmployee) {
-                $query->where('id', '!=', $driverEmployee->id);
-            })
-            ->orderBy('name')
-            ->get();
-
-        $data['driverEmployee'] = $driverEmployee;
-        $data['givenAmounts'] = DriverCashDistribution::with('employee')
-            ->where('driver_id', $request->driver_id)
-            ->whereDate('date', $closingDate)
-            ->get();
-        $data['salesReturns'] = SalesReturnLedger::with(['customer', 'entries.product', 'payments', 'salesLedger'])
-            ->whereDate('date', $closingDate)
-            ->whereHas('salesLedger', function ($query) use ($request) {
-                $query->where('driver_id', $request->driver_id);
-            })
-            ->get();
-        $data['returnpaids'] = (new SalesPayment())->where('type',2)->where('amount','<','0')->where('date',$closingDate)->get(); 
-        $data['closingStatus'] = (new DriverClosing())->where('date',$closingDate)->where('driver_id',$request->driver_id)->first();
-        $data['cashInHand'] = (float) $data['sales']->sum('paid')
-            + (float) $data['collections']->sum('amount')
-            - (float) $data['expenses']->sum('amount')
-            - abs((float) $data['returnpaids']->sum('amount'));
-        return view($this->path.'.show_closing',$data);
     }
 }

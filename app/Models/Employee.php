@@ -34,7 +34,9 @@ class Employee extends Model
 
     public function getEmployeeList($search = [], $is_paginate = true)
     {
-        $query = self::query();
+        $query = self::query()
+            ->withSum('deposits as salary_deposit_total', 'amount')
+            ->withSum('withdraws as salary_withdraw_total', 'amount');
 
         if (!empty($search['free_text'])) {
             $query->where(function ($q) use ($search) {
@@ -46,7 +48,13 @@ class Employee extends Model
             });
         }
 
-        return $is_paginate ? $query->paginate(10) : $query->get();
+        if (isset($search['status']) && $search['status'] !== '' && $search['status'] !== null) {
+            $query->where('status', (int) $search['status']);
+        }
+
+        $query->orderByDesc('id');
+
+        return $is_paginate ? $query->paginate(10)->withQueryString() : $query->get();
     }
 
     public function storeEmployee($request)
@@ -112,5 +120,13 @@ class Employee extends Model
         $totalWithdraw = $this->withdraws()->sum('amount');
 
         return $totalDeposit - $totalWithdraw;
+    }
+
+    /**
+     * Salary ledger balance (deposits − withdraws). List query loads this via withSum aliases.
+     */
+    public function salaryBalanceDisplayed(): float
+    {
+        return (float) ($this->salary_deposit_total ?? 0) - (float) ($this->salary_withdraw_total ?? 0);
     }
 }

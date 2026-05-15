@@ -44,14 +44,19 @@
             <div class="card-body">
                 <table class="table table-bordered table-striped">
                     <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Supplier</th>
-                            <th>Return Type</th>
-                            <th>Subtotal</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Supplier</th>
+                                        <th>Return Type</th>
+                                        <th class="text-end">Line disc.</th>
+                                        <th class="text-end">Order disc.</th>
+                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-end">Grand total</th>
+                                        <th class="text-end">Due adj.</th>
+                                        <th class="text-end">Cash</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
                     </thead>
                     <tbody>
                         @forelse($ledgers as $ledger)
@@ -59,7 +64,12 @@
                                 <td>{{ $ledger->id }}</td>
                                 <td>{{ $ledger->supplier->name }}</td>
                                 <td>{{ $ledger->return_type == 1 ? 'Cash' : 'Minus From Due' }}</td>
-                                <td>{{ number_format($ledger->subtotal,2) }}</td>
+                                <td class="text-end">{{ number_format($ledger->line_discount_total ?? 0, 2) }}</td>
+                                <td class="text-end">{{ number_format($ledger->order_discount ?? 0, 2) }}</td>
+                                <td class="text-end">{{ number_format($ledger->subtotal, 2) }}</td>
+                                <td class="text-end">{{ number_format((float) (($ledger->grand_total ?? 0) > 0 ? $ledger->grand_total : $ledger->subtotal), 2) }}</td>
+                                <td class="text-end">{{ number_format($ledger->due_adjustment ?? 0, 2) }}</td>
+                                <td class="text-end">{{ number_format($ledger->cash_portion ?? 0, 2) }}</td>
                                 <td>{{ $ledger->created_at->format('Y-m-d') }}</td>
                                 <td>
                                     <a href="{{ route('purchase_return.show', $ledger->id) }}" class="btn btn-info btn-sm">View</a>
@@ -72,7 +82,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center">No Purchase Returns found.</td>
+                                <td colspan="11" class="text-center">No Purchase Returns found.</td>
                             </tr>
                         @endforelse
                     </tbody>

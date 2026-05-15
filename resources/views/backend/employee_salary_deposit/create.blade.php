@@ -23,7 +23,7 @@
                         <select name="employee_id" id="employee_id" class="form-select @error('employee_id') is-invalid @enderror" required>
                             <option value="">Select Employee</option>
                             @foreach($employees as $employee)
-                                <option value="{{ $employee->id }}" data-salary="{{ $employee->salary }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->name }} ({{ $employee->designation }})</option>
+                                <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>{{ $employee->name }} ({{ $employee->designation }})</option>
                             @endforeach
                         </select>
                         @error('employee_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -60,14 +60,41 @@
 
 @push('scripts')
 <script>
-    function setSalaryFromEmployee() {
-        const employee = document.getElementById('employee_id');
-        const selected = employee.options[employee.selectedIndex];
-        document.getElementById('monthly_salary').value = selected ? (selected.dataset.salary || '') : '';
+(function ($) {
+    function balanceUrl(employeeId) {
+        return "{{ url('employee-salary/balance') }}/" + encodeURIComponent(employeeId);
     }
 
-    document.getElementById('employee_id').addEventListener('change', setSalaryFromEmployee);
-    setSalaryFromEmployee();
+    function refreshMonthlySalary() {
+        var id = $('#employee_id').val();
+        $('#monthly_salary').val('');
+        if (!id) {
+            return;
+        }
+
+        fetch(balanceUrl(id), {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                var raw = data && data.salary !== undefined && data.salary !== null ? Number(data.salary) : NaN;
+                $('#monthly_salary').val(isNaN(raw) ? '' : raw.toFixed(2));
+            })
+            .catch(function () {
+                $('#monthly_salary').val('');
+            });
+    }
+
+    $(function () {
+        /* Select2 runs after @stack('scripts'); bind delegated + select2 event */
+        $(document).on('change select2:select', '#employee_id', refreshMonthlySalary);
+        refreshMonthlySalary();
+    });
+})(jQuery);
 </script>
 @endpush
 @endsection

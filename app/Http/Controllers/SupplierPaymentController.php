@@ -147,13 +147,13 @@ class SupplierPaymentController extends Controller
                         ->sum('amount');
         $totalReturnMinus = \App\Models\PurchaseReturnLedger::where('supplier_id', $supplier_id)
                                 ->where('return_type', 2)
-                                ->sum('subtotal');
-        $totalReturnPaid = SupplierPayment::where('supplier_id', $supplier_id)
-                        ->where('type', 3)
-                        ->sum('amount') * -1;
-        $openingDue = SupplierPayment::where('supplier_id', $supplier_id)
-                ->where('type', SupplierPayment::TYPE_PREVIOUS_DUE)
-                ->sum('amount');
+                                ->sum('due_adjustment');
+        $totalReturnCash = (float) SupplierPayment::where('supplier_id', $supplier_id)
+            ->where('type', SupplierPayment::TYPE_PURCHASE_RETURN)
+            ->sum('amount');
+        $openingDue = (float) SupplierPayment::where('supplier_id', $supplier_id)
+            ->where('type', SupplierPayment::TYPE_PREVIOUS_DUE)
+            ->sum('amount');
 
        
 
@@ -161,7 +161,13 @@ class SupplierPaymentController extends Controller
 
 
 
-        $due = $openingDue + $totalPurchase - $totalPurchaseDiscount - $totalPaid - $totalPurchasePiad - $totalReturnMinus + $totalReturnPaid;
+        $due = $openingDue
+            + (float) $totalPurchase
+            - (float) $totalPurchaseDiscount
+            - (float) $totalPaid
+            - (float) $totalPurchasePiad
+            - (float) $totalReturnMinus
+            + $totalReturnCash;
 
         return response()->json(['due' => $due]);
     }
