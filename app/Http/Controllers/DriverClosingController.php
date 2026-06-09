@@ -413,7 +413,7 @@ class DriverClosingController extends Controller
 
             return redirect()
                 ->route('driver_closing.index', array_filter(['driver_id' => $request->driver_id]))
-                ->with('error', $th->getMessage());
+                ->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
     }
 

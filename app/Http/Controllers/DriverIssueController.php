@@ -228,7 +228,7 @@ class DriverIssueController extends Controller
             return back()->with('success', 'Stock issue accepted. Warehouse stock has been updated and your daily stock is ready.');
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->with('error', $th->getMessage());
+            return back()->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
     }
 

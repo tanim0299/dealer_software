@@ -15,7 +15,7 @@ class IncomeExpenseService
             $status_message = 'Data Found';
         } catch(\Throwable $th){
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -41,8 +41,8 @@ class IncomeExpenseService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -58,7 +58,7 @@ class IncomeExpenseService
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $title];
@@ -84,8 +84,8 @@ class IncomeExpenseService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -105,7 +105,7 @@ class IncomeExpenseService
         }
         catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -120,7 +120,7 @@ class IncomeExpenseService
             $status_message = "Income Expense Title status changed successfully.";
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

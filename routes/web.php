@@ -67,6 +67,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('driver/{driver}/create-login-user', [DriverController::class, 'createLoginUser'])
+        ->name('driver.create_login_user');
+
     Route::resources([
         'menu_section' => MenuSectionController::class,
         'menu' => MenuController::class,
@@ -121,6 +124,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('reports/sales', [InventoryReportController::class, 'salesIndex'])->name('sales_report.index');
     Route::get('reports/sales/print', [InventoryReportController::class, 'salesPrint'])->name('sales_report.print');
+    Route::get('reports/sales-profit', [InventoryReportController::class, 'salesProfitIndex'])->name('sales_profit_report.index');
+    Route::get('reports/sales-profit/print', [InventoryReportController::class, 'salesProfitPrint'])->name('sales_profit_report.print');
 
     Route::get('reports/purchase', [InventoryReportController::class, 'purchaseIndex'])->name('purchase_report.index');
     Route::get('reports/purchase/print', [InventoryReportController::class, 'purchasePrint'])->name('purchase_report.print');

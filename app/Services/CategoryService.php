@@ -14,7 +14,7 @@ class CategoryService
             $status_message = 'Data Found';
         } catch(\Throwable $th){
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -40,8 +40,8 @@ class CategoryService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -57,7 +57,7 @@ class CategoryService
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $category];
@@ -83,8 +83,8 @@ class CategoryService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -104,7 +104,7 @@ class CategoryService
         }
         catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -119,7 +119,7 @@ class CategoryService
             $status_message = "Category status updated successfully.";
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

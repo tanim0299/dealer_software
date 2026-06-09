@@ -15,7 +15,7 @@ class ExpenseEntryService
             $status_message = 'Data Found';
         } catch(\Throwable $th){
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -50,8 +50,8 @@ class ExpenseEntryService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -67,7 +67,7 @@ class ExpenseEntryService
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $ExpenseEntry];
@@ -109,8 +109,8 @@ class ExpenseEntryService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -170,7 +170,7 @@ class ExpenseEntryService
         }
         catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -185,7 +185,7 @@ class ExpenseEntryService
             $status_message = "Expense Entry status updated successfully.";
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

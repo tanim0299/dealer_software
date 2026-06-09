@@ -23,7 +23,7 @@ class DriverIssueService {
             $status_message = 'Driver Issue Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code , $status_message, $response];
@@ -74,7 +74,7 @@ class DriverIssueService {
             $response = $issues;
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
             $response = $is_paginate ? null : collect();
         } finally {
             return [$status_code, $status_message, $response];
@@ -216,7 +216,7 @@ class DriverIssueService {
             } catch (\Throwable $th) {
                 DB::rollBack();
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             } finally {
                 return [$status_code, $status_message, $error_message];
             }
@@ -290,7 +290,7 @@ class DriverIssueService {
                 DB::rollBack();
 
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $e->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($e);
                 $error_message = '';
             }
 
@@ -328,7 +328,7 @@ class DriverIssueService {
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

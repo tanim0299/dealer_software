@@ -38,8 +38,8 @@ class MenuService
                 $status_message = 'Menu created successfully.';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -56,7 +56,7 @@ class MenuService
             $status_message = 'Menu Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code , $status_message , $response];
     }
@@ -80,8 +80,8 @@ class MenuService
                 $status_message = 'Menu updated successfully.';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -97,7 +97,7 @@ class MenuService
             $status_message = 'Menu Removed';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

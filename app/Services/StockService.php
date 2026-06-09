@@ -15,7 +15,7 @@ class StockService {
             $status_message = 'Stock Data Found';
         } catch (\Throwable $th) {
             $status_code =  ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code , $status_message, $response];
     }
@@ -66,7 +66,7 @@ class StockService {
             $status_message = 'Stock Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }

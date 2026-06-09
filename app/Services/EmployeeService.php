@@ -16,7 +16,7 @@ class EmployeeService
             $status_message = 'Employees Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -32,7 +32,7 @@ class EmployeeService
             $status_message = 'Employee Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -56,7 +56,7 @@ class EmployeeService
                 $status_message = 'Employee Created';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
 
@@ -81,7 +81,7 @@ class EmployeeService
                 $status_message = 'Employee Updated';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
 
@@ -98,7 +98,7 @@ class EmployeeService
             $status_message = 'Employee Deleted';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

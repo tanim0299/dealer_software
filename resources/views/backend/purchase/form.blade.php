@@ -48,7 +48,7 @@
                                             <!-- Sub-Unit Selection -->
                                             <div class="col-md-6">
                                                 <label class="form-label">Select Sub-Unit</label>
-                                                <select id="subUnit" class="form-select" onchange="onSubUnitChange()" disabled>
+                                                <select id="subUnit" class="form-select" onchange="onSubUnitChange()" disabled data-select2-skip>
                                                     <option value="">Loading sub-units...</option>
                                                 </select>
                                             </div>
@@ -57,7 +57,7 @@
                                             <div class="col-md-6">
                                                 <label class="form-label">Price per Unit</label>
                                                 <div class="input-group">
-                                                    <input type="number" id="price" class="form-control" readonly>
+                                                    <input type="number" id="price" class="form-control" min="0" step="0.01" oninput="updateTotalPrice()">
                                                 </div>
                                             </div>
                                         </div>
@@ -454,12 +454,20 @@
     function loadSubUnits(product) {
         const subUnitSelect = document.getElementById('subUnit');
         const purchasePrice = parseFloat(product.purchase_price) || 0;
-      
+
+        if (window.jQuery && jQuery.fn.select2 && jQuery(subUnitSelect).hasClass('select2-hidden-accessible')) {
+            jQuery(subUnitSelect).select2('destroy');
+        }
+
+        const subUnits = Array.isArray(product.sub_units)
+            ? product.sub_units
+            : (Array.isArray(product.unit?.sub_unit) ? product.unit.sub_unit : []);
+
         // Check if product has sub_units array
-        if (product.sub_units && product.sub_units.length > 0) {
+        if (subUnits.length > 0) {
             subUnitSelect.innerHTML = '<option value="">Select Sub-Unit</option>';
             
-            product.sub_units.forEach(subUnit => {
+            subUnits.forEach(subUnit => {
                 subUnitSelect.innerHTML += `
                     <option value="${subUnit.id}" 
                             data-price="${purchasePrice}"
@@ -473,9 +481,9 @@
             subUnitSelect.disabled = false;
             
             // Auto-select first option if only one exists
-            if (product.sub_units.length === 1) {
+            if (subUnits.length === 1) {
                 setTimeout(() => {
-                    subUnitSelect.value = product.sub_units[0].id;
+                    subUnitSelect.value = subUnits[0].id;
                     onSubUnitChange();
                 }, 100);
             }
@@ -576,6 +584,7 @@
         
         // Calculate total price
         const total = qty * price;
+        const defaultSalePrice = parseFloat(selectedProduct.sale_price) || 0;
         
         // Create cart item
         const item = {
@@ -587,7 +596,7 @@
             quantity: qty,
             unit_price: price,
 
-            sale_price: price, // default (editable later)
+            sale_price: defaultSalePrice,
 
             discount: 0,
             total_price: total,
@@ -705,8 +714,8 @@
                     <!-- Price -->
                     <td>
                         <input type="number" class="form-control form-control-sm"
-                            value="${item.unit_price}"
-                            onchange="updateCartItem(${index}, 'unit_price', this.value)">
+                            value="${item.unit_price}" min="0" step="0.01"
+                            oninput="updateCartItemInline(${index}, 'unit_price', this.value)">
                     </td>
 
                     <!-- Discount -->
@@ -725,7 +734,7 @@
 
 
                     <!-- Total -->
-                    <td class="fw-semibold">
+                    <td class="fw-semibold" id="cart-total-${index}">
                         ${item.total_price.toFixed(2)}
                     </td>
 
@@ -852,6 +861,29 @@
         cart[index][field] = value;
 
         recalculateCartItem(index);
+    }
+
+    function updateCartItemInline(index, field, value) {
+        value = parseFloat(value) || 0;
+
+        if (field === 'unit_price' && value < 0) value = 0;
+        if (!cart[index]) return;
+
+        cart[index][field] = value;
+
+        const item = cart[index];
+        const gross = item.quantity * item.unit_price;
+        const discount = item.discount || 0;
+        item.total_price = Math.max(0, gross - discount);
+        item.final_quantity = calculateFinalQuantity(item);
+
+        const totalCell = document.getElementById(`cart-total-${index}`);
+        if (totalCell) {
+            totalCell.textContent = item.total_price.toFixed(2);
+        }
+
+        updateSummary();
+        syncCartHiddenInputs();
     }
 
     function recalculateCartItem(index) {

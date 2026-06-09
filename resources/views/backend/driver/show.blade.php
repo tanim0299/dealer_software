@@ -90,10 +90,25 @@
                                 <p class="small text-muted mt-2 mb-0" id="dsr-copy-feedback" style="min-height: 1.25rem;">
                                 </p>
                             @else
-                                <div class="alert alert-warning mb-0">
-                                    No user account is linked to this DSR (<code>driver_id</code> on users). Create the
-                                    DSR again from admin or link a user manually.
+                                <div class="alert alert-warning">
+                                    No user account is linked to this DSR (<code>driver_id</code> on users).
                                 </div>
+                                @if (auth()->user()->can('Driver edit'))
+                                    <form method="POST" action="{{ route('driver.create_login_user', $driver->id) }}">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-user-plus"></i> Create login user
+                                        </button>
+                                    </form>
+                                    <p class="small text-muted mt-2 mb-0">
+                                        This will create the DSR portal user with email
+                                        <code>dsr{{ $driver->id }}@example.com</code> and the default password.
+                                    </p>
+                                @else
+                                    <p class="small text-muted mb-0">
+                                        Ask an admin with DSR edit permission to create the login user.
+                                    </p>
+                                @endif
                             @endif
                         </div>
                     </div>

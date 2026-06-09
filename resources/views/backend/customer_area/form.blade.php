@@ -18,7 +18,7 @@
             <div class="mb-3">
                 <label for="status" class="form-label">Status</label><span class="text-danger">*</span>
                 <select class="form-select @error('status') is-invalid @enderror" id="status" name="status">
-                    @foreach(\App\Models\Item::STATUS as $key => $value)
+                    @foreach(\App\Models\CustomerArea::STATUS as $key => $value)
                         <option value="{{ $key }}" {{ old('status', @$data->status) == $key ? 'selected' : '' }}>{{ $value }}</option>
                     @endforeach
                 </select>

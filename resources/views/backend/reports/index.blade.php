@@ -10,6 +10,7 @@
 
         <div class="row g-3">
             <div class="col-md-3 col-sm-6"><a class="btn btn-outline-primary w-100" href="{{ route('sales_report.index') }}">Sales Report</a></div>
+            <div class="col-md-3 col-sm-6"><a class="btn btn-outline-success w-100" href="{{ route('sales_profit_report.index') }}">Sales Profit Report</a></div>
             <div class="col-md-3 col-sm-6"><a class="btn btn-outline-primary w-100" href="{{ route('purchase_report.index') }}">Purchase Report</a></div>
             <div class="col-md-3 col-sm-6"><a class="btn btn-outline-success w-100" href="{{ route('stock_report.index') }}">Stock Movement Report</a></div>
             <div class="col-md-3 col-sm-6"><a class="btn btn-outline-warning w-100" href="{{ route('cash_report.index') }}">Cash Report</a></div>

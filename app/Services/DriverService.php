@@ -19,6 +19,87 @@ class DriverService
         return self::DEFAULT_DSR_PLAIN_PASSWORD;
     }
 
+    public function ensureDriverLoginUser(int $driverId): array
+    {
+        try {
+            DB::beginTransaction();
+
+            $driver = Drivers::findOrFail($driverId);
+            $existingUser = User::where('driver_id', $driver->id)->first();
+
+            if ($existingUser) {
+                DB::commit();
+
+                return [
+                    ApiService::API_SUCCESS,
+                    'DSR login user already exists.',
+                    null,
+                ];
+            }
+
+            $role = Role::where('name', 'Driver')->where('guard_name', 'web')->first();
+            if (! $role) {
+                throw new \RuntimeException('Spatie role "Driver" is missing. Run database seeders.');
+            }
+
+            $placeholderEmail = 'dsr' . $driver->id . '@example.com';
+            $emailOwner = User::where('email', $placeholderEmail)->first();
+
+            if ($emailOwner && (int) $emailOwner->driver_id !== (int) $driver->id) {
+                throw new \RuntimeException("Email {$placeholderEmail} is already used by another user.");
+            }
+
+            $user = $emailOwner ?: User::create([
+                'role_id' => $role->id,
+                'name' => $driver->name,
+                'phone' => $driver->phone ?? null,
+                'email' => $placeholderEmail,
+                'type' => 1,
+                'driver_id' => $driver->id,
+                'password' => self::DEFAULT_DSR_PLAIN_PASSWORD,
+            ]);
+
+            $user->update([
+                'role_id' => $role->id,
+                'name' => $driver->name,
+                'phone' => $driver->phone ?? null,
+                'email' => $placeholderEmail,
+                'type' => 1,
+                'driver_id' => $driver->id,
+            ]);
+            $user->assignRole('Driver');
+
+            Employee::updateOrCreate(
+                ['driver_id' => $driver->id],
+                [
+                    'name' => $driver->name,
+                    'email' => $placeholderEmail,
+                    'phone' => $driver->phone ?? null,
+                    'designation' => 'DSR',
+                    'salary' => Employee::where('driver_id', $driver->id)->value('salary') ?? 0,
+                    'status' => $driver->status == Drivers::STATUS_ACTIVE ? Employee::STATUS_ACTIVE : Employee::STATUS_INACTIVE,
+                ]
+            );
+
+            DB::commit();
+
+            return [
+                ApiService::API_SUCCESS,
+                'DSR login user created successfully.',
+                null,
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            $message = $this->friendlyDriverError($th);
+
+            return [
+                ApiService::API_SERVER_ERROR,
+                $message,
+                [$message],
+            ];
+        }
+    }
+
     public function getDriverList($search = [], $is_paginate = true, $is_relation = false)
     {
         $status_code = $status_message = $response = '';
@@ -28,7 +109,7 @@ class DriverService
             $status_message = 'DSR list fetched';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         } finally {
             return [$status_code, $status_message, $response];
         }
@@ -58,36 +139,10 @@ class DriverService
 
             $driver->areas()->sync($request->area_ids);
 
-            // Create login user for this DSR (Spatie role name remains "Driver" in DB/seeders)
-            $role = Role::where('name', 'Driver')->where('guard_name', 'web')->first();
-            if (! $role) {
-                throw new \RuntimeException('Spatie role "Driver" is missing. Run database seeders.');
+            [$userStatus, $userMessage, $userErrors] = $this->ensureDriverLoginUser((int) $driver->id);
+            if ($userStatus !== ApiService::API_SUCCESS) {
+                throw new \RuntimeException($userMessage ?: ($userErrors[0] ?? 'DSR login user could not be created.'));
             }
-
-            $placeholderEmail = 'dsr' . $driver->id . '@example.com';
-            $user = User::create([
-                'role_id' => $role->id,
-                'name' => $request->name,
-                'phone' => $request->phone ?? null,
-                'email' => $placeholderEmail,
-                'type' => 1,
-                'driver_id' => $driver->id,
-                'password' => self::DEFAULT_DSR_PLAIN_PASSWORD,
-            ]);
-
-            $user->assignRole('Driver');
-
-            Employee::updateOrCreate(
-                ['driver_id' => $driver->id],
-                [
-                    'name' => $request->name,
-                    'email' => $placeholderEmail,
-                    'phone' => $request->phone ?? null,
-                    'designation' => 'DSR',
-                    'salary' => 0,
-                    'status' => $request->status == Drivers::STATUS_ACTIVE ? Employee::STATUS_ACTIVE : Employee::STATUS_INACTIVE,
-                ]
-            );
 
             DB::commit();
 
@@ -99,11 +154,12 @@ class DriverService
         } catch (\Throwable $th) {
 
             DB::rollBack();
+            $message = $this->friendlyDriverError($th);
 
             return [
                 ApiService::API_SERVER_ERROR,
-                $th->getMessage(),
-                [$th->getMessage()]
+                $message,
+                [$message]
             ];
         }
     }
@@ -117,7 +173,7 @@ class DriverService
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $driver];
@@ -181,11 +237,12 @@ class DriverService
         } catch (\Throwable $th) {
 
             DB::rollBack();
+            $message = $this->friendlyDriverError($th);
 
             return [
                 ApiService::API_SERVER_ERROR,
-                'Something went wrong.',
-                [$th->getMessage()]
+                $message,
+                [$message]
             ];
         }
     }
@@ -226,7 +283,7 @@ class DriverService
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -241,9 +298,28 @@ class DriverService
             $status_message = 'DSR status changed successfully.';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
+    }
+
+    private function friendlyDriverError(\Throwable $th): string
+    {
+        $message = ApiService::friendlyExceptionMessage($th);
+
+        if (str_contains($message, 'employees_phone_unique')) {
+            return 'This phone number is already used by another employee or DSR.';
+        }
+
+        if (str_contains($message, 'employees_email_unique')) {
+            return 'This DSR login email is already used by another employee.';
+        }
+
+        if (str_contains($message, 'users_email_unique')) {
+            return 'This DSR login email is already used by another user.';
+        }
+
+        return $message ?: 'DSR could not be saved.';
     }
 }

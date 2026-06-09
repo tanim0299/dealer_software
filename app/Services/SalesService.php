@@ -48,7 +48,7 @@ class SalesService {
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -253,7 +253,7 @@ class SalesService {
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $invoice_url];
@@ -268,7 +268,7 @@ class SalesService {
             $status_message = 'Sales Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }
@@ -340,7 +340,7 @@ class SalesService {
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

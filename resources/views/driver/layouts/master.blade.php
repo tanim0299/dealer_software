@@ -642,6 +642,7 @@
         </div>
     @endif
     <div class="page-shell">
+        @include('components.flash-messages')
         @yield('body')
     </div>
 </div>
@@ -729,19 +730,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 @stack('scripts')
 @include('components.fresh-select2-script')
-<script>
-    @if(session('success'))
-    toastr.success(@json(session('success')));
-    @endif
-    @if(session('error'))
-    toastr.error(@json(session('error')));
-    @endif
-    @if(session('info'))
-    toastr.info(@json(session('info')));
-    @endif
-    @if(session('warning'))
-    toastr.warning(@json(session('warning')));
-    @endif
-</script>
+@include('components.flash-toasts')
 </body>
 </html>

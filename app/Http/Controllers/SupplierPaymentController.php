@@ -84,7 +84,7 @@ class SupplierPaymentController extends Controller
             return redirect()->route('supplier_payment.create')->with('success', 'Payment added successfully.');
 
         } catch (\Throwable $th) {
-            return redirect()->route('supplier_payment.create')->with('error', $th->getMessage());
+            return redirect()->route('supplier_payment.create')->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
     }
 

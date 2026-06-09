@@ -66,6 +66,24 @@ class DriverController extends Controller
         ]);
     }
 
+    public function createLoginUser(string $id)
+    {
+        abort_unless(auth()->user()->can('Driver edit'), 403);
+
+        [$status_code, $status_message, $error_message] = (new DriverService())->ensureDriverLoginUser((int) $id);
+
+        if ($status_code == ApiService::API_SUCCESS) {
+            return redirect()
+                ->route('driver.show', $id)
+                ->with('success', $status_message);
+        }
+
+        return redirect()
+            ->route('driver.show', $id)
+            ->withErrors($error_message)
+            ->with('error', $status_message);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
