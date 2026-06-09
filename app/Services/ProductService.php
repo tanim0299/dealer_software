@@ -13,7 +13,7 @@ class ProductService {
             $status_message = 'Product Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }
@@ -36,7 +36,7 @@ class ProductService {
                 $status_message = 'Product Created';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
         return [$status_code, $status_message, $error_message];
@@ -60,7 +60,7 @@ class ProductService {
                 $status_message = 'Product Updated';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
         return [$status_code, $status_message, $error_message];
@@ -75,7 +75,7 @@ class ProductService {
             $status_message = 'Product Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code,$status_message, $response];
     }
@@ -89,7 +89,7 @@ class ProductService {
             $status_message = 'Product Removed';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message];
     }

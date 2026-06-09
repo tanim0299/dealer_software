@@ -18,7 +18,7 @@ class RoleService
             $status_message = 'Role list retrieved successfully.';
         } catch (\Throwable $th) {
            $status_code = ApiService::API_SERVER_ERROR;
-           $status_message = $th->getMessage();
+           $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }
@@ -42,8 +42,8 @@ class RoleService
                 $status_message = 'Role created successfully.';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -60,7 +60,7 @@ class RoleService
             $status_message = 'Role Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code , $status_message , $response];
     }
@@ -84,8 +84,8 @@ class RoleService
                 $status_message = 'Role updated successfully.';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -101,7 +101,7 @@ class RoleService
             $status_message = 'Role Removed';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -124,7 +124,7 @@ class RoleService
             $status_message = 'Permission Synced';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];

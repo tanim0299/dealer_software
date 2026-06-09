@@ -20,7 +20,7 @@ class SupplierService {
             $status_message = 'Suppliers Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -34,7 +34,7 @@ class SupplierService {
             $status_message = 'Suppliers Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -48,7 +48,7 @@ class SupplierService {
             $status_message = 'Suppliers Deleted';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -94,7 +94,7 @@ class SupplierService {
             } catch (\Throwable $th) {
                 DB::rollBack();
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
         return [$status_code, $status_message, $error_message];
@@ -118,7 +118,7 @@ class SupplierService {
                 $status_message = 'Supplier Created';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
         return [$status_code, $status_message, $error_message];

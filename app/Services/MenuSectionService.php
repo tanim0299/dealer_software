@@ -15,7 +15,7 @@ class MenuSectionService
             $status_message = 'Data Found';
         } catch(\Throwable $th){
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -41,8 +41,8 @@ class MenuSectionService
                 $error_message = null;
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -58,7 +58,7 @@ class MenuSectionService
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $menu_section];
     }
@@ -89,8 +89,8 @@ class MenuSectionService
 
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
-            $error_message = [$th->getMessage()];
+            $status_message = ApiService::friendlyExceptionMessage($th);
+            $error_message = [ApiService::friendlyExceptionMessage($th)];
         }
 
         return [$status_code, $status_message, $error_message];
@@ -109,7 +109,7 @@ class MenuSectionService
         }
         catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
@@ -127,7 +127,7 @@ class MenuSectionService
         } catch (\Throwable $th) {
             return [
                 ApiService::API_SERVER_ERROR,
-                $th->getMessage()
+                ApiService::friendlyExceptionMessage($th)
             ];
         }
     }

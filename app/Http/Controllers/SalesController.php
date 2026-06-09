@@ -244,7 +244,7 @@ class SalesController extends Controller
             DB::rollBack();
             return response()->json([
                 'status_code' => ApiService::API_SERVER_ERROR,
-                'status_message' => $th->getMessage(),
+                'status_message' => \App\Services\ApiService::friendlyExceptionMessage($th),
             ], 500);
         }
     }

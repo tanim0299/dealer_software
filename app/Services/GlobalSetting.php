@@ -16,7 +16,7 @@ class GlobalSetting
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -38,8 +38,8 @@ class GlobalSetting
                 $status_message = 'Role created successfully.';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
-                $error_message = [$th->getMessage()];
+                $status_message = ApiService::friendlyExceptionMessage($th);
+                $error_message = [ApiService::friendlyExceptionMessage($th)];
             }
         }
 
@@ -70,7 +70,7 @@ class GlobalSetting
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
             $status_message = 'Something went wrong.';
-            $error_message = [$th->getMessage()];
+            $error_message = [ApiService::friendlyExceptionMessage($th)];
         }
 
         return [$status_code, $status_message, $error_message];

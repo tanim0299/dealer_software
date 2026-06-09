@@ -120,7 +120,7 @@ class CustomerPaymentController extends Controller
                     now()->toDateString()
                 );
             } catch (\RuntimeException $e) {
-                return back()->with('error', $e->getMessage())->withInput();
+                return back()->with('error', \App\Services\ApiService::friendlyExceptionMessage($e))->withInput();
             }
         }
 
@@ -158,7 +158,7 @@ class CustomerPaymentController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return back()->with('error', $th->getMessage())->withInput();
+            return back()->with('error', \App\Services\ApiService::friendlyExceptionMessage($th))->withInput();
         }
     }
 
@@ -208,7 +208,7 @@ class CustomerPaymentController extends Controller
                     (string) $payment->date
                 );
             } catch (\RuntimeException $e) {
-                return back()->with('error', $e->getMessage());
+                return back()->with('error', \App\Services\ApiService::friendlyExceptionMessage($e));
             }
         }
 

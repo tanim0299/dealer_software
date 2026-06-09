@@ -27,6 +27,9 @@ class InventoryReportController extends Controller
         $this->middleware(['permission:Sales Report view'])->only(['salesIndex']);
         $this->middleware(['permission:Sales Report create'])->only(['salesPrint']);
 
+        $this->middleware(['permission:Sales Profit Report view'])->only(['salesProfitIndex']);
+        $this->middleware(['permission:Sales Profit Report create'])->only(['salesProfitPrint']);
+
         $this->middleware(['permission:Purchase Report view'])->only(['purchaseIndex']);
         $this->middleware(['permission:Purchase Report create'])->only(['purchasePrint']);
 
@@ -99,6 +102,100 @@ class InventoryReportController extends Controller
         $summary['due'] = $summary['net_sales'] - $summary['paid'];
 
         return view('backend.reports.sales_print', compact('rows', 'summary', 'period'));
+    }
+
+    public function salesProfitIndex()
+    {
+        $extraFilters = [
+            [
+                'name' => 'customer_id',
+                'label' => 'Customer',
+                'placeholder' => 'All Customers',
+                'options' => Customer::orderBy('name')->get(),
+                'value_field' => 'id',
+                'text_field' => 'name',
+            ],
+            [
+                'name' => 'product_id',
+                'label' => 'Product',
+                'placeholder' => 'All Products',
+                'options' => Product::orderBy('name')->get(),
+                'value_field' => 'id',
+                'text_field' => 'name',
+            ],
+        ];
+
+        return view('backend.reports.filter', [
+            'reportTitle' => 'Sales Profit Report Filter',
+            'printRoute' => route('sales_profit_report.print'),
+            'extraFilters' => $extraFilters,
+        ]);
+    }
+
+    public function salesProfitPrint(Request $request)
+    {
+        $period = $this->resolvePeriod($request);
+
+        $query = DB::table('sales_entries as se')
+            ->join('sales_ledgers as sl', 'se.ledger_id', '=', 'sl.id')
+            ->join('products as p', 'se.product_id', '=', 'p.id')
+            ->leftJoin('customers as c', 'sl.customer_id', '=', 'c.id')
+            ->leftJoin('drivers as d', 'sl.driver_id', '=', 'd.id')
+            ->whereBetween('sl.date', [$period['from'], $period['to']])
+            ->select([
+                'sl.date',
+                'sl.invoice_no',
+                'c.name as customer_name',
+                'd.name as driver_name',
+                'p.name as product_name',
+                'se.quantity',
+                'se.final_quantity',
+                'se.sale_price',
+                'se.purchase_price',
+                'se.discount',
+            ]);
+
+        if (!empty($request->customer_id)) {
+            $query->where('sl.customer_id', $request->customer_id);
+        }
+
+        if (!empty($request->product_id)) {
+            $query->where('se.product_id', $request->product_id);
+        }
+
+        $rows = $query
+            ->orderBy('sl.date')
+            ->orderBy('sl.id')
+            ->orderBy('se.id')
+            ->get()
+            ->map(function ($row) {
+                $qty = (float) $row->quantity;
+                $finalQty = (float) $row->final_quantity;
+                $salePrice = (float) $row->sale_price;
+                $purchasePrice = (float) $row->purchase_price;
+                $discount = (float) $row->discount;
+
+                $salesAmount = ($qty * $salePrice) - $discount;
+                $purchaseAmount = $finalQty * $purchasePrice;
+                $profit = $salesAmount - $purchaseAmount;
+
+                $row->sales_amount = $salesAmount;
+                $row->purchase_amount = $purchaseAmount;
+                $row->profit = $profit;
+
+                return $row;
+            });
+
+        $summary = [
+            'line_count' => $rows->count(),
+            'quantity' => (float) $rows->sum('quantity'),
+            'final_quantity' => (float) $rows->sum('final_quantity'),
+            'sales_amount' => (float) $rows->sum('sales_amount'),
+            'purchase_amount' => (float) $rows->sum('purchase_amount'),
+            'profit' => (float) $rows->sum('profit'),
+        ];
+
+        return view('backend.reports.sales_profit_print', compact('rows', 'summary', 'period'));
     }
 
     public function purchaseIndex()

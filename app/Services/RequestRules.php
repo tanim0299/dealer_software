@@ -2,6 +2,7 @@
 namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RequestRules{
 
@@ -61,11 +62,18 @@ class RequestRules{
         return [$rules, $messages];
 
     }
-    public static function driverStoreRules()
+    public static function driverStoreRules($request = [], $id = null)
     {
+        $employeeId = $id ? \App\Models\Employee::where('driver_id', $id)->value('id') : null;
+
         $rules = [
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20',
+            'phone' => [
+                'nullable',
+                'string',
+                'max:20',
+                Rule::unique('employees', 'phone')->ignore($employeeId),
+            ],
             'vehicle_no' => 'nullable|string|max:50',
             'address' => 'nullable|string',
             'status' => 'required|in:active,inactive',
@@ -74,8 +82,7 @@ class RequestRules{
         $messages = [
             'name.required'      => 'DSR name is required.',
 
-            'phone.required'     => 'Phone number is required.',
-            'phone.unique'       => 'This phone number is already associated with another DSR.',
+            'phone.unique'       => 'This phone number is already used by another employee or DSR.',
 
             'vehicle_no.required'=> 'Vehicle number is required.',
             'vehicle_no.unique'  => 'This vehicle number is already assigned to another DSR.',
@@ -548,11 +555,19 @@ class RequestRules{
         $isUpdate = !empty($id);
 
         $rules = [
-            //
+            'name' => $isUpdate
+                ? 'required|string|max:255|unique:customer_areas,name,' . $id
+                : 'required|string|max:255|unique:customer_areas,name',
+            'status' => 'required|in:active,inactive',
         ];
 
         $messages = [
-            //
+            'name.required' => 'Customer area name is required.',
+            'name.string' => 'Customer area name must be a string.',
+            'name.max' => 'Customer area name may not be greater than 255 characters.',
+            'name.unique' => 'This customer area already exists.',
+            'status.required' => 'Status is required.',
+            'status.in' => 'Status must be active or inactive.',
         ];
 
         return [$rules, $messages];

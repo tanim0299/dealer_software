@@ -9,12 +9,12 @@ class CustomerArea extends Model
 {
     protected $guarded = [];
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_INACTIVE = 0;
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
 
     const STATUS = [
-        'active'   => 'Active',
-        'inactive' => 'Inactive',
+        self::STATUS_ACTIVE => 'Active',
+        self::STATUS_INACTIVE => 'Inactive',
     ];
 
     public function CustomerAreaList($search = [], $is_paginate = true)

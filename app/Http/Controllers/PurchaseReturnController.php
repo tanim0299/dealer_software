@@ -258,7 +258,7 @@ class PurchaseReturnController extends Controller
         } catch (\Throwable $e) {
             DB::rollBack();
 
-            return redirect()->back()->with('error', 'Something went wrong: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Something went wrong: '.\App\Services\ApiService::friendlyExceptionMessage($e));
         }
     }
 
@@ -365,7 +365,7 @@ class PurchaseReturnController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->with('error', 'Failed to delete purchase return: '.$e->getMessage());
+            return redirect()->back()->with('error', 'Failed to delete purchase return: '.\App\Services\ApiService::friendlyExceptionMessage($e));
         }
     }
 }

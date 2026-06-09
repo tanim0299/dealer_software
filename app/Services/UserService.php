@@ -13,7 +13,7 @@ class UserService {
             $status_message = 'User Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code , $status_message, $response];
@@ -38,7 +38,7 @@ class UserService {
                 $status_message = 'User Created';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
 
@@ -55,7 +55,7 @@ class UserService {
             $status_message = 'User Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }
@@ -79,7 +79,7 @@ class UserService {
                 $status_message = 'User Updated';
             } catch (\Throwable $th) {
                 $status_code = ApiService::API_SERVER_ERROR;
-                $status_message = $th->getMessage();
+                $status_message = ApiService::friendlyExceptionMessage($th);
             }
         }
 
@@ -95,7 +95,7 @@ class UserService {
             $status_message = 'User Deleted';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message];
     }

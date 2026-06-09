@@ -19,9 +19,10 @@ class CustomerAreaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $data['search']['free_text'] = $request->free_text ?? '';
+        $data['search']['status'] = $request->status ?? '';
         [$status_code, $status_message, $response] = (new AreaService())->CustomerAreaList($data['search'], true);
         $data['data'] = $response;
         return view($this->PATH.'.index',$data);
@@ -62,9 +63,11 @@ class CustomerAreaController extends Controller
      */
     public function edit(string $id)
     {
-        [$status_code, $status_message, $data] = (new AreaService())->getCustomerAreaById($id);
-        $data['data'] = $data;
-        return view($this->PATH.'.edit',$data);
+        [$status_code, $status_message, $customerArea] = (new AreaService())->getCustomerAreaById($id);
+
+        return view($this->PATH.'.edit', [
+            'data' => $customerArea,
+        ]);
     }
 
     /**

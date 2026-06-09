@@ -126,6 +126,7 @@ class ProductController extends Controller
                 'id' => $product->id,
                 'name' => $product->name,
                 'purchase_price' => $product->purchase_price ?? 0,
+                'sale_price' => $product->sale_price ?? 0,
                 'image' => $product->image ?? null,
                 'sub_units' => $product->unit->sub_unit ?? [], // Ensure this relationship exists
             ];

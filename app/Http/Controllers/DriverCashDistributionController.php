@@ -138,7 +138,7 @@ class DriverCashDistributionController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->withInput()->with('error', $th->getMessage());
+            return back()->withInput()->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
 
         return redirect()->route('driver_cash_distribution.index')->with('success', 'Amount given entry saved successfully.');
@@ -165,7 +165,7 @@ class DriverCashDistributionController extends Controller
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->with('error', $th->getMessage());
+            return back()->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
 
         return back()->with('success', 'Given amount entry deleted successfully.');

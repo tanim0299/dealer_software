@@ -79,7 +79,7 @@ class EmployeeSalaryWithdrawController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
 
-            return redirect()->back()->withInput()->with('error', $th->getMessage());
+            return redirect()->back()->withInput()->with('error', \App\Services\ApiService::friendlyExceptionMessage($th));
         }
     }
 

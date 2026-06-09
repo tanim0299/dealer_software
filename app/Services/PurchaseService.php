@@ -20,7 +20,7 @@ class PurchaseService {
             $status_message = 'Purchases Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
         return [$status_code, $status_message, $response];
     }
@@ -42,6 +42,8 @@ class PurchaseService {
             $cartItems = json_decode($request->cart_items, true);
             foreach ($cartItems as $item) {
                 $product = (new Product())->find($item['product_id']);
+                $salePrice = (float) ($item['sale_price'] ?? 0);
+                $stockSalePrice = $salePrice > 0 ? $salePrice : (float) ($product->sale_price ?? 0);
                 (new PurchaseEntry())::create([
                     'purchase_ledger_id'    => $purchase->id,
                     'product_id'     => $item['product_id'],
@@ -51,7 +53,7 @@ class PurchaseService {
                     'discount'       => $item['discount'] ?? 0,
                     'total_price'    => $item['total_price'],
                     'final_quantity' => $item['final_quantity'],
-                    'sale_price'     => $item['sale_price'],
+                    'sale_price'     => $stockSalePrice,
                 ]);
 
                 $unitPrice = WareHouseStocks::normalizePurchasePrice($item['unit_price'] ?? 0);
@@ -67,13 +69,13 @@ class PurchaseService {
                         'sales_qty'         => 0,
                         'sales_return_qty'  => 0,
                         'return_qty'        => 0,
-                        'sale_price'        => $item['sale_price'] ?? $product->sale_price ?? 0,
+                        'sale_price'        => $stockSalePrice,
                     ]);
                 }
 
-                if(!empty($item['sale_price']))
+                if($salePrice > 0)
                 {
-                    $product->update(['sale_price' => $item['sale_price']]);
+                    $product->update(['sale_price' => $salePrice]);
                 }
             }
 
@@ -97,7 +99,7 @@ class PurchaseService {
         } catch (\Throwable $th) {
             DB::rollBack();
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
             $response = '';
         }
 
@@ -143,20 +145,22 @@ class PurchaseService {
 
             foreach ($cartItems as $item) {
 
+                $product = Product::find($item['product_id']);
+                $salePrice = (float) ($item['sale_price'] ?? 0);
+                $stockSalePrice = $salePrice > 0 ? $salePrice : (float) ($product->sale_price ?? 0);
+
                 PurchaseEntry::create([
                     'purchase_ledger_id' => $purchase->id,
                     'product_id'         => $item['product_id'],
                     'sub_unit_id'        => $item['sub_unit_id'],
                     'quantity'           => $item['quantity'],
                     'unit_price'         => $item['unit_price'],
-                    'sale_price'         => $item['sale_price'] ?? 0, // ✅
+                    'sale_price'         => $stockSalePrice,
                     'discount'           => $item['discount'] ?? 0,
                     'total_price'        => $item['total_price'],
                     'final_quantity'     => $item['final_quantity'],
                 ]);
 
-
-                $product = Product::find($item['product_id']);
 
                 $unitPrice = WareHouseStocks::normalizePurchasePrice($item['unit_price'] ?? 0);
                 $stock = WareHouseStocks::findMatchingStockRow((int) $item['product_id'], $unitPrice);
@@ -164,8 +168,8 @@ class PurchaseService {
                 if ($stock) {
                     $stock->increment('purchase_qty', $item['final_quantity']);
 
-                    if (!empty($item['sale_price'])) {
-                        $stock->update(['sale_price' => $item['sale_price']]);
+                    if ($salePrice > 0) {
+                        $stock->update(['sale_price' => $salePrice]);
                     }
                 } else {
                     WareHouseStocks::create([
@@ -175,13 +179,13 @@ class PurchaseService {
                         'sales_qty'         => 0,
                         'sales_return_qty'  => 0,
                         'return_qty'        => 0,
-                        'sale_price'        => $item['sale_price'] ?? $product->sale_price ?? 0,
+                        'sale_price'        => $stockSalePrice,
                     ]);
                 }
 
-                if (!empty($item['sale_price'])) {
+                if ($salePrice > 0) {
                     $product->update([
-                        'sale_price' => $item['sale_price']
+                        'sale_price' => $salePrice
                     ]);
                 }
 
@@ -215,7 +219,7 @@ class PurchaseService {
 
             return [
                 ApiService::API_SERVER_ERROR,
-                $th->getMessage(),
+                ApiService::friendlyExceptionMessage($th),
                 null
             ];
         }
@@ -231,7 +235,7 @@ class PurchaseService {
             $status_message = 'Data Found';
         } catch (\Throwable $th) {
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message, $response];
@@ -275,7 +279,7 @@ class PurchaseService {
             DB::rollBack();
 
             $status_code = ApiService::API_SERVER_ERROR;
-            $status_message = $th->getMessage();
+            $status_message = ApiService::friendlyExceptionMessage($th);
         }
 
         return [$status_code, $status_message];
